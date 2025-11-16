@@ -12,4 +12,3 @@ export const iconBoxSx = {
   fontSize: '4rem',
   color: 'primary.main',
 };
-

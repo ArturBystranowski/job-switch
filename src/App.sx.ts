@@ -9,4 +9,3 @@ export const contentSx = {
   maxWidth: '75rem', // 1200px
   padding: '2rem',
 };
-

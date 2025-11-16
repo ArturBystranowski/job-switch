@@ -3,4 +3,3 @@ export interface WelcomeCardProps {
   subtitle?: string;
   description: string;
 }
-

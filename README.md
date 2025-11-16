@@ -1,242 +1,220 @@
-# Frontend App
+# JobSwitch
 
-Nowoczesna aplikacja frontendowa zbudowana z wykorzystaniem najnowszych technologii.
+AI-powered assistant helping people switch into IT by generating the best-matching roles and actionable learning roadmaps.
 
-## 🚀 Stack Technologiczny
+![Project Status](https://img.shields.io/badge/status-MVP%20in%20progress-yellow)
+![Node Version](https://img.shields.io/badge/node-22.x-026e00)
+![License](https://img.shields.io/badge/license-MIT-blue)
 
-- **React 19** - Framework do budowy interaktywnych komponentów i widoków
-- **Vite** - Szybki bundler i dev server; umożliwia szybkie hot reload i build
-- **TypeScript 5** - Statyczne typowanie kodu, lepsza autokompletacja w IDE
-- **Material UI (MUI)** - Biblioteka gotowych komponentów UI, stylowanie, responsywność
+## Table of contents
 
-## 📦 Wymagania
+- [1. Project name](#1-project-name)
+- [2. Project description](#2-project-description)
+- [3. Tech stack](#3-tech-stack)
+- [4. Getting started locally](#4-getting-started-locally)
+- [5. Available scripts](#5-available-scripts)
+- [6. Project scope](#6-project-scope)
+- [7. Project status](#7-project-status)
+- [8. License](#8-license)
 
-- Node.js (wersja 18.x lub wyższa)
-- npm lub yarn
+## 1. Project name
 
-## 🛠️ Instalacja
+**JobSwitch** – AI-assisted career switch companion for people entering the IT industry.
 
-1. Sklonuj repozytorium (lub pobierz kod źródłowy)
-2. Zainstaluj zależności:
+## 2. Project description
+
+JobSwitch is a web application that analyzes a user's CV together with a short preference form and then generates **two IT roles that best match the user**, each with a **concise, structured justification**.  
+After choosing one of the roles, the user receives a **10-step learning roadmap**, where each step can have up to **3 alternative variants**, allowing for different ways of achieving the same outcome.
+
+The main goals of the product are:
+
+- Help career switchers quickly understand **which IT roles are realistic and well-matched** to their background.
+- Provide **clear, practical and finite roadmaps** instead of infinite learning resources.
+- Use **AI-generated content** that is then **manually validated** to ensure quality and consistency.
+
+For a full product definition, user stories and success metrics, see the detailed PRD in `.ai/prd.md`.
+
+## 3. Tech stack
+
+The project is implemented as a modern TypeScript + React application with a backend based on Supabase and Edge Functions.
+
+### 3.1 Frontend
+
+From `.ai/tech-stack.md` and `package.json`:
+
+| Technology            | Role / Usage                                                                                     |
+| --------------------- | ------------------------------------------------------------------------------------------------ |
+| **React 19**          | Building interactive views and components.                                                       |
+| **Vite**              | Dev server and bundler with fast HMR and optimized production builds.                           |
+| **TypeScript 5**      | Static typing for safer, more maintainable frontend code.                                       |
+| **Material UI (MUI)** | Primary UI component library, theming and responsive layout.                                    |
+| **ESLint + Prettier** | Linting and formatting for consistent code style.                                               |
+
+### 3.2 Backend / Data layer
+
+From `.ai/tech-stack.md`:
+
+| Technology                  | Role / Usage                                                                                  |
+| --------------------------- | ---------------------------------------------------------------------------------------------- |
+| **Supabase (PostgreSQL)**   | Primary database for users, profiles, recommendations and roadmap progress.                   |
+| **Supabase Auth**           | Authentication (email + password, JWT-based access).                                          |
+| **Supabase Storage**        | Secure storage of uploaded CV files (PDF/DOCX, max 1 MB).                                     |
+| **Supabase Edge Functions** | Server-side logic for AI orchestration and secure communication with OpenRouter.             |
+
+### 3.3 AI / Recommendation engine
+
+| Technology             | Role / Usage                                                                                   |
+| ---------------------- | ----------------------------------------------------------------------------------------------- |
+| **OpenRouter.ai**      | Access to LLM models used for generating roles, justifications and learning roadmaps.          |
+| **Supabase Functions** | Intermediate layer that validates input, calls OpenRouter and returns normalized responses.    |
+
+### 3.4 CI/CD, hosting and testing
+
+| Technology                  | Role / Usage                                                                              |
+| --------------------------- | ------------------------------------------------------------------------------------------ |
+| **GitHub Actions**          | CI/CD pipelines for build and tests (planned as part of MVP).                             |
+| **DigitalOcean**            | Target hosting platform for the production environment (React app + Edge Functions).      |
+| **Vitest**                  | Unit tests for core logic and components.                                                 |
+| **React Testing Library**   | Testing user interactions and rendering of React components.                              |
+| **1 E2E test (Playwright)** | Minimal end-to-end test for the main user journey (MVP requirement).                      |
+
+For a more visual overview of the architecture, see `.ai/tech-stack.md`.
+
+## 4. Getting started locally
+
+### 4.1 Prerequisites
+
+- **Node.js 22.x** (see `.nvmrc`)
+- **npm** (comes with Node.js)
+
+> Yarn is not required; the project uses npm by default.
+
+### 4.2 Installation
+
+Clone the repository and install dependencies:
 
 ```powershell
+git clone <your-repo-url>
+cd job-switch
 npm install
 ```
 
-lub
+If you use `nvm`, you can align with the project Node version:
 
 ```powershell
-yarn install
+nvm use
 ```
 
-## 🏃 Uruchomienie projektu
+### 4.3 Running the app in development mode
 
-### Tryb deweloperski
+Start the Vite dev server:
 
 ```powershell
 npm run dev
 ```
 
-lub
+By default the application will be available at:
 
-```powershell
-yarn dev
+```text
+http://localhost:3000
 ```
 
-Aplikacja będzie dostępna pod adresem: `http://localhost:3000`
+### 4.4 Production build
 
-### Build produkcyjny
+Create an optimized production build:
 
 ```powershell
 npm run build
 ```
 
-lub
+### 4.5 Previewing the production build
 
-```powershell
-yarn build
-```
-
-### Podgląd build'a produkcyjnego
+Serve and preview the production build locally:
 
 ```powershell
 npm run preview
 ```
 
-lub
+> Note: Supabase and OpenRouter integration and environment variables are part of the backend setup and will be documented once the corresponding features are implemented. For now, the focus of this repository is the frontend MVP.
 
-```powershell
-yarn preview
-```
+## 5. Available scripts
 
-## 📁 Struktura projektu
+All scripts are defined in `package.json`:
 
-```
-frontend-app/
-├── public/                 # Pliki statyczne
-├── src/
-│   ├── assets/            # Zasoby (obrazy, ikony, etc.)
-│   ├── components/        # Komponenty React
-│   │   ├── WelcomeCard.tsx
-│   │   ├── WelcomeCard.sx.ts     # Style komponentu
-│   │   ├── WelcomeCard.types.ts  # Typy TypeScript
-│   │   └── index.ts              # Eksporty
-│   ├── styles/            # Globalne style
-│   │   └── index.css
-│   ├── theme/             # Konfiguracja motywu MUI
-│   │   └── theme.ts
-│   ├── App.tsx            # Główny komponent aplikacji
-│   ├── App.sx.ts          # Style dla App
-│   └── main.tsx           # Punkt wejścia aplikacji
-├── index.html
-├── package.json
-├── tsconfig.json
-├── vite.config.ts
-└── README.md
-```
+- **`npm run dev`** – starts the Vite development server.
+- **`npm run build`** – runs TypeScript project build (`tsc -b`) and then builds the production bundle with Vite.
+- **`npm run preview`** – serves the production build locally for manual testing.
+- **`npm run lint`** – runs ESLint over the project to ensure code quality.
+- **`npm run format`** – formats all supported files in `src/` using Prettier.
+- **`npm run format:check`** – checks formatting without writing changes (useful for CI).
 
-## 🎨 Konwencje projektowe
+## 6. Project scope
 
-### Style komponentów
+The MVP scope is defined in `.ai/prd.md`. Key functional areas include:
 
-- Style komponentów trzymamy w oddzielnych plikach `.sx.ts`
-- Nazewnictwo: `<ComponentName>.sx.ts`
-- Każdy styl eksportujemy jako osobną stałą
+- **User authentication**
+  - Registration and login with email + password.
+  - Secure authentication using hashed passwords and JWT (via Supabase Auth).
 
-```typescript
-// Button.sx.ts
-export const buttonSx = {
-  padding: '1rem',
-  borderRadius: '0.5rem',
-};
-```
+- **User inputs**
+  - Preference form capturing soft skills, working style, contact with clients, teamwork, aesthetics and more.
+  - Single CV upload (`PDF` / `DOCX`, max **1 MB**, one-time only, no re-upload in MVP).
 
-### Typy TypeScript
+- **AI-based recommendations**
+  - Analysis of both **CV** and **form**; form is more important for soft skills.
+  - Generation of **two IT roles** and **structured justifications** (4–6 sentences, consistent template).
+  - Clear UI showing 2 role cards plus explanation that the choice is final in MVP.
 
-- Typy/interfejsy dla komponentów trzymamy w `.types.ts`
-- Nazewnictwo: `<ComponentName>.types.ts`
+- **Role selection and roadmap**
+  - User chooses **one** role (confirmed via a popup, no change possible afterwards).
+  - Rendering of a **10-step roadmap** for the selected role.
+  - Each step has up to **3 variants**, displayed in a tree-like structure with inactive variants visually muted.
 
-```typescript
-// Button.types.ts
-export interface ButtonProps {
-  label: string;
-  onClick: () => void;
-}
-```
+- **Progress tracking**
+  - Marking steps or variants as completed.
+  - Automatic progress calculation (e.g. progress bar).
+  - Persisting user progress on the backend so that it is available after logout/login.
 
-### Jednostki CSS
+- **Error handling & UX**
+  - Clear error messages for CV upload issues (size, format, duplicates).
+  - Human-readable messages for network/AI errors.
 
-- **ZAWSZE** używaj jednostek `rem` zamiast `px`
-- 1rem = 16px (domyślnie)
+### 6.1 In scope (MVP)
 
-### Layout i odstępy
+- No re-analysis of CV after the first upload.
+- No editing or changing the chosen role after confirmation.
+- No analytics dashboard (KPI tracked on backend or external tools).
+- No sharing of roadmaps with other users.
+- No AI-driven updates of the roadmap once generated.
+- No CV editor.
+- No OCR or support for image-based CVs.
 
-- **UNIKAJ** używania `margin`
-- Używaj komponentu `Stack` z właściwością `gap` dla odstępów
+### 6.2 Out of scope (beyond MVP)
 
-```typescript
-<Stack spacing={2}> {/* spacing w jednostkach MUI (1 = 8px) */}
-  <Component1 />
-  <Component2 />
-</Stack>
-```
+- Advanced predictive career models.
+- Dynamic updates to roadmap steps based on user behavior.
+- Integrations with educational platforms.
+- Personalized paths based on detailed activity history.
+- Gamification system (badges, points, leaderboards, etc.).
 
-## 🧩 Material UI (MUI)
+## 7. Project status
 
-Projekt wykorzystuje Material UI jako główną bibliotekę komponentów. 
+The project is currently in **MVP development** phase.
 
-### Dostępne komponenty:
+Planned high-level milestones (non-exhaustive):
 
-- Layout: `Box`, `Container`, `Stack`, `Grid`
-- Inputs: `Button`, `TextField`, `Select`, `Checkbox`, etc.
-- Navigation: `AppBar`, `Drawer`, `Tabs`, `Menu`
-- Display: `Card`, `Typography`, `Divider`, `Chip`
-- Feedback: `Alert`, `Snackbar`, `Dialog`, `Progress`
-- Icons: `@mui/icons-material`
+- [x] Define product requirements and tech stack (`.ai/prd.md`, `.ai/tech-stack.md`).
+- [x] Set up React + TypeScript + Vite + MUI frontend scaffold.
+- [ ] Implement Supabase Auth, DB schema and Storage for CVs.
+- [ ] Implement Supabase Edge Functions for AI integration via OpenRouter.
+- [ ] Implement main user flow: registration → form → CV upload → role recommendations → roadmap.
+- [ ] Add unit tests (Vitest + React Testing Library) and at least one E2E test.
+- [ ] Configure CI/CD (GitHub Actions + DigitalOcean deployment).
 
-### Dokumentacja MUI:
+This checklist is indicative and may evolve as the MVP is refined.
 
-[https://mui.com/material-ui/getting-started/](https://mui.com/material-ui/getting-started/)
+## 8. License
 
-## 📝 Linting
+This project is licensed under the **MIT License**.
 
-Projekt wykorzystuje ESLint z konfiguracją dla TypeScript i React.
-
-```powershell
-npm run lint
-```
-
-## 🔧 Konfiguracja
-
-### Vite (`vite.config.ts`)
-
-- Port deweloperski: 3000
-- Auto-otwieranie przeglądarki
-- Source maps w build'zie produkcyjnym
-
-### TypeScript (`tsconfig.app.json`)
-
-- Strict mode włączony
-- Unused locals i parameters sprawdzane
-- No fallthrough cases
-- Indexed access checking
-
-## 🎯 Dodawanie nowych komponentów
-
-1. Utwórz folder dla komponentu w `src/components/`
-2. Utwórz 3 pliki:
-   - `ComponentName.tsx` - komponent
-   - `ComponentName.sx.ts` - style
-   - `ComponentName.types.ts` - typy/interfejsy
-3. Eksportuj komponent w `src/components/index.ts`
-
-Przykład:
-
-```typescript
-// Button.tsx
-import { Button as MuiButton } from '@mui/material';
-import { buttonSx } from './Button.sx';
-import { ButtonProps } from './Button.types';
-
-export const Button = ({ label, onClick }: ButtonProps) => {
-  return (
-    <MuiButton sx={buttonSx} onClick={onClick}>
-      {label}
-    </MuiButton>
-  );
-};
-
-// Button.sx.ts
-export const buttonSx = {
-  padding: '1rem 2rem',
-  fontSize: '1rem',
-  borderRadius: '0.5rem',
-};
-
-// Button.types.ts
-export interface ButtonProps {
-  label: string;
-  onClick: () => void;
-}
-```
-
-## 📚 Dodatkowe zasoby
-
-- [React Documentation](https://react.dev/)
-- [Vite Documentation](https://vitejs.dev/)
-- [TypeScript Documentation](https://www.typescriptlang.org/docs/)
-- [Material UI Documentation](https://mui.com/)
-
-## 🤝 Współpraca
-
-Przed rozpoczęciem pracy:
-
-1. Zapoznaj się z konwencjami projektowymi
-2. Upewnij się, że linter nie zgłasza błędów
-3. Testuj zmiany w trybie deweloperskim
-4. Sprawdź build produkcyjny przed commitowaniem
-
-## 📄 Licencja
-
-MIT
 

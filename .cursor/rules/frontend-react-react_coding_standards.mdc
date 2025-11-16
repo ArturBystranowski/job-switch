@@ -1,0 +1,22 @@
+---
+alwaysApply: true
+---
+
+## FRONTEND
+
+### Guidelines for REACT
+
+#### REACT_CODING_STANDARDS
+
+- Use functional components with hooks instead of class components
+- Prefer simple, declarative component code based on props and local state
+- Treat props and state as immutable values (avoid in-place mutation of objects and arrays)
+- Avoid using React.memo(), useCallback, and useMemo by default – rely on React Compiler optimizations instead
+- Use React.memo(), useCallback, or useMemo only for well-documented performance issues or when integrating with components that are not using React Compiler
+- Utilize React.lazy() and Suspense for code-splitting and performance optimization
+- Avoid side effects during render; use useEffect/useLayoutEffect for side effects and subscriptions
+- Implement useId() for generating unique IDs for accessibility attributes
+- Use the new use hook for data fetching in React 19+ projects
+- Leverage Server Components for {{data_fetching_heavy_components}} when using React with Next.js or similar frameworks
+- Consider using the new useOptimistic hook for optimistic UI updates in forms
+- Use useTransition for non-urgent state updates to keep the UI responsive

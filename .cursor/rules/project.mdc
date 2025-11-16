@@ -1,0 +1,14 @@
+---
+alwaysApply: true
+---
+
+# AI Rules for job-switch
+
+1. Do not add tests unless I explicitly ask you to.
+2. Do not create or modify documentation unless I explicitly ask you to.
+3. Do not create additional files with examples of function usage, etc.
+4. Do not run the test command after each response.
+5. Do not try the build command after each response.
+6. Check for current linter errors and fix them automatically.
+7. For terminal operations, use PowerShell commands.
+8. Write code in a way that doesn't require too many comments and explanations; use them only to describe complex functions and non-obvious scenarios.

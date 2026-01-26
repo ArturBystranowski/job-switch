@@ -50,5 +50,6 @@ create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function public.handle_new_user();
 
-comment on trigger on_auth_user_created on auth.users is 'Automatically creates profile record for newly registered users';
+-- Note: Cannot add comment on trigger for auth.users (permission denied)
+-- Trigger automatically creates profile record for newly registered users
 

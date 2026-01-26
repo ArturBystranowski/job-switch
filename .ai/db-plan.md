@@ -596,3 +596,4 @@ Schemat bazy danych JobSwitch MVP to:
 
 Schemat jest gotowy do implementacji jako migration SQL dla Supabase.
 
+

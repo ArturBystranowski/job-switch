@@ -35,19 +35,30 @@ interface AIRecommendation {
 }
 
 interface LLMResponse {
-  role_id: number;
-  role_name: string;
-  justification: string;
+  recommendations: Array<{
+    role_id: number;
+    role_name: string;
+    justification: string;
+  }>;
 }
 
 // OpenRouter configuration - using free models for development
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
-// Free models from OpenRouter free collection - limit ~50 requests/day
-const MODELS = [
+
+// Free text models - limit ~50 requests/day
+const TEXT_MODELS = [
+  'meta-llama/llama-3.3-70b-instruct:free',
+  'google/gemma-3-27b-it:free',
+  'deepseek/deepseek-r1-0528:free',
+  'tngtech/deepseek-r1t2-chimera:free',
   'google/gemini-2.0-flash-exp:free',
-  'mistralai/devstral-small-2505:free',
-  'deepseek/deepseek-chat-v3-0324:free',
-  'meta-llama/llama-4-scout:free',
+];
+
+// Free vision models for PDF/image processing (support multimodal input)
+const VISION_MODELS = [
+  'google/gemini-2.0-flash-exp:free',
+  'qwen/qwen-2.5-vl-7b-instruct:free',
+  'meta-llama/llama-4-maverick:free',
 ];
 
 Deno.serve(async (req) => {
@@ -174,7 +185,7 @@ Deno.serve(async (req) => {
       throw new Error(`Failed to fetch roles: ${rolesError.message}`);
     }
 
-    // 4. Try to fetch CV text (optional)
+    // 4. Try to fetch and extract CV text using vision model (optional)
     let cvText = '';
     if (profile.cv_uploaded_at) {
       try {
@@ -184,13 +195,22 @@ Deno.serve(async (req) => {
           .download(cvPath);
 
         if (!cvError && cvData) {
-          // For PDF text extraction, we'll use a simple approach
-          // In production, you might want to use a PDF parsing library
           const arrayBuffer = await cvData.arrayBuffer();
-          cvText = await extractTextFromPDF(arrayBuffer);
+          
+          // Try vision model extraction first (handles scanned PDFs and images)
+          cvText = await extractTextFromPDFWithVision(openrouterApiKey, arrayBuffer);
+          
+          // Fallback to basic extraction if vision failed
+          if (!cvText || cvText.length < 50) {
+            console.log('Vision extraction returned little text, trying basic extraction...');
+            const basicText = extractTextFromPDFBasic(arrayBuffer);
+            if (basicText.length > cvText.length) {
+              cvText = basicText;
+            }
+          }
         }
       } catch (e) {
-        console.warn('Failed to fetch CV, proceeding without it:', e);
+        console.warn('Failed to fetch/extract CV, proceeding without it:', e);
       }
     }
 
@@ -206,11 +226,11 @@ Deno.serve(async (req) => {
     const llmResponse = await callOpenRouter(openrouterApiKey, prompt);
 
     // 7. Parse and validate LLM response
-    const recommendation = parseLLMResponse(llmResponse, roles as Role[]);
+    const recommendations = parseLLMResponse(llmResponse, roles as Role[]);
 
-    // 8. Save recommendation to profile
+    // 8. Save recommendations to profile
     const aiRecommendations = {
-      recommendations: [recommendation],
+      recommendations,
       generated_at: new Date().toISOString(),
     };
 
@@ -278,14 +298,15 @@ function buildPrompt(
   return `Jesteś ekspertem kariery IT pomagającym osobom BEZ doświadczenia w IT wybrać pierwszą rolę zawodową.
 
 TWOJE ZADANIE:
-Na podstawie odpowiedzi z ankiety i CV (jeśli dostępne) przypisz kandydatowi JEDNĄ najbardziej pasującą rolę z listy poniżej.
+Na podstawie odpowiedzi z ankiety i CV (jeśli dostępne) przypisz kandydatowi DWIE najbardziej pasujące role z listy poniżej. Pierwsza rola powinna być najlepszym dopasowaniem, druga - alternatywą.
 
 WAŻNE WSKAZÓWKI:
 - Kandydat NIE ma doświadczenia w IT - dopasowuj rolę na podstawie preferencji i osobowości
 - W uzasadnieniu MUSISZ odnieść się do konkretnych odpowiedzi z ankiety
 - Jeśli CV jest dostępne, wykorzystaj hobby/zainteresowania jako dodatkowe wskazówki
-- Wyjaśnij dlaczego ta rola pasuje do osobowości i preferencji kandydata
+- Wyjaśnij dlaczego każda rola pasuje do osobowości i preferencji kandydata
 - Odnieś się do opisu roli i wyjaśnij czym się zajmuje
+- Obie role muszą być RÓŻNE
 
 DOSTĘPNE ROLE:
 ${rolesSection}
@@ -304,9 +325,18 @@ ${cvSection}
 INSTRUKCJE ODPOWIEDZI:
 Odpowiedz WYŁĄCZNIE w formacie JSON (bez markdown, bez komentarzy):
 {
-  "role_id": <numer ID roli>,
-  "role_name": "<pełna nazwa roli>",
-  "justification": "<3-5 zdań uzasadnienia: 1) dlaczego ta rola pasuje do preferencji kandydata, 2) odniesienie do konkretnych odpowiedzi z ankiety, 3) jeśli CV dostępne - odniesienie do hobby/zainteresowań>"
+  "recommendations": [
+    {
+      "role_id": <numer ID pierwszej roli>,
+      "role_name": "<pełna nazwa pierwszej roli>",
+      "justification": "<3-5 zdań uzasadnienia>"
+    },
+    {
+      "role_id": <numer ID drugiej roli>,
+      "role_name": "<pełna nazwa drugiej roli>",
+      "justification": "<3-5 zdań uzasadnienia>"
+    }
+  ]
 }`;
 }
 
@@ -316,7 +346,7 @@ Odpowiedz WYŁĄCZNIE w formacie JSON (bez markdown, bez komentarzy):
 async function callOpenRouter(apiKey: string, prompt: string): Promise<string> {
   let lastError: Error | null = null;
 
-  for (const model of MODELS) {
+  for (const model of TEXT_MODELS) {
     try {
       console.log(`Trying model: ${model}`);
       const response = await fetch(OPENROUTER_API_URL, {
@@ -373,9 +403,9 @@ async function callOpenRouter(apiKey: string, prompt: string): Promise<string> {
 }
 
 /**
- * Parse and validate LLM response
+ * Parse and validate LLM response - expects array of 2 recommendations
  */
-function parseLLMResponse(response: string, roles: Role[]): AIRecommendation {
+function parseLLMResponse(response: string, roles: Role[]): AIRecommendation[] {
   // Clean the response - remove markdown code blocks if present
   let cleanResponse = response.trim();
   if (cleanResponse.startsWith('```json')) {
@@ -397,47 +427,162 @@ function parseLLMResponse(response: string, roles: Role[]): AIRecommendation {
     throw new Error('Invalid JSON response from AI model');
   }
 
-  // Validate role_id
-  const validRole = roles.find(r => r.id === parsed.role_id);
-  if (!validRole) {
-    // Try to find by name as fallback
-    const roleByName = roles.find(r => 
-      r.name.toLowerCase() === parsed.role_name?.toLowerCase()
-    );
-    if (roleByName) {
-      parsed.role_id = roleByName.id;
-      parsed.role_name = roleByName.name;
-    } else {
-      throw new Error(`Invalid role_id: ${parsed.role_id}`);
+  // Validate we have recommendations array
+  if (!parsed.recommendations || !Array.isArray(parsed.recommendations)) {
+    throw new Error('Invalid response format: missing recommendations array');
+  }
+
+  if (parsed.recommendations.length < 2) {
+    throw new Error('Expected 2 recommendations, got ' + parsed.recommendations.length);
+  }
+
+  const validatedRecommendations: AIRecommendation[] = [];
+  const usedRoleIds = new Set<number>();
+
+  for (const rec of parsed.recommendations.slice(0, 2)) {
+    // Validate role_id
+    let validRole = roles.find(r => r.id === rec.role_id);
+    
+    if (!validRole) {
+      // Try to find by name as fallback
+      const roleByName = roles.find(r => 
+        r.name.toLowerCase() === rec.role_name?.toLowerCase()
+      );
+      if (roleByName) {
+        validRole = roleByName;
+      } else {
+        throw new Error(`Invalid role_id: ${rec.role_id}`);
+      }
     }
-  } else {
-    // Ensure role_name matches
-    parsed.role_name = validRole.name;
+
+    // Ensure unique roles
+    if (usedRoleIds.has(validRole.id)) {
+      console.warn(`Duplicate role_id ${validRole.id}, skipping...`);
+      continue;
+    }
+    usedRoleIds.add(validRole.id);
+
+    // Validate justification
+    if (!rec.justification || rec.justification.length < 30) {
+      throw new Error('Justification is too short or missing');
+    }
+
+    validatedRecommendations.push({
+      role_id: validRole.id,
+      role_name: validRole.name,
+      justification: rec.justification,
+    });
   }
 
-  // Validate justification
-  if (!parsed.justification || parsed.justification.length < 50) {
-    throw new Error('Justification is too short or missing');
+  if (validatedRecommendations.length < 2) {
+    throw new Error('Could not validate 2 unique recommendations');
   }
 
-  return {
-    role_id: parsed.role_id,
-    role_name: parsed.role_name,
-    justification: parsed.justification,
-  };
+  return validatedRecommendations;
 }
 
 /**
- * Extract text from PDF (basic implementation)
- * For production, consider using a proper PDF parsing library
+ * Extract text from PDF using vision model (handles scanned PDFs and images)
+ * Uses OpenRouter's PDF support with free vision models
  */
-async function extractTextFromPDF(arrayBuffer: ArrayBuffer): Promise<string> {
-  // Basic text extraction - looks for text streams in PDF
-  // This is a simplified approach and may not work for all PDFs
+async function extractTextFromPDFWithVision(apiKey: string, arrayBuffer: ArrayBuffer): Promise<string> {
+  const base64PDF = arrayBufferToBase64(arrayBuffer);
+  const pdfDataUrl = `data:application/pdf;base64,${base64PDF}`;
+
+  const extractionPrompt = `Wyciągnij CAŁY tekst z tego CV/dokumentu PDF. 
+Zwróć tylko sam tekst, bez żadnych komentarzy ani formatowania markdown.
+Zachowaj strukturę (sekcje, listy) używając zwykłego tekstu i nowych linii.
+Jeśli dokument zawiera obrazy lub skany, użyj OCR do odczytania tekstu.`;
+
+  let lastError: Error | null = null;
+
+  for (const model of VISION_MODELS) {
+    try {
+      console.log(`Trying vision model for PDF extraction: ${model}`);
+      
+      const response = await fetch(OPENROUTER_API_URL, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+          'HTTP-Referer': 'https://job-switch.app',
+          'X-Title': 'JobSwitch CV Extractor',
+        },
+        body: JSON.stringify({
+          model: model,
+          messages: [
+            {
+              role: 'user',
+              content: [
+                { type: 'text', text: extractionPrompt },
+                { type: 'image_url', image_url: { url: pdfDataUrl } },
+              ],
+            },
+          ],
+          // Use native PDF processing for models that support it
+          plugins: [
+            {
+              id: 'file-parser',
+              pdf: { engine: 'native' },
+            },
+          ],
+          temperature: 0.1,
+          max_tokens: 4000,
+        }),
+      });
+
+      if (!response.ok) {
+        const statusCode = response.status;
+        if (statusCode === 429 || statusCode === 404 || statusCode === 400) {
+          console.warn(`Vision model ${model} unavailable (${statusCode}), trying next...`);
+          lastError = new Error(`${model} unavailable: ${statusCode}`);
+          continue;
+        }
+        const errorText = await response.text();
+        throw new Error(`OpenRouter API error: ${statusCode} - ${errorText}`);
+      }
+
+      const data = await response.json();
+      
+      if (!data.choices || data.choices.length === 0) {
+        throw new Error('No response from vision model');
+      }
+
+      const extractedText = data.choices[0].message.content?.trim() ?? '';
+      console.log(`Successfully extracted ${extractedText.length} chars using ${model}`);
+      
+      // Return up to 4000 chars of extracted text
+      return extractedText.substring(0, 4000);
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error(String(error));
+      console.warn(`Vision model ${model} failed:`, lastError.message);
+    }
+  }
+
+  console.warn('All vision models failed for PDF extraction:', lastError?.message);
+  return '';
+}
+
+/**
+ * Convert ArrayBuffer to base64 string
+ */
+function arrayBufferToBase64(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer);
+  let binary = '';
+  for (let i = 0; i < bytes.byteLength; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary);
+}
+
+/**
+ * Extract text from PDF using basic regex (fallback method)
+ * Works only for simple text-based PDFs, not scanned documents
+ */
+function extractTextFromPDFBasic(arrayBuffer: ArrayBuffer): string {
   const bytes = new Uint8Array(arrayBuffer);
   const text = new TextDecoder('utf-8', { fatal: false }).decode(bytes);
   
-  // Try to extract readable text from the PDF
   const textMatches: string[] = [];
   
   // Look for text between parentheses (common in PDF text objects)
@@ -469,7 +614,5 @@ async function extractTextFromPDF(arrayBuffer: ArrayBuffer): Promise<string> {
     }
   }
 
-  const result = [...new Set(textMatches)].join(' ').substring(0, 3000);
-  
-  return result || 'Nie udało się wyekstrahować tekstu z CV.';
+  return [...new Set(textMatches)].join(' ').substring(0, 3000);
 }

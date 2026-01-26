@@ -53,3 +53,22 @@ export type {
   SelectedRoleCardProps,
   ProgressSummaryProps,
 } from './profile';
+
+// Roadmap components
+export {
+  RoadmapProgressHeader,
+  RoadmapNode,
+  VariantBranch,
+  RoadmapTree,
+  VariantDetailsPanel,
+  VariantDetailsSheet,
+} from './roadmap';
+export type {
+  RoadmapProgressHeaderProps,
+  RoadmapNodeProps,
+  NodeStatus,
+  VariantBranchProps,
+  RoadmapTreeProps,
+  VariantDetailsPanelProps,
+  VariantDetailsSheetProps,
+} from './roadmap';

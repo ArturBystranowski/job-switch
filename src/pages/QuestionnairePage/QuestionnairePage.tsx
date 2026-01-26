@@ -1,8 +1,8 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { Box, Container } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useQuestionnaireConfig } from '../../hooks/useQuestionnaire';
-import { useUpdateQuestionnaire } from '../../hooks/useProfile';
+import { useUpdateQuestionnaire, useProfileById } from '../../hooks/useProfile';
 import { useDevUser } from '../../context';
 import { QuestionnaireStepper, QuestionCard } from '../../components/questionnaire';
 import { LoadingSpinner, ErrorAlert } from '../../components/common';
@@ -23,8 +23,18 @@ export const QuestionnairePage = () => {
   const [activeStep, setActiveStep] = useState(0);
   const [responses, setResponses] = useState<Partial<QuestionnaireResponsesDTO>>({});
 
-  const { data: config, isPending, isError, error, refetch } = useQuestionnaireConfig();
+  const { data: config, isPending: isConfigPending, isError, error, refetch } = useQuestionnaireConfig();
+  const { data: profile, isPending: isProfilePending } = useProfileById(userId);
   const updateQuestionnaire = useUpdateQuestionnaire();
+
+  // Initialize responses from saved profile data
+  useEffect(() => {
+    if (profile?.questionnaire_responses && Object.keys(profile.questionnaire_responses).length > 0) {
+      setResponses(profile.questionnaire_responses as Partial<QuestionnaireResponsesDTO>);
+    }
+  }, [profile]);
+
+  const isPending = isConfigPending || isProfilePending;
 
   const currentQuestion = useMemo(() => {
     return config?.[activeStep];

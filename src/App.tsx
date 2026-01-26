@@ -5,6 +5,7 @@ import {
   QuestionnairePage,
   UploadCVPage,
   RecommendationsPage,
+  RoadmapPage,
   ProfilePage,
 } from './pages';
 
@@ -24,6 +25,10 @@ const router = createBrowserRouter([
   {
     path: '/recommendations',
     element: <RecommendationsPage />,
+  },
+  {
+    path: '/roadmap',
+    element: <RoadmapPage />,
   },
   {
     path: '/profile',

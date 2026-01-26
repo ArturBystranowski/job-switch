@@ -35,18 +35,32 @@ export const recommendationApi = {
       {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${supabaseAnonKey}`,
+          apikey: supabaseAnonKey,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ user_id: userId }),
       }
     );
 
-    const data = await response.json();
+    const responseText = await response.text();
+    let data: unknown = null;
+    if (responseText) {
+      try {
+        data = JSON.parse(responseText);
+      } catch {
+        data = null;
+      }
+    }
 
     if (!response.ok) {
-      const errorData = data as RecommendationError;
-      throw new Error(`${errorData.error}: ${errorData.message}`);
+      const errorData = data as RecommendationError | null;
+      if (errorData?.error && errorData?.message) {
+        throw new Error(`${errorData.error}: ${errorData.message}`);
+      }
+      const fallbackMessage = responseText
+        ? responseText
+        : `Request failed (${response.status})`;
+      throw new Error(fallbackMessage);
     }
 
     return data as GenerateRecommendationResponse;

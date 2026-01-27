@@ -44,11 +44,57 @@ interface AIRecommendation {
 }
 
 interface LLMResponse {
-  recommendations: Array<{
-    role_id: number;
-    role_name: string;
-    justification: string;
-  }>;
+  recommendations: AIRecommendation[];
+}
+
+// API Request/Response types
+interface GenerateRecommendationRequest {
+  user_id?: string;
+}
+
+interface GenerateRecommendationResponse {
+  success: true;
+  recommendations: AIRecommendation[];
+  generated_at: string;
+}
+
+type ErrorCode = 'AUTH_ERROR' | 'QUESTIONNAIRE_INCOMPLETE' | 'RECOMMENDATIONS_EXIST' | 'INTERNAL_ERROR';
+
+interface ErrorResponse {
+  error: ErrorCode;
+  message: string;
+  missing_fields?: string[];
+}
+
+function createErrorResponse(
+  error: ErrorCode,
+  message: string,
+  status: number,
+  missingFields?: string[]
+): Response {
+  const body: ErrorResponse = { error, message };
+  if (missingFields) {
+    body.missing_fields = missingFields;
+  }
+  return new Response(
+    JSON.stringify(body),
+    { status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+  );
+}
+
+function createSuccessResponse(
+  recommendations: AIRecommendation[],
+  generatedAt: string
+): Response {
+  const body: GenerateRecommendationResponse = {
+    success: true,
+    recommendations,
+    generated_at: generatedAt,
+  };
+  return new Response(
+    JSON.stringify(body),
+    { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+  );
 }
 
 // OpenRouter configuration - using free models for development
@@ -98,11 +144,11 @@ Deno.serve(async (req) => {
     let userId: string;
 
     // Try to parse request body for user_id (MVP mode without auth)
-    let requestBody: { user_id?: string } = {};
+    let requestBody: GenerateRecommendationRequest = {};
     try {
       const bodyText = await req.text();
       if (bodyText) {
-        requestBody = JSON.parse(bodyText);
+        requestBody = JSON.parse(bodyText) as GenerateRecommendationRequest;
       }
     } catch {
       // Body parsing failed, continue with auth header check
@@ -115,10 +161,7 @@ Deno.serve(async (req) => {
       // Production mode: get user from JWT
       const authHeader = req.headers.get('Authorization');
       if (!authHeader) {
-        return new Response(
-          JSON.stringify({ error: 'AUTH_ERROR', message: 'Missing Authorization header or user_id' }),
-          { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
+        return createErrorResponse('AUTH_ERROR', 'Missing Authorization header or user_id', 401);
       }
 
       // Create Supabase client with user's JWT for RLS
@@ -129,10 +172,7 @@ Deno.serve(async (req) => {
       // Get user from JWT
       const { data: { user }, error: userError } = await supabaseUser.auth.getUser();
       if (userError || !user) {
-        return new Response(
-          JSON.stringify({ error: 'AUTH_ERROR', message: 'Invalid or expired token' }),
-          { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
+        return createErrorResponse('AUTH_ERROR', 'Invalid or expired token', 401);
       }
 
       userId = user.id;
@@ -151,12 +191,10 @@ Deno.serve(async (req) => {
 
     // Check if recommendations already exist
     if (profile.ai_recommendations) {
-      return new Response(
-        JSON.stringify({ 
-          error: 'RECOMMENDATIONS_EXIST',
-          message: 'AI recommendations have already been generated for this user' 
-        }),
-        { status: 409, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      return createErrorResponse(
+        'RECOMMENDATIONS_EXIST',
+        'AI recommendations have already been generated for this user',
+        409
       );
     }
 
@@ -180,13 +218,11 @@ Deno.serve(async (req) => {
     const missingFields = requiredFields.filter(field => !questionnaireResponses?.[field]);
     
     if (missingFields.length > 0) {
-      return new Response(
-        JSON.stringify({ 
-          error: 'QUESTIONNAIRE_INCOMPLETE',
-          message: 'Questionnaire is not complete',
-          missing_fields: missingFields
-        }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      return createErrorResponse(
+        'QUESTIONNAIRE_INCOMPLETE',
+        'Questionnaire is not complete',
+        400,
+        missingFields
       );
     }
 
@@ -270,23 +306,14 @@ Deno.serve(async (req) => {
     }
 
     // 9. Return result
-    return new Response(
-      JSON.stringify({
-        success: true,
-        recommendations: aiRecommendations.recommendations,
-        generated_at: aiRecommendations.generated_at,
-      }),
-      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return createSuccessResponse(aiRecommendations.recommendations, aiRecommendations.generated_at);
 
   } catch (error) {
     console.error('Error in generate-recommendation:', error);
-    return new Response(
-      JSON.stringify({ 
-        error: 'INTERNAL_ERROR',
-        message: error instanceof Error ? error.message : 'Unknown error occurred'
-      }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    return createErrorResponse(
+      'INTERNAL_ERROR',
+      error instanceof Error ? error.message : 'Unknown error occurred',
+      500
     );
   }
 });
@@ -326,6 +353,21 @@ function buildPrompt(
     ? `CV KANDYDATA (hobby, zainteresowania, dotychczasowe doświadczenie):\n${cvText}`
     : 'CV: Nie przesłano CV.';
 
+  // Determine if CV was uploaded
+  const hasCv = cvText.length > 0;
+  
+  // Build CV requirement instruction
+  const cvRequirement = hasCv 
+    ? `
+OBOWIĄZKOWE ODNIESIENIE DO CV:
+Ponieważ kandydat załączył CV, KAŻDE uzasadnienie MUSI zawierać przynajmniej jedno zdanie odnoszące się do treści CV. 
+Może to być:
+- Pozytywne ("Twoje doświadczenie w X świetnie się przełoży na...")
+- Neutralne ("Choć pracowałeś dotąd w Y, to...")  
+- Krytyczne, ale szczere ("Do tej pory nie miałeś styczności z branżą IT, więc znalezienie pierwszej pracy może być wyzwaniem - ale...")
+Bądź szczery i pomocny - nie unikaj trudnych prawd, jeśli CV nie wspiera danej roli.`
+    : '';
+
   return `Jesteś ekspertem kariery IT pomagającym osobom BEZ doświadczenia w IT wybrać pierwszą rolę zawodową.
 
 TWOJE ZADANIE:
@@ -338,8 +380,8 @@ WAŻNE WSKAZÓWKI:
 - NIE cytuj pytań ani odpowiedzi dosłownie - zamiast tego opisz preferencje użytkownika swoimi słowami
 - Odnieś się do tego, na czym polega dana rola i dlaczego pasuje do osobowości użytkownika
 - Jeśli kandydat dodał dodatkowe informacje - weź je pod uwagę przy rekomendacji
-- Jeśli jest CV - wykorzystaj hobby/zainteresowania jako dodatkowe wskazówki
 - Obie role muszą być RÓŻNE
+${cvRequirement}
 
 STYL UZASADNIENIA:
 ❌ ŹLE: "Kandydat wybrał odpowiedź 'minimum – wolę skupić się na kodzie' w pytaniu o kontakt z klientem"
@@ -347,6 +389,9 @@ STYL UZASADNIENIA:
 
 ❌ ŹLE: "Praca samodzielna została wybrana jako preferowany styl"  
 ✅ DOBRZE: "Lubisz działać w swoim tempie i na własnych zasadach - jako frontendowiec masz sporo autonomii"
+
+${hasCv ? `❌ ŹLE (brak odniesienia do CV): "Ta rola pasuje do Twoich preferencji"
+✅ DOBRZE (z odniesieniem do CV): "Choć do tej pory pracowałeś w zupełnie innej branży, Twoje umiejętności organizacyjne widoczne w CV mogą się przydać..."` : ''}
 
 DOSTĘPNE ROLE (6):
 ${rolesSection}
@@ -466,7 +511,7 @@ function parseLLMResponse(response: string, roles: Role[]): AIRecommendation[] {
   let parsed: LLMResponse;
   try {
     parsed = JSON.parse(cleanResponse);
-  } catch (e) {
+  } catch {
     console.error('Failed to parse LLM response:', cleanResponse);
     throw new Error('Invalid JSON response from AI model');
   }

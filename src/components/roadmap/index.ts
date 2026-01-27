@@ -15,3 +15,6 @@ export type { TaskDetailsPanelProps } from './TaskDetailsPanel';
 
 export { TaskDetailsSheet } from './TaskDetailsSheet';
 export type { TaskDetailsSheetProps } from './TaskDetailsSheet';
+
+export { StepTasksDrawer } from './StepTasksDrawer';
+export type { StepTasksDrawerProps } from './StepTasksDrawer';

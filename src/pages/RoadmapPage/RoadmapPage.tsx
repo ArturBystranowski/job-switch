@@ -1,8 +1,7 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import {
   Box,
   Typography,
-  Button,
   useMediaQuery,
   useTheme,
   Accordion,
@@ -25,7 +24,7 @@ import {
   RoadmapProgressHeader,
   RoadmapTree,
   TaskDetailsPanel,
-  TaskDetailsSheet,
+  StepTasksDrawer,
 } from '../../components/roadmap';
 import type { StepTaskDTO, RoadmapStepWithTasksDTO } from '../../types';
 import {
@@ -54,13 +53,13 @@ import {
 
 export const RoadmapPage = () => {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('lg'));
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const navigate = useNavigate();
   const { userId } = useDevUser();
 
   const [selectedStepId, setSelectedStepId] = useState<number | null>(null);
   const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null);
-  const [isMobileSheetOpen, setIsMobileSheetOpen] = useState(false);
+  const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
 
   const { data: profile, isPending: isProfilePending, isError: isProfileError } = useProfile();
   const roleId = profile?.selected_role_id ?? 0;
@@ -100,24 +99,32 @@ export const RoadmapPage = () => {
     }).length;
   }, [roadmapSteps, completedTaskIds]);
 
-  const handleStepSelect = useCallback((stepId: number) => {
-    setSelectedStepId(stepId);
-    setSelectedTaskId(null);
-  }, []);
-
-  const handleTaskSelect = useCallback(
-    (taskId: number) => {
-      setSelectedTaskId(taskId);
+  const handleStepSelect = useCallback(
+    (stepId: number) => {
+      setSelectedStepId(stepId);
+      setSelectedTaskId(null);
       if (isMobile) {
-        setIsMobileSheetOpen(true);
+        setIsMobileDrawerOpen(true);
       }
     },
     [isMobile]
   );
 
-  const handleMobileSheetClose = useCallback(() => {
-    setIsMobileSheetOpen(false);
+  const handleMobileDrawerClose = useCallback(() => {
+    setIsMobileDrawerOpen(false);
   }, []);
+
+  const handleDrawerToggleTask = useCallback(
+    async (taskId: number, isCompleted: boolean) => {
+      await toggleTaskCompleted.mutateAsync({
+        userId,
+        stepTaskId: taskId,
+        isCompleted,
+      });
+      refetchProgress();
+    },
+    [toggleTaskCompleted, userId, refetchProgress]
+  );
 
   const handleMarkComplete = useCallback(async () => {
     if (!selectedTaskId) return;
@@ -136,6 +143,12 @@ export const RoadmapPage = () => {
   const isPending = isProfilePending || isRoadmapPending || isProgressPending;
   const isError = isProfileError || isRoadmapError;
 
+  useEffect(() => {
+    if (!isProfilePending && !profile?.selected_role_id) {
+      navigate('/questionnaire', { replace: true });
+    }
+  }, [isProfilePending, profile?.selected_role_id, navigate]);
+
   if (isPending) {
     return (
       <Box sx={pageContainerSx}>
@@ -147,16 +160,7 @@ export const RoadmapPage = () => {
   if (!profile?.selected_role_id) {
     return (
       <Box sx={pageContainerSx}>
-        <Box sx={emptyStateContainerSx}>
-          <MapIcon sx={{ fontSize: '4rem', color: 'grey.400', mb: 2 }} />
-          <Typography sx={emptyStateTitleSx}>Nie wybrano jeszcze roli</Typography>
-          <Typography sx={emptyStateDescriptionSx}>
-            Aby zobaczyć roadmapę, najpierw wybierz swoją rolę w IT
-          </Typography>
-          <Button variant="contained" onClick={() => navigate('/recommendations')}>
-            Wybierz rolę
-          </Button>
-        </Box>
+        <LoadingSpinner message="Przekierowywanie..." fullScreen />
       </Box>
     );
   }
@@ -214,114 +218,122 @@ export const RoadmapPage = () => {
             onStepSelect={handleStepSelect}
           />
         </Box>
-        <Box sx={detailsPanelContainerSx}>
-          {selectedStep && !selectedTaskId ? (
-            <Box sx={tasksPanelContainerSx}>
-              <Box sx={tasksPanelHeaderSx}>
-                <Typography sx={tasksPanelTitleSx}>{selectedStep.title}</Typography>
-                <Typography sx={tasksPanelSubtitleSx}>
-                  {selectedStep.description}
-                </Typography>
-              </Box>
-              <Box sx={tasksListSx}>
-                {selectedStep.step_tasks.map((task) => {
-                  const isCompleted = completedTaskIds.includes(task.id);
-                  return (
-                    <Accordion
-                      key={task.id}
-                      sx={getTaskAccordionSx(isCompleted)}
-                      disableGutters
-                      elevation={0}
-                    >
-                      <AccordionSummary
-                        sx={taskAccordionSummarySx}
-                        expandIcon={null}
+
+        {!isMobile && (
+          <Box sx={detailsPanelContainerSx}>
+            {selectedStep && !selectedTaskId ? (
+              <Box sx={tasksPanelContainerSx}>
+                <Box sx={tasksPanelHeaderSx}>
+                  <Typography sx={tasksPanelTitleSx}>{selectedStep.title}</Typography>
+                  <Typography sx={tasksPanelSubtitleSx}>
+                    {selectedStep.description}
+                  </Typography>
+                </Box>
+                <Box sx={tasksListSx}>
+                  {selectedStep.step_tasks.map((task) => {
+                    const isCompleted = completedTaskIds.includes(task.id);
+                    return (
+                      <Accordion
+                        key={task.id}
+                        sx={getTaskAccordionSx(isCompleted)}
+                        disableGutters
+                        elevation={0}
                       >
-                        <Box sx={taskAccordionSummaryContentSx}>
-                          <Stack direction="row" alignItems="center" spacing={1} flex={1}>
-                            <Box
-                              component="span"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                toggleTaskCompleted.mutateAsync({
-                                  userId,
-                                  stepTaskId: task.id,
-                                  isCompleted,
-                                }).then(() => refetchProgress());
-                              }}
-                              sx={{
-                                width: '1.125rem',
-                                height: '1.125rem',
-                                borderRadius: '0.25rem',
-                                border: '2px solid',
-                                borderColor: isCompleted ? '#0D9488' : 'grey.400',
-                                backgroundColor: isCompleted ? '#0D9488' : 'transparent',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                cursor: 'pointer',
-                                flexShrink: 0,
-                                transition: 'all 0.15s ease',
-                                '&:hover': {
-                                  borderColor: '#0D9488',
-                                },
-                              }}
-                            >
-                              {isCompleted && (
-                                <CheckIcon sx={{ color: 'white', fontSize: '0.875rem' }} />
+                        <AccordionSummary sx={taskAccordionSummarySx} expandIcon={null}>
+                          <Box sx={taskAccordionSummaryContentSx}>
+                            <Stack direction="row" alignItems="center" spacing={1} flex={1}>
+                              <Box
+                                component="span"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  toggleTaskCompleted
+                                    .mutateAsync({
+                                      userId,
+                                      stepTaskId: task.id,
+                                      isCompleted,
+                                    })
+                                    .then(() => refetchProgress());
+                                }}
+                                sx={{
+                                  width: '1.125rem',
+                                  height: '1.125rem',
+                                  borderRadius: '0.25rem',
+                                  border: '2px solid',
+                                  borderColor: isCompleted ? '#0D9488' : 'grey.400',
+                                  backgroundColor: isCompleted ? '#0D9488' : 'transparent',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  cursor: 'pointer',
+                                  flexShrink: 0,
+                                  transition: 'all 0.15s ease',
+                                  '&:hover': {
+                                    borderColor: '#0D9488',
+                                  },
+                                }}
+                              >
+                                {isCompleted && (
+                                  <CheckIcon sx={{ color: 'white', fontSize: '0.875rem' }} />
+                                )}
+                              </Box>
+                              <Typography sx={taskTitleSx}>{task.title}</Typography>
+                            </Stack>
+                            <Stack direction="row" alignItems="center" spacing={0.5}>
+                              {task.estimated_hours && (
+                                <Stack
+                                  direction="row"
+                                  alignItems="center"
+                                  spacing={0.5}
+                                  sx={taskTimeSx}
+                                >
+                                  <AccessTimeIcon sx={{ fontSize: '1rem' }} />
+                                  <Typography variant="body2">{task.estimated_hours}h</Typography>
+                                </Stack>
                               )}
-                            </Box>
-                            <Typography sx={taskTitleSx}>{task.title}</Typography>
-                          </Stack>
-                          <Stack direction="row" alignItems="center" spacing={0.5}>
-                            {task.estimated_hours && (
-                              <Stack direction="row" alignItems="center" spacing={0.5} sx={taskTimeSx}>
-                                <AccessTimeIcon sx={{ fontSize: '1rem' }} />
-                                <Typography variant="body2">{task.estimated_hours}h</Typography>
-                              </Stack>
-                            )}
-                          </Stack>
-                        </Box>
-                        <Box sx={taskAccordionActionsSx}>
-                          <IconButton size="small" aria-label="Rozwiń/Zwiń">
-                            <ExpandMoreIcon sx={{ transition: 'transform 0.2s' }} />
-                          </IconButton>
-                        </Box>
-                      </AccordionSummary>
-                      <AccordionDetails sx={taskAccordionDetailsSx}>
-                        <Typography sx={taskDescriptionSx}>
-                          {task.description ?? 'Brak opisu zadania.'}
-                        </Typography>
-                      </AccordionDetails>
-                    </Accordion>
-                  );
-                })}
+                            </Stack>
+                          </Box>
+                          <Box sx={taskAccordionActionsSx}>
+                            <IconButton size="small" aria-label="Rozwiń/Zwiń">
+                              <ExpandMoreIcon sx={{ transition: 'transform 0.2s' }} />
+                            </IconButton>
+                          </Box>
+                        </AccordionSummary>
+                        <AccordionDetails sx={taskAccordionDetailsSx}>
+                          <Typography sx={taskDescriptionSx}>
+                            {task.description ?? 'Brak opisu zadania.'}
+                          </Typography>
+                        </AccordionDetails>
+                      </Accordion>
+                    );
+                  })}
+                <Typography
+                  sx={{ fontSize: '0.8125rem', color: 'text.secondary', mt: '1rem' }}
+                >
+                  Wykonaj wszystkie zadania, aby odblokować następny krok
+                </Typography>
+                </Box>
               </Box>
-              <Typography sx={{ fontSize: '0.8125rem', color: 'text.secondary', mt: '1rem' }}>
-                Wykonaj wszystkie zadania, aby odblokować następny krok
-              </Typography>
-            </Box>
-          ) : (
-            <TaskDetailsPanel
-              task={selectedTask}
-              stepTitle={selectedStep?.title ?? ''}
-              isCompleted={isTaskCompleted}
-              isLoading={toggleTaskCompleted.isPending}
-              onMarkComplete={handleMarkComplete}
-            />
-          )}
-        </Box>
+            ) : (
+              <TaskDetailsPanel
+                task={selectedTask}
+                stepTitle={selectedStep?.title ?? ''}
+                isCompleted={isTaskCompleted}
+                isLoading={toggleTaskCompleted.isPending}
+                onMarkComplete={handleMarkComplete}
+              />
+            )}
+          </Box>
+        )}
       </Box>
 
       {isMobile && (
-        <TaskDetailsSheet
-          open={isMobileSheetOpen}
-          task={selectedTask}
-          stepTitle={selectedStep?.title ?? ''}
-          isCompleted={isTaskCompleted}
-          isLoading={toggleTaskCompleted.isPending}
-          onMarkComplete={handleMarkComplete}
-          onClose={handleMobileSheetClose}
+        <StepTasksDrawer
+          open={isMobileDrawerOpen}
+          step={selectedStep}
+          completedTaskIds={completedTaskIds}
+          isToggling={toggleTaskCompleted.isPending}
+          onClose={handleMobileDrawerClose}
+          onToggleTaskCompleted={handleDrawerToggleTask}
         />
       )}
     </Box>

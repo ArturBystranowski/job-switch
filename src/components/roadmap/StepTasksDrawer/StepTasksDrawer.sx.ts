@@ -1,91 +1,73 @@
 import type { SxProps, Theme } from '@mui/material';
 
-export const pageContainerSx: SxProps<Theme> = {
-  minHeight: '100vh',
-  backgroundColor: 'grey.100',
-  display: 'flex',
-  flexDirection: 'column',
+export const drawerPaperSx: SxProps<Theme> = {
+  borderTopLeftRadius: '1rem',
+  borderTopRightRadius: '1rem',
+  maxHeight: '100vh',
 };
 
-export const mainContentSx: SxProps<Theme> = {
-  flex: 1,
-  display: 'flex',
-  flexDirection: { xs: 'column', md: 'row' },
-  overflow: 'hidden',
-};
-
-export const treeContainerSx: SxProps<Theme> = {
-  flex: { xs: 1, md: '0 0 70%' },
-  overflow: 'auto',
-  padding: { xs: '1rem', md: '1.5rem' },
-  backgroundColor: 'background.default',
-};
-
-export const detailsPanelContainerSx: SxProps<Theme> = {
-  display: { xs: 'none', md: 'flex' },
-  flex: '0 0 30%',
-  borderLeft: '1px solid',
-  borderColor: 'grey.200',
-  backgroundColor: 'background.paper',
-  overflow: 'hidden',
-};
-
-export const errorContainerSx: SxProps<Theme> = {
-  maxWidth: '32rem',
-  margin: '2rem auto',
-  padding: '2rem',
-};
-
-export const emptyStateContainerSx: SxProps<Theme> = {
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  justifyContent: 'center',
-  minHeight: '50vh',
-  padding: '2rem',
-  textAlign: 'center',
-};
-
-export const emptyStateTitleSx: SxProps<Theme> = {
-  fontSize: '1.25rem',
-  fontWeight: 600,
-  marginBottom: '0.5rem',
-};
-
-export const emptyStateDescriptionSx: SxProps<Theme> = {
-  fontSize: '0.9375rem',
-  color: 'text.secondary',
-  marginBottom: '1.5rem',
-};
-
-export const tasksPanelContainerSx: SxProps<Theme> = {
+export const drawerContainerSx: SxProps<Theme> = {
   display: 'flex',
   flexDirection: 'column',
   height: '100%',
-  overflow: 'hidden',
+  maxHeight: '100vh',
 };
 
-export const tasksPanelHeaderSx: SxProps<Theme> = {
-  padding: '1.25rem 1.5rem',
+export const handleContainerSx: SxProps<Theme> = {
+  display: 'flex',
+  justifyContent: 'center',
+  padding: '0.75rem 0 0.5rem',
+};
+
+export const handleSx: SxProps<Theme> = {
+  width: '2.5rem',
+  height: '0.25rem',
+  backgroundColor: 'grey.300',
+  borderRadius: '0.125rem',
+};
+
+export const drawerHeaderSx: SxProps<Theme> = {
+  position: 'relative',
+  padding: '0 1rem 1rem',
   borderBottom: '1px solid',
   borderColor: 'grey.200',
 };
 
-export const tasksPanelTitleSx: SxProps<Theme> = {
+export const drawerCloseButtonSx: SxProps<Theme> = {
+  position: 'absolute',
+  top: '-0.5rem',
+  right: '0.5rem',
+};
+
+export const drawerTitleSx: SxProps<Theme> = {
   fontSize: '1.125rem',
   fontWeight: 600,
   color: 'text.primary',
 };
 
-export const tasksPanelSubtitleSx: SxProps<Theme> = {
-  fontSize: '0.8125rem',
+export const drawerDescriptionSx: SxProps<Theme> = {
+  fontSize: '0.875rem',
   color: 'text.secondary',
-  marginTop: '0.25rem',
+  marginTop: '0.5rem',
+  lineHeight: 1.5,
 };
 
-export const tasksListSx: SxProps<Theme> = {
+export const drawerProgressRowSx: SxProps<Theme> = {
+  display: 'flex',
+  justifyContent: 'flex-end',
+  padding: '0.75rem 1rem',
+};
+
+export const drawerSubtitleSx: SxProps<Theme> = {
+  fontSize: '0.8125rem',
+  color: 'text.secondary',
+  whiteSpace: 'nowrap',
+};
+
+export const drawerContentSx: SxProps<Theme> = {
+  flex: 1,
   overflow: 'auto',
-  padding: '1rem 1.5rem',
+  padding: '1rem',
   display: 'flex',
   flexDirection: 'column',
   gap: '0.5rem',
@@ -163,4 +145,28 @@ export const taskDescriptionSx: SxProps<Theme> = {
   fontSize: '0.9375rem',
   color: 'text.secondary',
   lineHeight: 1.7,
+};
+
+export const checkboxContainerSx = (isCompleted: boolean): SxProps<Theme> => ({
+  width: '1.125rem',
+  height: '1.125rem',
+  borderRadius: '0.25rem',
+  border: '2px solid',
+  borderColor: isCompleted ? '#0D9488' : 'grey.400',
+  backgroundColor: isCompleted ? '#0D9488' : 'transparent',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  cursor: 'pointer',
+  flexShrink: 0,
+  transition: 'all 0.15s ease',
+  '&:hover': {
+    borderColor: '#0D9488',
+  },
+});
+
+export const drawerFooterSx: SxProps<Theme> = {
+  padding: '1rem',
+  borderTop: '1px solid',
+  borderColor: 'grey.200',
 };

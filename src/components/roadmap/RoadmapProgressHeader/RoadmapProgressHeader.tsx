@@ -13,6 +13,7 @@ import {
   progressLabelContainerSx,
   progressTextSx,
   profileIconSx,
+  mobileProfileIconSx,
 } from './RoadmapProgressHeader.sx';
 import type { RoadmapProgressHeaderProps } from './RoadmapProgressHeader.types';
 import { getProgressPercentageSx } from '../../../pages/ProfilePage/ProfilePage.sx';
@@ -30,9 +31,15 @@ export const RoadmapProgressHeader = ({
       <Box sx={headerContentSx}>
         <Box sx={leftSectionSx}>
           <Box sx={roleSectionWrapperSx}>
-            {/* <Box sx={timelineAlignmentSx} /> */}
             <Typography sx={roleNameSx}>{roleName}</Typography>
           </Box>
+          <IconButton
+            sx={mobileProfileIconSx}
+            onClick={() => navigate('/profile')}
+            aria-label="Przejdź do profilu"
+          >
+            <PersonIcon />
+          </IconButton>
         </Box>
         <Box sx={rightSectionSx}>
           <Box sx={progressWrapperSx}>

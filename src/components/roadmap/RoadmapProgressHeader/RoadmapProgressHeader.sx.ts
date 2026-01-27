@@ -19,21 +19,36 @@ export const leftSectionSx: SxProps<Theme> = {
   flex: { xs: 1, lg: '0 0 70%' },
   padding: { xs: '0.75rem 1rem', md: '1rem 1.5rem' },
   width: '100%',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: { xs: 'space-between', lg: 'flex-start' },
 };
 
 export const roleSectionWrapperSx: SxProps<Theme> = {
-  maxWidth: '40rem',
-  margin: '0 auto',
+  maxWidth: { xs: 'none', lg: '40rem' },
+  margin: { xs: 0, lg: '0 auto' },
   display: 'flex',
   alignItems: 'center',
+  justifyContent: { xs: 'center', lg: 'flex-start' },
   gap: { xs: '0.75rem', md: '1rem' },
+  flex: 1,
 };
 
 export const roleNameSx: SxProps<Theme> = {
-  fontSize: { xs: '1rem', md: '1.25rem' },
-  fontWeight: 600,
-  color: 'text.primary',
-  ml: '64px',
+  fontSize: { xs: '1.25rem', md: '1.25rem' },
+  fontWeight: 700,
+  color: 'primary.main',
+  ml: { xs: '40px', lg: '64px' },
+  textAlign: { xs: 'center', lg: 'left' },
+};
+
+export const mobileProfileIconSx: SxProps<Theme> = {
+  display: { xs: 'flex', lg: 'none' },
+  color: 'text.secondary',
+  '&:hover': {
+    color: 'primary.main',
+    backgroundColor: 'action.hover',
+  },
 };
 
 export const rightSectionSx: SxProps<Theme> = {

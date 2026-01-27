@@ -22,7 +22,10 @@ export const progressTextSx: SxProps<Theme> = {
 };
 
 export const infoSx: SxProps<Theme> = {
-  flex: 1,
+  // flex: 1,
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '0.5rem',
 };
 
 export const labelSx: SxProps<Theme> = {

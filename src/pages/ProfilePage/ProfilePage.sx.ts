@@ -23,9 +23,6 @@ export const topSectionSx: SxProps<Theme> = {
   marginBottom: '1rem',
 };
 
-export const roleSectionSx: SxProps<Theme> = {
-  flex: { xs: 1, md: '0 0 66.666%' },
-};
 
 export const progressSectionSx: SxProps<Theme> = {
   flex: { xs: 1, md: '0 0 33.333%' },
@@ -80,6 +77,8 @@ export const roleJustificationSx: SxProps<Theme> = {
 export const progressContainerSx: SxProps<Theme> = {
   display: 'flex',
   alignItems: 'center',
+  justifyContent: 'center',
+  flexDirection: 'column',
   gap: '1rem',
   padding: '1.25rem',
   backgroundColor: 'background.paper',
@@ -107,7 +106,7 @@ export const getArrowForwardIconSx = (isCompleted: boolean): SxProps<Theme> => (
 });
 
 export const progressInfoSx: SxProps<Theme> = {
-  flex: 1,
+  // flex: 1,
 };
 
 export const progressLabelSx: SxProps<Theme> = {

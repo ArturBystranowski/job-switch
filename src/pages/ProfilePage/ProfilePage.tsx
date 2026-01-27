@@ -31,7 +31,6 @@ import {
   cvDateSx,
   errorContainerSx,
   topSectionSx,
-  roleSectionSx,
   progressSectionSx,
   roleCardSx,
   roleNameSx,
@@ -164,7 +163,6 @@ export const ProfilePage = () => {
           )}
         {selectedRole && selectedRoleId && (
           <Box sx={topSectionSx}>
-            <Box sx={roleSectionSx}>
               <Box sx={roleCardSx}>
                 <Tooltip title="Wybranej roli nie można zmienić" arrow placement="top">
                   <LockIcon sx={roleCardLockSx} />
@@ -187,7 +185,6 @@ export const ProfilePage = () => {
                   )}
                 </Box>
               </Box>
-            </Box>
             <Box sx={progressSectionSx}>
               <Box sx={progressContainerSx}>
                 <Box sx={progressCircleBoxSx}>

@@ -2,7 +2,7 @@ import type { SxProps, Theme } from '@mui/material';
 
 export const nodeContainerSx: SxProps<Theme> = {
   display: 'flex',
-  alignItems: 'flex-start',
+  alignItems: 'stretch',
   gap: { xs: '0.75rem', md: '1rem' },
   position: 'relative',
 };
@@ -32,15 +32,15 @@ export const getNodeCircleSx = (status: 'completed' | 'unlocked' | 'locked'): Sx
     case 'completed':
       return {
         ...baseStyles,
-        backgroundColor: 'success.main',
+        backgroundColor: '#0D9488',
         color: 'white',
       };
     case 'unlocked':
       return {
         ...baseStyles,
-        backgroundColor: 'primary.main',
+        backgroundColor: 'secondary.main',
         color: 'white',
-        '&:hover': { backgroundColor: 'primary.dark', transform: 'scale(1.05)' },
+        '&:hover': { backgroundColor: '#0f766e', transform: 'scale(1.05)' },
       };
     case 'locked':
       return {
@@ -58,15 +58,14 @@ export const getConnectorLineSx = (
 ): SxProps<Theme> => ({
   display: isLast ? 'none' : 'block',
   width: '2px',
-  height: '3rem',
-  backgroundColor: status === 'locked' ? 'grey.300' : 'primary.main',
-  borderStyle: status === 'locked' ? 'dashed' : 'solid',
+  flex: 1,
+  minHeight: '1rem',
+  backgroundColor: status === 'locked' ? 'grey.300' : status=== 'unlocked' ? 'secondary.main' : '#0D9488',
   opacity: status === 'locked' ? 0.4 : 1,
 });
 
 export const contentContainerSx: SxProps<Theme> = {
   flex: 1,
-  paddingTop: '0.25rem',
   minWidth: 0,
 };
 
@@ -77,7 +76,7 @@ export const getNodeCardSx = (
   padding: { xs: '0.75rem', md: '1rem' },
   borderRadius: '0.75rem',
   border: '2px solid',
-  borderColor: isSelected ? 'primary.main' : 'transparent',
+  borderColor: isSelected ? 'secondary.main' : 'transparent',
   backgroundColor: status === 'locked' ? 'grey.100' : 'background.paper',
   opacity: status === 'locked' ? 0.6 : 1,
   cursor: status !== 'locked' ? 'pointer' : 'default',
@@ -85,7 +84,7 @@ export const getNodeCardSx = (
   '&:hover':
     status !== 'locked'
       ? {
-          borderColor: 'primary.light',
+          borderColor: 'secondary.main',
           boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
         }
       : {},
@@ -107,9 +106,24 @@ export const nodeDescriptionSx: SxProps<Theme> = {
   overflow: 'hidden',
 };
 
-export const variantsContainerSx: SxProps<Theme> = {
+export const tasksContainerSx: SxProps<Theme> = {
   display: 'flex',
   flexWrap: 'wrap',
   gap: '0.5rem',
   marginTop: '0.75rem',
 };
+
+export const getTaskProgressSx = (isCompleted: boolean): SxProps<Theme> => ({
+  fontSize: '0.6875rem',
+  fontWeight: 500,
+  borderRadius: '0.25rem',
+  height: '1.5rem',
+  flexShrink: 0,
+  alignSelf: 'flex-start',
+  backgroundColor: isCompleted ? 'rgba(13, 148, 136, 0.1)' : 'grey.100',
+  color: isCompleted ? '#0D9488' : 'grey.500',
+  border: 'none',
+  '& .MuiChip-label': {
+    padding: '0 0.5rem',
+  },
+});

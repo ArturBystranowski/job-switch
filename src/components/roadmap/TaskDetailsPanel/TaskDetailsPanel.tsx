@@ -1,4 +1,4 @@
-import { Box, Typography, Button, Chip, Link, CircularProgress } from '@mui/material';
+import { Box, Typography, Button, Link, CircularProgress } from '@mui/material';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
@@ -7,7 +7,6 @@ import SchoolIcon from '@mui/icons-material/School';
 import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import DescriptionIcon from '@mui/icons-material/Description';
 import TouchAppIcon from '@mui/icons-material/TouchApp';
-import StarIcon from '@mui/icons-material/Star';
 import type { ResourceLinkType, ResourcesDTO } from '../../../types';
 import {
   panelContainerSx,
@@ -28,8 +27,8 @@ import {
   emptyStateSx,
   emptyIconSx,
   emptyTextSx,
-} from './VariantDetailsPanel.sx';
-import type { VariantDetailsPanelProps } from './VariantDetailsPanel.types';
+} from './TaskDetailsPanel.sx';
+import type { TaskDetailsPanelProps } from './TaskDetailsPanel.types';
 
 const resourceIconMap: Record<ResourceLinkType, React.ReactNode> = {
   documentation: <ArticleIcon sx={resourceIconSx} />,
@@ -38,55 +37,43 @@ const resourceIconMap: Record<ResourceLinkType, React.ReactNode> = {
   article: <DescriptionIcon sx={resourceIconSx} />,
 };
 
-export const VariantDetailsPanel = ({
-  variant,
+export const TaskDetailsPanel = ({
+  task,
   stepTitle,
   isCompleted,
   isLoading,
   onMarkComplete,
-}: VariantDetailsPanelProps) => {
-  if (!variant) {
+}: TaskDetailsPanelProps) => {
+  if (!task) {
     return (
       <Box sx={panelContainerSx}>
         <Box sx={emptyStateSx}>
           <TouchAppIcon sx={emptyIconSx} />
           <Typography sx={emptyTextSx}>
-            Wybierz wariant z drzewa roadmapy, aby zobaczyć szczegóły
+            Wybierz zadanie z listy, aby zobaczyć szczegóły
           </Typography>
         </Box>
       </Box>
     );
   }
 
-  const resources = variant.resources as ResourcesDTO | null;
+  const resources = task.resources as ResourcesDTO | null;
   const hasResources = resources?.links && resources.links.length > 0;
-  const isRecommended = variant.order_number === 1;
 
   return (
     <Box sx={panelContainerSx}>
       <Box sx={panelHeaderSx}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-          <Typography sx={panelTitleSx}>{variant.title}</Typography>
-          {isRecommended && (
-            <Chip
-              icon={<StarIcon />}
-              label="Rekomendowany"
-              size="small"
-              color="primary"
-              variant="outlined"
-            />
-          )}
-        </Box>
+        <Typography sx={panelTitleSx}>{task.title}</Typography>
         <Typography sx={stepTitleSx}>{stepTitle}</Typography>
       </Box>
 
       <Box sx={panelContentSx}>
-        <Typography sx={descriptionSx}>{variant.description}</Typography>
+        <Typography sx={descriptionSx}>{task.description}</Typography>
 
-        {variant.estimated_hours && (
+        {task.estimated_hours && (
           <Box sx={metaContainerSx}>
             <AccessTimeIcon sx={metaIconSx} />
-            <Typography sx={metaTextSx}>~{variant.estimated_hours} godzin</Typography>
+            <Typography sx={metaTextSx}>~{task.estimated_hours} godzin</Typography>
           </Box>
         )}
 

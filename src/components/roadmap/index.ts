@@ -4,14 +4,14 @@ export type { RoadmapProgressHeaderProps } from './RoadmapProgressHeader';
 export { RoadmapNode } from './RoadmapNode';
 export type { RoadmapNodeProps, NodeStatus } from './RoadmapNode';
 
-export { VariantBranch } from './VariantBranch';
-export type { VariantBranchProps } from './VariantBranch';
+export { TaskBranch } from './TaskBranch';
+export type { TaskBranchProps } from './TaskBranch';
 
 export { RoadmapTree } from './RoadmapTree';
 export type { RoadmapTreeProps } from './RoadmapTree';
 
-export { VariantDetailsPanel } from './VariantDetailsPanel';
-export type { VariantDetailsPanelProps } from './VariantDetailsPanel';
+export { TaskDetailsPanel } from './TaskDetailsPanel';
+export type { TaskDetailsPanelProps } from './TaskDetailsPanel';
 
-export { VariantDetailsSheet } from './VariantDetailsSheet';
-export type { VariantDetailsSheetProps } from './VariantDetailsSheet';
+export { TaskDetailsSheet } from './TaskDetailsSheet';
+export type { TaskDetailsSheetProps } from './TaskDetailsSheet';

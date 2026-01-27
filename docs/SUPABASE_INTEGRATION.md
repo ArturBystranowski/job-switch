@@ -166,7 +166,7 @@ const { data: roadmap } = await supabaseClient
   .select(`
     *,
     role:roles(*),
-    variants:step_variants(*)
+    tasks:step_tasks(*)
   `)
   .eq('role_id', 1);
 ```
@@ -174,12 +174,12 @@ const { data: roadmap } = await supabaseClient
 ### Insert Queries
 
 ```typescript
-// Mark step variant as completed
+// Mark step task as completed
 const { data, error } = await supabaseClient
   .from('user_step_progress')
   .insert({
     user_id: userId,
-    step_variant_id: variantId,
+    step_task_id: taskId,
     completed_at: new Date().toISOString()
   });
 ```

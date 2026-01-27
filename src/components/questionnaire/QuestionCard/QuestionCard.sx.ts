@@ -1,10 +1,9 @@
 import type { SxProps, Theme } from '@mui/material';
 
 export const cardSx: SxProps<Theme> = {
-  padding: { xs: '1.5rem', md: '2rem' },
+  padding: { xs: '1.5rem', md: '2rem 4rem' },
   borderRadius: '1rem',
   boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-  maxWidth: '32rem',
   width: '100%',
   margin: '0 auto',
 };

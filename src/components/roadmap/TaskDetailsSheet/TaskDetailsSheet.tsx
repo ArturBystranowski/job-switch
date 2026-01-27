@@ -1,4 +1,4 @@
-import { Drawer, Box, Typography, Button, Chip, Link, CircularProgress } from '@mui/material';
+import { Drawer, Box, Typography, Button, Link, CircularProgress } from '@mui/material';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
@@ -6,7 +6,6 @@ import ArticleIcon from '@mui/icons-material/Article';
 import SchoolIcon from '@mui/icons-material/School';
 import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import DescriptionIcon from '@mui/icons-material/Description';
-import StarIcon from '@mui/icons-material/Star';
 import type { ResourceLinkType, ResourcesDTO } from '../../../types';
 import {
   drawerPaperSx,
@@ -27,8 +26,8 @@ import {
   sheetResourceIconSx,
   sheetResourceTextSx,
   sheetFooterSx,
-} from './VariantDetailsSheet.sx';
-import type { VariantDetailsSheetProps } from './VariantDetailsSheet.types';
+} from './TaskDetailsSheet.sx';
+import type { TaskDetailsSheetProps } from './TaskDetailsSheet.types';
 
 const resourceIconMap: Record<ResourceLinkType, React.ReactNode> = {
   documentation: <ArticleIcon sx={sheetResourceIconSx} />,
@@ -37,22 +36,21 @@ const resourceIconMap: Record<ResourceLinkType, React.ReactNode> = {
   article: <DescriptionIcon sx={sheetResourceIconSx} />,
 };
 
-export const VariantDetailsSheet = ({
+export const TaskDetailsSheet = ({
   open,
-  variant,
+  task,
   stepTitle,
   isCompleted,
   isLoading,
   onMarkComplete,
   onClose,
-}: VariantDetailsSheetProps) => {
-  if (!variant) {
+}: TaskDetailsSheetProps) => {
+  if (!task) {
     return null;
   }
 
-  const resources = variant.resources as ResourcesDTO | null;
+  const resources = task.resources as ResourcesDTO | null;
   const hasResources = resources?.links && resources.links.length > 0;
-  const isRecommended = variant.order_number === 1;
 
   return (
     <Drawer
@@ -67,28 +65,17 @@ export const VariantDetailsSheet = ({
         </Box>
 
         <Box sx={sheetHeaderSx}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-            <Typography sx={sheetTitleSx}>{variant.title}</Typography>
-            {isRecommended && (
-              <Chip
-                icon={<StarIcon />}
-                label="Rekomendowany"
-                size="small"
-                color="primary"
-                variant="outlined"
-              />
-            )}
-          </Box>
+          <Typography sx={sheetTitleSx}>{task.title}</Typography>
           <Typography sx={sheetStepTitleSx}>{stepTitle}</Typography>
         </Box>
 
         <Box sx={sheetContentSx}>
-          <Typography sx={sheetDescriptionSx}>{variant.description}</Typography>
+          <Typography sx={sheetDescriptionSx}>{task.description}</Typography>
 
-          {variant.estimated_hours && (
+          {task.estimated_hours && (
             <Box sx={sheetMetaContainerSx}>
               <AccessTimeIcon sx={sheetMetaIconSx} />
-              <Typography sx={sheetMetaTextSx}>~{variant.estimated_hours} godzin</Typography>
+              <Typography sx={sheetMetaTextSx}>~{task.estimated_hours} godzin</Typography>
             </Box>
           )}
 

@@ -7,36 +7,44 @@ import type { RoadmapTreeProps } from './RoadmapTree.types';
 
 export const RoadmapTree = ({
   steps,
-  completedVariantIds,
+  completedTaskIds,
   selectedStepId,
   onStepSelect,
-  onVariantSelect,
 }: RoadmapTreeProps) => {
   const stepsWithStatus = useMemo(() => {
+    const isStepCompleted = (stepIndex: number): boolean => {
+      const step = steps[stepIndex];
+      const stepTaskIds = step.step_tasks.map((t) => t.id);
+      const completedCount = stepTaskIds.filter((id) => completedTaskIds.includes(id)).length;
+      return completedCount === stepTaskIds.length && stepTaskIds.length > 0;
+    };
+
+    const areAllPreviousStepsCompleted = (currentIndex: number): boolean => {
+      for (let i = 0; i < currentIndex; i++) {
+        if (!isStepCompleted(i)) {
+          return false;
+        }
+      }
+      return true;
+    };
+
     return steps.map((step, index) => {
-      const stepVariantIds = step.step_variants.map((v) => v.id);
-      const hasCompletedVariant = stepVariantIds.some((id) =>
-        completedVariantIds.includes(id)
-      );
+      const allPreviousCompleted = areAllPreviousStepsCompleted(index);
+      const currentStepCompleted = isStepCompleted(index);
 
       let status: NodeStatus;
 
-      if (hasCompletedVariant) {
+      if (!allPreviousCompleted) {
+        status = 'locked';
+      } else if (currentStepCompleted) {
         status = 'completed';
-      } else if (index === 0) {
-        status = 'unlocked';
       } else {
-        const previousStep = steps[index - 1];
-        const previousStepVariantIds = previousStep.step_variants.map((v) => v.id);
-        const previousStepHasCompleted = previousStepVariantIds.some((id) =>
-          completedVariantIds.includes(id)
-        );
-        status = previousStepHasCompleted ? 'unlocked' : 'locked';
+        status = 'unlocked';
       }
 
       return { ...step, status };
     });
-  }, [steps, completedVariantIds]);
+  }, [steps, completedTaskIds]);
 
   return (
     <Stack sx={treeContainerSx}>
@@ -48,11 +56,10 @@ export const RoadmapTree = ({
           title={step.title}
           description={step.description}
           status={step.status}
-          variants={step.step_variants}
-          completedVariantIds={completedVariantIds}
+          tasks={step.step_tasks}
+          completedTaskIds={completedTaskIds}
           isSelected={selectedStepId === step.id}
           onSelect={onStepSelect}
-          onVariantSelect={onVariantSelect}
           isLast={index === stepsWithStatus.length - 1}
         />
       ))}

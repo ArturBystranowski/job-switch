@@ -18,13 +18,13 @@ export {
 export {
   useUserProgress,
   useUserProgressByRole,
-  useCompletedVariantIds,
-  useMarkVariantCompleted,
-  useUnmarkVariantCompleted,
-  useToggleVariantCompleted,
+  useCompletedTaskIds,
+  useMarkTaskCompleted,
+  useUnmarkTaskCompleted,
+  useToggleTaskCompleted,
   progressQueryKey,
   progressByRoleQueryKey,
-  completedVariantsQueryKey,
+  completedTasksQueryKey,
 } from './useProgress';
 export {
   useCVStatus,
@@ -45,10 +45,10 @@ export {
   questionQueryKey,
 } from './useQuestionnaire';
 export {
-  useRecommendation,
+  useRecommendations,
   useRecommendationStatus,
   useGenerateRecommendation,
   isRecommendationError,
-  RECOMMENDATION_QUERY_KEY,
-  RECOMMENDATION_STATUS_QUERY_KEY,
+  recommendationsQueryKey,
+  recommendationStatusQueryKey,
 } from './useRecommendation';

@@ -7,6 +7,9 @@ export const badgeSx: SxProps<Theme> = {
   letterSpacing: '0.05em',
   padding: '0.25rem 0.75rem',
   borderRadius: '1rem',
+  width: 'fit-content',
+  marginLeft: 'auto',
+  justifySelf: 'flex-end',
 };
 
 export const recommendedBadgeSx: SxProps<Theme> = {

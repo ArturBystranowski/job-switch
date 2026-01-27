@@ -1,14 +1,17 @@
-import { Paper, Typography, Box, Button, Stack } from '@mui/material';
+import { Paper, Typography, Box, Button, Avatar, Stack } from '@mui/material';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import WorkIcon from '@mui/icons-material/Work';
 import { RecommendationBadge } from '../RecommendationBadge';
+import { getAvatarUrl } from '../../../utils/avatars';
 import {
   cardSx,
   recommendedCardSx,
-  headerSx,
   titleSx,
+  descriptionBoxSx,
   justificationSx,
   actionSx,
   selectButtonSx,
+  avatarSx,
 } from './RoleCard.sx';
 import type { RoleCardProps } from './RoleCard.types';
 
@@ -21,19 +24,27 @@ export const RoleCard = ({
   disabled = false,
 }: RoleCardProps) => {
   const isRecommended = variant === 'recommended';
+  const avatarUrl = getAvatarUrl(roleName);
 
   return (
     <Paper
       elevation={0}
       sx={isRecommended ? recommendedCardSx : cardSx}
     >
-      <Box sx={headerSx}>
-        <Stack spacing={0.5}>
-          <RecommendationBadge variant={variant} />
-          <Typography sx={titleSx}>{roleName}</Typography>
-        </Stack>
-      </Box>
-      <Typography sx={justificationSx}>{justification}</Typography>
+      <Stack direction="column" spacing={1.5} sx={{ flex: 1 }}>
+        <RecommendationBadge variant={variant} />
+        <Typography sx={titleSx}>{roleName}</Typography>
+        <Box sx={descriptionBoxSx}>
+          <Avatar 
+            src={avatarUrl} 
+            alt={roleName}
+            sx={avatarSx}
+          >
+            <WorkIcon sx={{ fontSize: '2rem' }} />
+          </Avatar>
+          <Typography sx={justificationSx}>{justification}</Typography>
+        </Box>
+      </Stack>
       <Box sx={actionSx}>
         <Button
           variant={isRecommended ? 'contained' : 'outlined'}

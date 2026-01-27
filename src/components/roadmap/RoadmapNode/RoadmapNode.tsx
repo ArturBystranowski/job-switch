@@ -1,7 +1,6 @@
-import { Box, Paper, Typography } from '@mui/material';
+import { Box, Paper, Typography, Chip } from '@mui/material';
 import CheckIcon from '@mui/icons-material/Check';
 import LockIcon from '@mui/icons-material/Lock';
-import { VariantBranch } from '../VariantBranch';
 import {
   nodeContainerSx,
   timelineConnectorSx,
@@ -11,7 +10,7 @@ import {
   getNodeCardSx,
   nodeTitleSx,
   nodeDescriptionSx,
-  variantsContainerSx,
+  getTaskProgressSx,
 } from './RoadmapNode.sx';
 import type { RoadmapNodeProps } from './RoadmapNode.types';
 
@@ -25,11 +24,10 @@ export const RoadmapNode = ({
   title,
   description,
   status,
-  variants,
-  completedVariantIds,
+  tasks,
+  completedTaskIds,
   isSelected,
   onSelect,
-  onVariantSelect,
   isLast,
 }: RoadmapNodeWithLastProps) => {
   const handleNodeClick = () => {
@@ -37,6 +35,9 @@ export const RoadmapNode = ({
       onSelect(stepId);
     }
   };
+
+  const completedTasksCount = tasks.filter((t) => completedTaskIds.includes(t.id)).length;
+  const totalTasksCount = tasks.length;
 
   const renderNodeIcon = () => {
     if (status === 'completed') {
@@ -66,22 +67,21 @@ export const RoadmapNode = ({
           sx={getNodeCardSx(isSelected, status)}
           onClick={handleNodeClick}
         >
-          <Typography sx={nodeTitleSx}>{title}</Typography>
-          <Typography sx={nodeDescriptionSx}>{description}</Typography>
-          {status !== 'locked' && variants.length > 0 && (
-            <Box sx={variantsContainerSx}>
-              {variants.map((variant) => (
-                <VariantBranch
-                  key={variant.id}
-                  variantId={variant.id}
-                  title={variant.title}
-                  isCompleted={completedVariantIds.includes(variant.id)}
-                  isRecommended={variant.order_number === 1}
-                  onClick={() => onVariantSelect(variant.id)}
-                />
-              ))}
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem' }}>
+              <Typography sx={nodeTitleSx}>{title}</Typography>
+             
+            {status !== 'locked' && totalTasksCount > 0 && (
+              <Chip
+                label={`${completedTasksCount} z ${totalTasksCount} ukończonych`}
+                size="small"
+                sx={getTaskProgressSx(status === 'completed')}
+              />
+            )}
             </Box>
-          )}
+            <Box sx={{ flex: 1, minWidth: 0, my:'1rem'}}>
+             <Typography sx={nodeDescriptionSx}>{description}</Typography>
+            </Box>
+      
         </Paper>
       </Box>
     </Box>

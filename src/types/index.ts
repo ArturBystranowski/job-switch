@@ -21,7 +21,7 @@ export type {
   ProfileEntity,
   RoleEntity,
   RoadmapStepEntity,
-  StepVariantEntity,
+  StepTaskEntity,
   UserStepProgressEntity,
 
   // Enum types
@@ -58,18 +58,18 @@ export type {
   ProfileDTO,
   ProfileWithRoleDTO,
 
-  // Step Variant DTOs
-  StepVariantDTO,
-  StepVariantSummaryDTO,
+  // Step Task DTOs
+  StepTaskDTO,
+  StepTaskSummaryDTO,
 
   // Roadmap Step DTOs
   RoadmapStepDTO,
-  RoadmapStepWithVariantsDTO,
+  RoadmapStepWithTasksDTO,
   RoadmapStepSummaryDTO,
 
   // User Progress DTOs
   UserProgressDTO,
-  UserProgressWithVariantDTO,
+  UserProgressWithTaskDTO,
   StepProgressSummaryDTO,
   ProgressStatsDTO,
 
@@ -82,7 +82,7 @@ export type {
   UpdateQuestionnaireCommand,
   UpdatePartialQuestionnaireCommand,
   SelectRoleCommand,
-  MarkVariantCompletedCommand,
+  MarkTaskCompletedCommand,
   GenerateRecommendationsCommand,
 
   // Error DTOs

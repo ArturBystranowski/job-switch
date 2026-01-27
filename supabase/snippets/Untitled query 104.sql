@@ -9,7 +9,7 @@ BEGIN
     WHERE r.name = 'UX/UI Designer'
     ORDER BY rs.order_number
   LOOP
-    INSERT INTO public.step_variants (step_id, order_number, title, description, estimated_hours)
+    INSERT INTO public.step_tasks (step_id, order_number, title, description, estimated_hours)
     VALUES (
       step_record.id,
       1,
@@ -19,5 +19,5 @@ BEGIN
     );
   END LOOP;
 
-  RAISE NOTICE 'Successfully inserted variants for UX/UI Designer steps';
+  RAISE NOTICE 'Successfully inserted tasks for UX/UI Designer steps';
 END $$;

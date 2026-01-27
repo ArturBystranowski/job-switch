@@ -69,6 +69,68 @@ export type Database = {
           },
         ]
       }
+      questionnaire_options: {
+        Row: {
+          created_at: string
+          id: number
+          option_label: string
+          option_order: number
+          option_value: string
+          question_id: number
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          option_label: string
+          option_order?: number
+          option_value: string
+          question_id: number
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          option_label?: string
+          option_order?: number
+          option_value?: string
+          question_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "questionnaire_options_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "questionnaire_questions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      questionnaire_questions: {
+        Row: {
+          created_at: string
+          field_name: string
+          id: number
+          is_active: boolean
+          question_order: number
+          question_text: string
+        }
+        Insert: {
+          created_at?: string
+          field_name: string
+          id?: number
+          is_active?: boolean
+          question_order?: number
+          question_text: string
+        }
+        Update: {
+          created_at?: string
+          field_name?: string
+          id?: number
+          is_active?: boolean
+          question_order?: number
+          question_text?: string
+        }
+        Relationships: []
+      }
       roadmap_steps: {
         Row: {
           created_at: string
@@ -125,7 +187,7 @@ export type Database = {
         }
         Relationships: []
       }
-      step_variants: {
+      step_tasks: {
         Row: {
           created_at: string
           description: string
@@ -158,7 +220,7 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "step_variants_step_id_fkey"
+            foreignKeyName: "step_tasks_step_id_fkey"
             columns: ["step_id"]
             isOneToOne: false
             referencedRelation: "roadmap_steps"
@@ -170,27 +232,27 @@ export type Database = {
         Row: {
           completed_at: string
           id: number
-          step_variant_id: number
+          step_task_id: number
           user_id: string
         }
         Insert: {
           completed_at?: string
           id?: number
-          step_variant_id: number
+          step_task_id: number
           user_id: string
         }
         Update: {
           completed_at?: string
           id?: number
-          step_variant_id?: number
+          step_task_id?: number
           user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "user_step_progress_step_variant_id_fkey"
-            columns: ["step_variant_id"]
+            foreignKeyName: "user_step_progress_step_task_id_fkey"
+            columns: ["step_task_id"]
             isOneToOne: false
-            referencedRelation: "step_variants"
+            referencedRelation: "step_tasks"
             referencedColumns: ["id"]
           },
           {

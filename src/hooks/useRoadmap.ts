@@ -1,6 +1,6 @@
 import { useQuery, type UseQueryOptions } from '@tanstack/react-query';
 import { roadmapApi } from '../api/roadmap.api';
-import type { RoadmapStepDTO, RoadmapStepWithVariantsDTO } from '../types';
+import type { RoadmapStepDTO, RoadmapStepWithTasksDTO } from '../types';
 
 /** Query key factory for roadmap by role */
 export const roadmapQueryKey = (roleId: number) => ['roadmap', roleId] as const;
@@ -9,13 +9,13 @@ export const roadmapQueryKey = (roleId: number) => ['roadmap', roleId] as const;
 export const stepQueryKey = (stepId: number) => ['roadmap', 'step', stepId] as const;
 
 /**
- * Hook to fetch complete roadmap with all steps and variants for a role
+ * Hook to fetch complete roadmap with all steps and tasks for a role
  * Uses React Query for caching and state management
  */
 export const useRoadmap = (
   roleId: number,
   options?: Omit<
-    UseQueryOptions<RoadmapStepWithVariantsDTO[], Error>,
+    UseQueryOptions<RoadmapStepWithTasksDTO[], Error>,
     'queryKey' | 'queryFn'
   >
 ) => {
@@ -32,13 +32,13 @@ export const useRoadmap = (
 };
 
 /**
- * Hook to fetch a single roadmap step with its variants
+ * Hook to fetch a single roadmap step with its tasks
  * Uses React Query for caching and state management
  */
 export const useRoadmapStep = (
   stepId: number,
   options?: Omit<
-    UseQueryOptions<RoadmapStepWithVariantsDTO | null, Error>,
+    UseQueryOptions<RoadmapStepWithTasksDTO | null, Error>,
     'queryKey' | 'queryFn'
   >
 ) => {
@@ -55,7 +55,7 @@ export const useRoadmapStep = (
 };
 
 /**
- * Hook to fetch roadmap steps without variants (lighter payload)
+ * Hook to fetch roadmap steps without tasks (lighter payload)
  * Useful for navigation/overview components
  */
 export const useRoadmapSteps = (

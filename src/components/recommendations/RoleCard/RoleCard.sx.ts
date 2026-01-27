@@ -30,29 +30,35 @@ export const recommendedCardSx: SxProps<Theme> = {
   },
 };
 
-export const headerSx: SxProps<Theme> = {
-  display: 'flex',
-  alignItems: 'flex-start',
-  justifyContent: 'space-between',
-  marginBottom: '1rem',
-};
-
 export const titleSx: SxProps<Theme> = {
   fontSize: '1.25rem',
   fontWeight: 700,
   color: 'text.primary',
 };
 
+export const descriptionBoxSx: SxProps<Theme> = {
+  flex: 1,
+};
+
+export const avatarSx: SxProps<Theme> = {
+  width: '200px',
+  height: '200px',padding: '1rem',
+  backgroundColor: 'grey.100',
+  color: 'grey.400',
+  float: 'right',
+  marginLeft: '1rem',
+  marginBottom: '0.5rem',
+  shapeOutside: 'margin-box',
+};
+
 export const justificationSx: SxProps<Theme> = {
   fontSize: '0.9375rem',
   color: 'text.secondary',
   lineHeight: 1.6,
-  flex: 1,
-  marginBottom: '1.5rem',
 };
 
 export const actionSx: SxProps<Theme> = {
-  marginTop: 'auto',
+  marginTop: '1.5rem',
 };
 
 export const selectButtonSx: SxProps<Theme> = {

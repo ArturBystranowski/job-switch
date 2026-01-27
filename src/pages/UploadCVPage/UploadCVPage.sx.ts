@@ -38,14 +38,19 @@ export const previewSectionSx: SxProps<Theme> = {
 
 export const actionsSx: SxProps<Theme> = {
   display: 'flex',
-  justifyContent: 'center',
+  flexDirection: 'column',
+  alignItems: 'center',
+  gap: '1rem',
 };
 
 export const nextButtonSx: SxProps<Theme> = {
   minWidth: '12rem',
 };
 
-export const alreadyUploadedSx: SxProps<Theme> = {
-  textAlign: 'center',
-  padding: '2rem',
+export const skipButtonSx: SxProps<Theme> = {
+  color: 'text.secondary',
+  '&:hover': {
+    backgroundColor: 'transparent',
+    textDecoration: 'underline',
+  },
 };

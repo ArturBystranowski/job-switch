@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useQuestionnaireConfig } from '../../hooks/useQuestionnaire';
 import { useUpdateQuestionnaire, useProfileById } from '../../hooks/useProfile';
 import { useDevUser } from '../../context';
-import { QuestionnaireStepper, QuestionCard } from '../../components/questionnaire';
+import { QuestionnaireStepper, QuestionCard, OpenQuestionCard } from '../../components/questionnaire';
 import { LoadingSpinner, ErrorAlert } from '../../components/common';
 import type { QuestionnaireResponsesDTO } from '../../types';
 import {
@@ -16,6 +16,9 @@ import {
 } from './QuestionnairePage.sx';
 
 type FieldName = keyof QuestionnaireResponsesDTO;
+
+const OPEN_QUESTION_TEXT = 'Dodaj coś od siebie (opcjonalne)';
+const OPEN_ANSWER_MAX_LENGTH = 200;
 
 export const QuestionnairePage = () => {
   const navigate = useNavigate();
@@ -36,9 +39,14 @@ export const QuestionnairePage = () => {
 
   const isPending = isConfigPending || isProfilePending;
 
+  // Total steps = multiple choice questions + 1 open question
+  const totalSteps = (config?.length ?? 0) + 1;
+  const isOpenQuestionStep = config ? activeStep === config.length : false;
+
   const currentQuestion = useMemo(() => {
-    return config?.[activeStep];
-  }, [config, activeStep]);
+    if (!config || isOpenQuestionStep) return null;
+    return config[activeStep];
+  }, [config, activeStep, isOpenQuestionStep]);
 
   const handleSelect = useCallback((value: string) => {
     if (!currentQuestion) return;
@@ -48,6 +56,13 @@ export const QuestionnairePage = () => {
     }));
   }, [currentQuestion]);
 
+  const handleOpenAnswerChange = useCallback((value: string) => {
+    setResponses((prev) => ({
+      ...prev,
+      open_answer: value,
+    }));
+  }, []);
+
   const handleBack = useCallback(() => {
     setActiveStep((prev) => Math.max(0, prev - 1));
   }, []);
@@ -55,9 +70,11 @@ export const QuestionnairePage = () => {
   const handleNext = useCallback(async () => {
     if (!config) return;
 
-    if (activeStep < config.length - 1) {
+    // If not at the open question yet, go to next step
+    if (activeStep < config.length) {
       setActiveStep((prev) => prev + 1);
     } else {
+      // At open question - submit the form
       try {
         await updateQuestionnaire.mutateAsync({
           userId,
@@ -92,7 +109,7 @@ export const QuestionnairePage = () => {
     );
   }
 
-  if (!config || config.length === 0 || !currentQuestion) {
+  if (!config || config.length === 0) {
     return (
       <Box sx={pageContainerSx}>
         <Box sx={errorContainerSx}>
@@ -105,8 +122,49 @@ export const QuestionnairePage = () => {
     );
   }
 
+  // Render open question card for the last step
+  if (isOpenQuestionStep) {
+    return (
+      <Box sx={pageContainerSx}>
+        <Container maxWidth="md" sx={contentContainerSx}>
+          <Box sx={stepperWrapperSx}>
+            <QuestionnaireStepper
+              activeStep={activeStep}
+              totalSteps={totalSteps}
+            />
+          </Box>
+          <Box sx={questionWrapperSx}>
+            <OpenQuestionCard
+              questionText={OPEN_QUESTION_TEXT}
+              value={responses.open_answer ?? ''}
+              onChange={handleOpenAnswerChange}
+              onBack={handleBack}
+              onNext={handleNext}
+              maxLength={OPEN_ANSWER_MAX_LENGTH}
+              isNextDisabled={updateQuestionnaire.isPending}
+            />
+          </Box>
+        </Container>
+      </Box>
+    );
+  }
+
+  // Render multiple choice question card
+  if (!currentQuestion) {
+    return (
+      <Box sx={pageContainerSx}>
+        <Box sx={errorContainerSx}>
+          <ErrorAlert
+            title="Brak danych"
+            message="Nie znaleziono pytania"
+          />
+        </Box>
+      </Box>
+    );
+  }
+
   const currentFieldName = currentQuestion.field_name as FieldName;
-  const currentValue = responses[currentFieldName] ?? null;
+  const currentValue = responses[currentFieldName] as string | undefined ?? null;
 
   const options = currentQuestion.options.map((opt) => ({
     value: opt.option_value,
@@ -119,7 +177,7 @@ export const QuestionnairePage = () => {
         <Box sx={stepperWrapperSx}>
           <QuestionnaireStepper
             activeStep={activeStep}
-            totalSteps={config.length}
+            totalSteps={totalSteps}
           />
         </Box>
         <Box sx={questionWrapperSx}>
@@ -131,7 +189,7 @@ export const QuestionnairePage = () => {
             onBack={handleBack}
             onNext={handleNext}
             isFirstQuestion={activeStep === 0}
-            isLastQuestion={activeStep === config.length - 1}
+            isLastQuestion={false}
             isNextDisabled={updateQuestionnaire.isPending}
           />
         </Box>

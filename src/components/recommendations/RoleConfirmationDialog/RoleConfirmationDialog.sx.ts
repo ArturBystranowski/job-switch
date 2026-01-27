@@ -17,7 +17,8 @@ export const dialogContentSx: SxProps<Theme> = {
 };
 
 export const warningBoxSx: SxProps<Theme> = {
-  backgroundColor: 'warning.light',
+  border: '1px solid',
+  borderColor: 'warning.light',
   borderRadius: '0.5rem',
   padding: '0.75rem 1rem',
   marginTop: '1rem',

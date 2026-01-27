@@ -1,4 +1,4 @@
-import type { StepVariantDTO } from '../../../types';
+import type { StepTaskDTO } from '../../../types';
 
 export type NodeStatus = 'completed' | 'unlocked' | 'locked';
 
@@ -8,9 +8,8 @@ export interface RoadmapNodeProps {
   title: string;
   description: string;
   status: NodeStatus;
-  variants: StepVariantDTO[];
-  completedVariantIds: number[];
+  tasks: StepTaskDTO[];
+  completedTaskIds: number[];
   isSelected: boolean;
   onSelect: (stepId: number) => void;
-  onVariantSelect: (variantId: number) => void;
 }

@@ -58,17 +58,17 @@ export type {
 export {
   RoadmapProgressHeader,
   RoadmapNode,
-  VariantBranch,
+  TaskBranch,
   RoadmapTree,
-  VariantDetailsPanel,
-  VariantDetailsSheet,
+  TaskDetailsPanel,
+  TaskDetailsSheet,
 } from './roadmap';
 export type {
   RoadmapProgressHeaderProps,
   RoadmapNodeProps,
   NodeStatus,
-  VariantBranchProps,
+  TaskBranchProps,
   RoadmapTreeProps,
-  VariantDetailsPanelProps,
-  VariantDetailsSheetProps,
+  TaskDetailsPanelProps,
+  TaskDetailsSheetProps,
 } from './roadmap';

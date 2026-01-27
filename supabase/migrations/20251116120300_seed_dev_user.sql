@@ -1,22 +1,14 @@
 -- ============================================================================
 -- Migration: Seed Development Test User
--- Created: 2025-11-16 12:05:00 UTC
+-- Created: 2025-11-16 12:03:00 UTC
 -- Description: Creates a default test user for development and testing purposes
---              This allows testing API endpoints without authentication
--- Tables Affected: auth.users, profiles
 -- Notes: THIS IS FOR DEVELOPMENT ONLY - Remove or disable in production
 --        Uses a fixed UUID for consistent testing across environments
 -- ============================================================================
 
 -- ============================================================================
 -- Default Test User Configuration
--- ============================================================================
--- Fixed UUID for default test user (use this in your API calls during development)
--- UUID: 00000000-0000-0000-0000-000000000001
-
--- ============================================================================
--- Insert Test User into auth.users
--- Note: We need to create the user in auth.users first due to FK constraint
+-- Fixed UUID: 00000000-0000-0000-0000-000000000001
 -- ============================================================================
 
 INSERT INTO auth.users (
@@ -50,11 +42,9 @@ INSERT INTO auth.users (
 ) ON CONFLICT (id) DO NOTHING;
 
 -- ============================================================================
--- Insert Default Test Profile
--- Note: Profile will be created by the trigger, but we update with test data
+-- Update Test User Profile (created by trigger)
 -- ============================================================================
 
--- Update test user profile with questionnaire data (profile created by trigger)
 UPDATE public.profiles SET
   questionnaire_responses = '{
     "work_style": "independent",
@@ -66,72 +56,36 @@ UPDATE public.profiles SET
 WHERE id = '00000000-0000-0000-0000-000000000001'::uuid;
 
 -- ============================================================================
--- Development Helper: Temporarily disable RLS for testing (OPTIONAL)
--- Uncomment below lines if you need to test without RLS restrictions
--- WARNING: Never use this in production!
+-- Development Policies for Test User (anon access)
 -- ============================================================================
 
--- For local development, you can also run these manually in SQL editor:
--- ALTER TABLE public.profiles DISABLE ROW LEVEL SECURITY;
--- ALTER TABLE public.user_step_progress DISABLE ROW LEVEL SECURITY;
-
--- To re-enable:
--- ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
--- ALTER TABLE public.user_step_progress ENABLE ROW LEVEL SECURITY;
-
--- ============================================================================
--- Add anon policies for development testing (profiles table)
--- This allows reading/writing profiles without authentication during dev
--- ============================================================================
-
--- Allow anon users to view the test profile (for development)
+-- Profiles policies for test user
 CREATE POLICY "anon can view test profile for dev" 
-ON public.profiles 
-FOR SELECT 
-TO anon 
+ON public.profiles FOR SELECT TO anon 
 USING (id = '00000000-0000-0000-0000-000000000001'::uuid);
 
--- Allow anon users to update the test profile (for development)
 CREATE POLICY "anon can update test profile for dev" 
-ON public.profiles 
-FOR UPDATE 
-TO anon 
+ON public.profiles FOR UPDATE TO anon 
 USING (id = '00000000-0000-0000-0000-000000000001'::uuid);
-
--- ============================================================================
--- Add anon policies for user_step_progress (for development testing)
--- ============================================================================
-
--- Allow anon users to view test user's progress
-CREATE POLICY "anon can view test user progress for dev" 
-ON public.user_step_progress 
-FOR SELECT 
-TO anon 
-USING (user_id = '00000000-0000-0000-0000-000000000001'::uuid);
-
--- Allow anon users to insert test user's progress
-CREATE POLICY "anon can insert test user progress for dev" 
-ON public.user_step_progress 
-FOR INSERT 
-TO anon 
-WITH CHECK (user_id = '00000000-0000-0000-0000-000000000001'::uuid);
-
--- Allow anon users to delete test user's progress
-CREATE POLICY "anon can delete test user progress for dev" 
-ON public.user_step_progress 
-FOR DELETE 
-TO anon 
-USING (user_id = '00000000-0000-0000-0000-000000000001'::uuid);
-
--- ============================================================================
--- Comments
--- ============================================================================
 
 COMMENT ON POLICY "anon can view test profile for dev" ON public.profiles IS 
   'DEV ONLY: Allows anonymous access to test profile for development testing';
 
 COMMENT ON POLICY "anon can update test profile for dev" ON public.profiles IS 
   'DEV ONLY: Allows anonymous updates to test profile for development testing';
+
+-- User progress policies for test user
+CREATE POLICY "anon can view test user progress for dev" 
+ON public.user_step_progress FOR SELECT TO anon 
+USING (user_id = '00000000-0000-0000-0000-000000000001'::uuid);
+
+CREATE POLICY "anon can insert test user progress for dev" 
+ON public.user_step_progress FOR INSERT TO anon 
+WITH CHECK (user_id = '00000000-0000-0000-0000-000000000001'::uuid);
+
+CREATE POLICY "anon can delete test user progress for dev" 
+ON public.user_step_progress FOR DELETE TO anon 
+USING (user_id = '00000000-0000-0000-0000-000000000001'::uuid);
 
 COMMENT ON POLICY "anon can view test user progress for dev" ON public.user_step_progress IS 
   'DEV ONLY: Allows anonymous access to test user progress for development testing';
@@ -141,3 +95,28 @@ COMMENT ON POLICY "anon can insert test user progress for dev" ON public.user_st
 
 COMMENT ON POLICY "anon can delete test user progress for dev" ON public.user_step_progress IS 
   'DEV ONLY: Allows anonymous delete of test user progress for development testing';
+
+-- ============================================================================
+-- CV Storage Policies for Test User (anon access)
+-- ============================================================================
+
+CREATE POLICY "anon can upload test user cv for dev"
+ON storage.objects FOR INSERT TO anon
+WITH CHECK (
+  bucket_id = 'cv' AND
+  (storage.foldername(name))[1] = '00000000-0000-0000-0000-000000000001'
+);
+
+CREATE POLICY "anon can view test user cv for dev"
+ON storage.objects FOR SELECT TO anon
+USING (
+  bucket_id = 'cv' AND
+  (storage.foldername(name))[1] = '00000000-0000-0000-0000-000000000001'
+);
+
+CREATE POLICY "anon can delete test user cv for dev"
+ON storage.objects FOR DELETE TO anon
+USING (
+  bucket_id = 'cv' AND
+  (storage.foldername(name))[1] = '00000000-0000-0000-0000-000000000001'
+);

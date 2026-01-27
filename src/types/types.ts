@@ -20,8 +20,8 @@ export type RoleEntity = Tables<'roles'>;
 /** Base roadmap step entity from database */
 export type RoadmapStepEntity = Tables<'roadmap_steps'>;
 
-/** Base step variant entity from database */
-export type StepVariantEntity = Tables<'step_variants'>;
+/** Base step task entity from database */
+export type StepTaskEntity = Tables<'step_tasks'>;
 
 /** Base user progress entity from database */
 export type UserStepProgressEntity = Tables<'user_step_progress'>;
@@ -45,16 +45,41 @@ export type TeamworkPreference = 'low' | 'medium' | 'high';
 /** Problem solving approach options */
 export type ProblemSolvingApproach = 'analytical' | 'creative' | 'practical';
 
+/** Leadership preference options (NEW) */
+export type LeadershipPreference = 'executor' | 'situational' | 'natural_leader';
+
+/** Technical depth preference options (NEW) */
+export type TechnicalDepth = 'deep' | 'general' | 'process_focused';
+
+/** Data vs Design preference options (NEW) */
+export type DataVsDesign = 'data' | 'design' | 'coordination';
+
+/** Coding interest options (NEW) */
+export type CodingInterest = 'daily_coding' | 'scripting' | 'no_coding';
+
+/** Uncertainty handling options (NEW) */
+export type UncertaintyHandling = 'stability' | 'adaptable' | 'thrives_in_chaos';
+
 /**
  * Questionnaire responses structure
  * Represents user's preferences captured during onboarding questionnaire
+ * Includes 10 multiple choice questions + 1 optional open answer
  */
 export interface QuestionnaireResponsesDTO {
+  // Original questions (1-5)
   work_style: WorkStyle;
   client_interaction: ClientInteraction;
   aesthetic_focus: AestheticFocus;
   teamwork_preference: TeamworkPreference;
   problem_solving_approach: ProblemSolvingApproach;
+  // New questions (6-10)
+  leadership_preference: LeadershipPreference;
+  technical_depth: TechnicalDepth;
+  data_vs_design: DataVsDesign;
+  coding_interest: CodingInterest;
+  uncertainty_handling: UncertaintyHandling;
+  // Optional open answer (max 200 chars)
+  open_answer?: string;
 }
 
 /**
@@ -126,7 +151,7 @@ export type ResourceLinkType = 'documentation' | 'course' | 'video' | 'article';
 
 /**
  * Single resource link structure
- * Used in step_variants.resources JSON field
+ * Used in step tasks resources JSON field
  */
 export interface ResourceLinkDTO {
   title: string;
@@ -136,7 +161,7 @@ export interface ResourceLinkDTO {
 
 /**
  * Resources container structure
- * Stored in step_variants.resources JSON field
+ * Stored in step tasks resources JSON field
  */
 export interface ResourcesDTO {
   links: ResourceLinkDTO[];
@@ -199,30 +224,31 @@ export interface ProfileWithRoleDTO extends ProfileDTO {
 }
 
 // ============================================================================
-// Step Variant DTOs
+// Step Task DTOs
 // ============================================================================
 
 /**
- * Step variant DTO for API responses
+ * Step task DTO for API responses
+ * Tasks are mandatory sub-tasks of a step - all must be completed to unlock next step
  * Extends base entity with properly typed resources JSON field
  */
-export interface StepVariantDTO {
-  id: StepVariantEntity['id'];
-  step_id: StepVariantEntity['step_id'];
-  order_number: StepVariantEntity['order_number'];
-  title: StepVariantEntity['title'];
-  description: StepVariantEntity['description'];
-  estimated_hours: StepVariantEntity['estimated_hours'];
+export interface StepTaskDTO {
+  id: StepTaskEntity['id'];
+  step_id: StepTaskEntity['step_id'];
+  order_number: StepTaskEntity['order_number'];
+  title: StepTaskEntity['title'];
+  description: StepTaskEntity['description'];
+  estimated_hours: StepTaskEntity['estimated_hours'];
   resources: ResourcesDTO | null;
-  created_at: StepVariantEntity['created_at'];
+  created_at: StepTaskEntity['created_at'];
 }
 
 /**
- * Minimal step variant DTO
+ * Minimal step task DTO
  * Used in nested responses where full details aren't needed
  */
-export type StepVariantSummaryDTO = Pick<
-  StepVariantDTO,
+export type StepTaskSummaryDTO = Pick<
+  StepTaskDTO,
   'id' | 'step_id' | 'order_number' | 'title'
 >;
 
@@ -240,11 +266,12 @@ export type RoadmapStepDTO = Pick<
 >;
 
 /**
- * Roadmap step DTO with nested variants
+ * Roadmap step DTO with nested tasks
  * Used when fetching complete roadmap structure
+ * All tasks must be completed to unlock the next step
  */
-export interface RoadmapStepWithVariantsDTO extends RoadmapStepDTO {
-  step_variants: StepVariantDTO[];
+export interface RoadmapStepWithTasksDTO extends RoadmapStepDTO {
+  step_tasks: StepTaskDTO[];
 }
 
 /**
@@ -266,15 +293,15 @@ export type RoadmapStepSummaryDTO = Pick<
  */
 export type UserProgressDTO = Pick<
   UserStepProgressEntity,
-  'id' | 'user_id' | 'step_variant_id' | 'completed_at'
+  'id' | 'user_id' | 'step_task_id' | 'completed_at'
 >;
 
 /**
- * User progress DTO with nested variant info
- * Used when fetching progress with variant context
+ * User progress DTO with nested task info
+ * Used when fetching progress with task context
  */
-export interface UserProgressWithVariantDTO extends UserProgressDTO {
-  step_variants: StepVariantSummaryDTO & {
+export interface UserProgressWithTaskDTO extends UserProgressDTO {
+  step_tasks: StepTaskSummaryDTO & {
     roadmap_steps: RoadmapStepSummaryDTO;
   };
 }
@@ -286,8 +313,8 @@ export interface UserProgressWithVariantDTO extends UserProgressDTO {
 export interface StepProgressSummaryDTO {
   step_id: number;
   step_title: string;
-  total_variants: number;
-  completed_variants: number;
+  total_tasks: number;
+  completed_tasks: number;
   is_step_completed: boolean;
 }
 
@@ -296,8 +323,8 @@ export interface StepProgressSummaryDTO {
  * Response from get-progress-stats edge function
  */
 export interface ProgressStatsDTO {
-  total_variants: number;
-  completed_variants: number;
+  total_tasks: number;
+  completed_tasks: number;
   progress_percentage: number;
   steps_summary: StepProgressSummaryDTO[];
 }
@@ -377,13 +404,13 @@ export interface SelectRoleCommand {
 }
 
 /**
- * Command to mark a step variant as completed
+ * Command to mark a step task as completed
  * Used with POST /rest/v1/user_step_progress
  * Derives from database insert type for type safety
  */
-export type MarkVariantCompletedCommand = Pick<
+export type MarkTaskCompletedCommand = Pick<
   TablesInsert<'user_step_progress'>,
-  'user_id' | 'step_variant_id'
+  'user_id' | 'step_task_id'
 >;
 
 /**
@@ -407,7 +434,7 @@ export type BusinessErrorCode =
   | 'ROLE_ALREADY_SELECTED'
   | 'ROLE_NOT_IN_RECOMMENDATIONS'
   | 'ROLE_NOT_SELECTED'
-  | 'VARIANT_NOT_IN_ROLE'
+  | 'TASK_NOT_IN_ROLE'
   | 'AI_SERVICE_ERROR'
   | 'CV_PARSE_ERROR'
   | 'VALIDATION_ERROR'
@@ -468,6 +495,7 @@ export interface SuccessResponseDTO<T> {
 
 /**
  * Type guard to check if questionnaire responses are complete
+ * Validates all 10 required fields (open_answer is optional)
  */
 export function isQuestionnaireComplete(
   responses: unknown
@@ -476,11 +504,19 @@ export function isQuestionnaireComplete(
 
   const r = responses as Record<string, unknown>;
   return (
+    // Original questions (1-5)
     typeof r.work_style === 'string' &&
     typeof r.client_interaction === 'string' &&
     typeof r.aesthetic_focus === 'string' &&
     typeof r.teamwork_preference === 'string' &&
-    typeof r.problem_solving_approach === 'string'
+    typeof r.problem_solving_approach === 'string' &&
+    // New questions (6-10)
+    typeof r.leadership_preference === 'string' &&
+    typeof r.technical_depth === 'string' &&
+    typeof r.data_vs_design === 'string' &&
+    typeof r.coding_interest === 'string' &&
+    typeof r.uncertainty_handling === 'string'
+    // open_answer is optional, so not checked
   );
 }
 
@@ -511,3 +547,4 @@ export function hasValidResources(
   const r = resources as Record<string, unknown>;
   return Array.isArray(r.links);
 }
+

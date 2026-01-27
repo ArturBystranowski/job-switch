@@ -1,5 +1,5 @@
-import { useState, useCallback } from 'react';
-import { Box, Container, Typography, Button, Stack } from '@mui/material';
+import { useState, useCallback, useEffect } from 'react';
+import { Box, Container, Typography, Button } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { useDevUser } from '../../context';
@@ -16,7 +16,7 @@ import {
   previewSectionSx,
   actionsSx,
   nextButtonSx,
-  alreadyUploadedSx,
+  skipButtonSx,
 } from './UploadCVPage.sx';
 
 type UploadStatus = 'pending' | 'uploading' | 'success' | 'error';
@@ -73,35 +73,16 @@ export const UploadCVPage = () => {
     navigate('/recommendations');
   }, [navigate]);
 
-  if (isCheckingCV) {
+  useEffect(() => {
+    if (hasCV) {
+      navigate('/recommendations');
+    }
+  }, [hasCV, navigate]);
+
+  if (isCheckingCV || hasCV) {
     return (
       <Box sx={pageContainerSx}>
         <LoadingSpinner message="Sprawdzanie statusu CV..." fullScreen />
-      </Box>
-    );
-  }
-
-  if (hasCV) {
-    return (
-      <Box sx={pageContainerSx}>
-        <Container maxWidth="sm" sx={contentContainerSx}>
-          <Stack sx={alreadyUploadedSx} spacing={3}>
-            <Typography variant="h5" fontWeight={600}>
-              CV zostało już przesłane
-            </Typography>
-            <Typography color="text.secondary">
-              Możesz teraz przejść do dalszych kroków.
-            </Typography>
-            <Button
-              variant="contained"
-              size="large"
-              onClick={handleNext}
-              endIcon={<ArrowForwardIcon />}
-            >
-              Przejdź dalej
-            </Button>
-          </Stack>
-        </Container>
       </Box>
     );
   }
@@ -153,15 +134,25 @@ export const UploadCVPage = () => {
               Dalej
             </Button>
           ) : (
-            <Button
-              variant="contained"
-              size="large"
-              onClick={handleUpload}
-              disabled={!selectedFile || uploadStatus === 'uploading' || uploadStatus === 'error'}
-              sx={nextButtonSx}
-            >
-              {uploadStatus === 'uploading' ? 'Przesyłanie...' : 'Prześlij CV'}
-            </Button>
+            <>
+              <Button
+                variant="contained"
+                size="large"
+                onClick={handleUpload}
+                disabled={!selectedFile || uploadStatus === 'uploading' || uploadStatus === 'error'}
+                sx={nextButtonSx}
+              >
+                {uploadStatus === 'uploading' ? 'Przesyłanie...' : 'Prześlij CV'}
+              </Button>
+              <Button
+                variant="text"
+                size="small"
+                onClick={handleNext}
+                sx={skipButtonSx}
+              >
+                Pomiń ten krok
+              </Button>
+            </>
           )}
         </Box>
       </Container>

@@ -1,17 +1,10 @@
 import type { SxProps, Theme } from '@mui/material';
 
-export const getVariantChipSx = (
-  isCompleted: boolean,
-  isRecommended: boolean
-): SxProps<Theme> => ({
+export const getTaskChipSx = (isCompleted: boolean): SxProps<Theme> => ({
   cursor: 'pointer',
-  borderWidth: isRecommended ? '2px' : '1px',
+  borderWidth: '1px',
   borderStyle: 'solid',
-  borderColor: isCompleted
-    ? 'success.main'
-    : isRecommended
-      ? 'primary.main'
-      : 'grey.300',
+  borderColor: isCompleted ? 'success.main' : 'grey.300',
   backgroundColor: isCompleted ? 'success.light' : 'background.paper',
   color: isCompleted ? 'success.dark' : 'text.primary',
   transition: 'all 0.2s ease-in-out',

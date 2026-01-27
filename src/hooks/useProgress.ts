@@ -6,7 +6,7 @@ import {
   type UseMutationOptions,
 } from '@tanstack/react-query';
 import { progressApi } from '../api/progress.api';
-import type { UserProgressDTO, UserProgressWithVariantDTO } from '../types';
+import type { UserProgressDTO, UserProgressWithTaskDTO } from '../types';
 
 /** Query key factory for user progress */
 export const progressQueryKey = (userId: string) => ['progress', userId] as const;
@@ -15,17 +15,17 @@ export const progressQueryKey = (userId: string) => ['progress', userId] as cons
 export const progressByRoleQueryKey = (userId: string, roleId: number) =>
   ['progress', userId, 'role', roleId] as const;
 
-/** Query key for completed variant IDs */
-export const completedVariantsQueryKey = (userId: string) =>
+/** Query key for completed task IDs */
+export const completedTasksQueryKey = (userId: string) =>
   ['progress', userId, 'completed-ids'] as const;
 
 /**
- * Hook to fetch all user progress with variant details
+ * Hook to fetch all user progress with task details
  */
 export const useUserProgress = (
   userId: string,
   options?: Omit<
-    UseQueryOptions<UserProgressWithVariantDTO[], Error>,
+    UseQueryOptions<UserProgressWithTaskDTO[], Error>,
     'queryKey' | 'queryFn'
   >
 ) => {
@@ -46,7 +46,7 @@ export const useUserProgressByRole = (
   userId: string,
   roleId: number,
   options?: Omit<
-    UseQueryOptions<UserProgressWithVariantDTO[], Error>,
+    UseQueryOptions<UserProgressWithTaskDTO[], Error>,
     'queryKey' | 'queryFn'
   >
 ) => {
@@ -61,15 +61,15 @@ export const useUserProgressByRole = (
 };
 
 /**
- * Hook to fetch completed variant IDs (lightweight)
+ * Hook to fetch completed task IDs (lightweight)
  */
-export const useCompletedVariantIds = (
+export const useCompletedTaskIds = (
   userId: string,
   options?: Omit<UseQueryOptions<number[], Error>, 'queryKey' | 'queryFn'>
 ) => {
   return useQuery({
-    queryKey: completedVariantsQueryKey(userId),
-    queryFn: () => progressApi.getCompletedVariantIds(userId),
+    queryKey: completedTasksQueryKey(userId),
+    queryFn: () => progressApi.getCompletedTaskIds(userId),
     staleTime: 1000 * 60 * 5, // 5 minutes
     gcTime: 1000 * 60 * 30, // 30 minutes
     enabled: !!userId,
@@ -81,30 +81,30 @@ export const useCompletedVariantIds = (
 // Mutation Hooks
 // ============================================================================
 
-interface MarkVariantVariables {
+interface MarkTaskVariables {
   userId: string;
-  stepVariantId: number;
+  stepTaskId: number;
 }
 
 /**
- * Hook to mark a variant as completed
+ * Hook to mark a task as completed
  * Invalidates progress queries on success
  */
-export const useMarkVariantCompleted = (
+export const useMarkTaskCompleted = (
   options?: Omit<
-    UseMutationOptions<UserProgressDTO, Error, MarkVariantVariables>,
+    UseMutationOptions<UserProgressDTO, Error, MarkTaskVariables>,
     'mutationFn'
   >
 ) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ userId, stepVariantId }: MarkVariantVariables) =>
-      progressApi.markVariantCompleted(userId, stepVariantId),
+    mutationFn: ({ userId, stepTaskId }: MarkTaskVariables) =>
+      progressApi.markTaskCompleted(userId, stepTaskId),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: progressQueryKey(variables.userId) });
       queryClient.invalidateQueries({
-        queryKey: completedVariantsQueryKey(variables.userId),
+        queryKey: completedTasksQueryKey(variables.userId),
       });
     },
     ...options,
@@ -112,21 +112,21 @@ export const useMarkVariantCompleted = (
 };
 
 /**
- * Hook to unmark a variant as completed
+ * Hook to unmark a task as completed
  * Invalidates progress queries on success
  */
-export const useUnmarkVariantCompleted = (
-  options?: Omit<UseMutationOptions<void, Error, MarkVariantVariables>, 'mutationFn'>
+export const useUnmarkTaskCompleted = (
+  options?: Omit<UseMutationOptions<void, Error, MarkTaskVariables>, 'mutationFn'>
 ) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ userId, stepVariantId }: MarkVariantVariables) =>
-      progressApi.unmarkVariantCompleted(userId, stepVariantId),
+    mutationFn: ({ userId, stepTaskId }: MarkTaskVariables) =>
+      progressApi.unmarkTaskCompleted(userId, stepTaskId),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: progressQueryKey(variables.userId) });
       queryClient.invalidateQueries({
-        queryKey: completedVariantsQueryKey(variables.userId),
+        queryKey: completedTasksQueryKey(variables.userId),
       });
     },
     ...options,
@@ -134,26 +134,26 @@ export const useUnmarkVariantCompleted = (
 };
 
 /**
- * Hook to toggle variant completion status
+ * Hook to toggle task completion status
  * Convenience hook that marks or unmarks based on current state
  */
-export const useToggleVariantCompleted = (
-  options?: Omit<UseMutationOptions<void, Error, MarkVariantVariables & { isCompleted: boolean }>, 'mutationFn'>
+export const useToggleTaskCompleted = (
+  options?: Omit<UseMutationOptions<void, Error, MarkTaskVariables & { isCompleted: boolean }>, 'mutationFn'>
 ) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ userId, stepVariantId, isCompleted }: MarkVariantVariables & { isCompleted: boolean }) => {
+    mutationFn: async ({ userId, stepTaskId, isCompleted }: MarkTaskVariables & { isCompleted: boolean }) => {
       if (isCompleted) {
-        await progressApi.unmarkVariantCompleted(userId, stepVariantId);
+        await progressApi.unmarkTaskCompleted(userId, stepTaskId);
       } else {
-        await progressApi.markVariantCompleted(userId, stepVariantId);
+        await progressApi.markTaskCompleted(userId, stepTaskId);
       }
     },
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: progressQueryKey(variables.userId) });
       queryClient.invalidateQueries({
-        queryKey: completedVariantsQueryKey(variables.userId),
+        queryKey: completedTasksQueryKey(variables.userId),
       });
     },
     ...options,

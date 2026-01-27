@@ -150,63 +150,62 @@
 
 **Layout:**
 - Sticky header z progress bar (CircularProgress + "X z Y kroków ukończonych")
-- Główny obszar: drzewo roadmapy (pionowe, top-to-bottom)
+- Główny obszar: drzewo roadmapy (pionowe, top-to-bottom) z ogólnymi opisami kroków
 - 10 głównych węzłów (kroków) połączonych linią
-- Warianty jako gałęzie odchodzące poziomo od węzłów
-- Desktop: split-view (drzewo 70% | panel szczegółów 30%)
-- Mobile: pełnoekranowe drzewo, szczegóły w bottom sheet
+- Desktop: split-view (drzewo 70% | panel z zadaniami 30%)
+- Mobile: pełnoekranowe drzewo, szczegóły zadań w bottom sheet
 
 **Wizualizacja drzewa:**
 - Główna ścieżka: gruba linia pionowa
-- Warianty: cieńsze gałęzie poziome
+- Węzły pokazują tylko ogólny opis kroku i postęp zadań (np. "2 z 3 zadań ukończonych")
 - Węzły ukończone: kolor success (#22C55E), ikona checkmark
 - Węzły odblokowane: kolor primary, klikalne
 - Węzły zablokowane: wyszarzone (opacity 0.4), ikona kłódki, linia przerywana
-- Wariant rekomendowany (order_number=1): wyróżniony gwiazdką
+
+**Panel z zadaniami (prawa strona):**
+- Po wyborze kroku: lista wszystkich zadań do wykonania
+- Wszystkie zadania są obowiązkowe
+- Kliknięcie na zadanie pokazuje szczegóły zadania
 
 **Logika odblokowywania:**
 - Krok 1: zawsze odblokowany
-- Kolejne kroki: odblokowane gdy poprzedni krok ma min. 1 ukończony wariant
+- Kolejne kroki: odblokowane gdy WSZYSTKIE zadania poprzedniego kroku są ukończone
 
 **Komponenty:**
 - `RoadmapTree` - główny komponent drzewa
-- `RoadmapNode` - węzeł kroku
-- `VariantBranch` - gałąź wariantu
+- `RoadmapNode` - węzeł kroku (tylko opis + postęp zadań)
+- `TaskBranch` - element zadania (używany w panelu bocznym)
 - `RoadmapProgressHeader` - sticky header z progress
-- `VariantDetailsPanel` - panel szczegółów (desktop)
-- `VariantDetailsSheet` - bottom sheet (mobile)
+- `TaskDetailsPanel` - panel szczegółów zadania (desktop)
+- `TaskDetailsSheet` - bottom sheet ze szczegółami zadania (mobile)
 
-### 3.8. Variant Details (Panel/Sheet)
+### 3.8. Task Details (Panel/Sheet)
 
 **Layout:**
-1. Header: Tytuł wariantu + badge "Rekomendowany" (jeśli order_number=1)
+1. Header: Tytuł zadania
 2. Opis: Pełny tekst description
 3. Meta: Ikona zegara + "~X godzin" (estimated_hours)
 4. Resources: Lista linków z ikonami typu (documentation, course, video)
 5. Action: Button "Oznacz jako ukończony" / "Ukończono ✓"
-6. Mobile footer: nawigacja poprzedni/następny wariant
 
 **Komponenty:**
-- `VariantHeader` - tytuł z badge
-- `VariantDescription` - opis
-- `VariantMeta` - czas realizacji
-- `VariantResources` - lista linków
-- `VariantActionButton` - przycisk ukończenia
+- `TaskHeader` - tytuł zadania
+- `TaskDescription` - opis
+- `TaskMeta` - czas realizacji
+- `TaskResources` - lista linków
+- `TaskActionButton` - przycisk ukończenia
 
-### 3.9. Mobile Variant Carousel
+### 3.9. Task List Panel
 
 **Layout:**
-- Embla Carousel dla wariantów kroku
-- Swipe gesture zmienia kartę
-- Pagination dots (informacyjne, nie klikalne)
-- Badge "1 z 3" w rogu karty
-- Wskazówka swipe na pierwszym użyciu: "Przesuń aby zobaczyć więcej opcji"
+- Lista wszystkich zadań dla wybranego kroku
+- Każde zadanie pokazuje: tytuł, szacowany czas, status ukończenia
+- Kliknięcie na zadanie otwiera szczegóły
+- Informacja: "Wykonaj wszystkie zadania, aby odblokować następny krok"
 
 **Komponenty:**
-- `VariantCarousel` - wrapper Embla Carousel
-- `VariantCarouselCard` - karta wariantu w carousel
-- `CarouselPagination` - dots indicator
-- `SwipeHint` - animowana wskazówka (znika po pierwszej interakcji)
+- `TaskListPanel` - panel z listą zadań kroku
+- `TaskListItem` - pojedyncze zadanie na liście
 
 ### 3.10. Profile Page (`/profile`)
 
@@ -334,7 +333,7 @@ const theme = createTheme({
 - Progress: 1 minuta
 
 **Mutations z optimistic updates:**
-- Oznaczanie wariantu jako ukończony
+- Oznaczanie zadania jako ukończone
 - Zapisywanie odpowiedzi kwestionariusza
 - Wybór roli
 
@@ -399,15 +398,17 @@ const { userId } = useContext(DevUserContext);
          ▼
 ┌─────────────────────────────────────────┐
 │              ROADMAPA                    │
-│  ┌─────┐                                │
-│  │  1  │ ── Wariant A ── Wariant B      │
-│  └──┬──┘                                │
-│     │                                   │
-│  ┌──┴──┐                                │
-│  │  2  │ ── Wariant A ── Wariant B ── C │
-│  └──┬──┘                                │
-│     │                                   │
-│    ...  (10 kroków)                     │
+│  ┌─────────────────┐  ┌───────────────┐ │
+│  │  DRZEWO KROKÓW  │  │ PANEL ZADAŃ   │ │
+│  │  ┌─────┐        │  │               │ │
+│  │  │  1  │ ✓      │  │ □ Zadanie 1   │ │
+│  │  └──┬──┘        │  │ □ Zadanie 2   │ │
+│  │     │           │  │ □ Zadanie 3   │ │
+│  │  ┌──┴──┐        │  │               │ │
+│  │  │  2  │ 🔒     │  │ Wykonaj       │ │
+│  │  └──┬──┘        │  │ wszystkie     │ │
+│  │    ...          │  │ aby odblok.   │ │
+│  └─────────────────┘  └───────────────┘ │
 │                                         │
 │  [Progress: X% ukończono]               │
 └─────────────────────────────────────────┘
@@ -441,12 +442,12 @@ const { userId } = useContext(DevUserContext);
 
 ## 9. Feedback użytkownika
 
-### 9.1. Oznaczenie wariantu jako ukończony
+### 9.1. Oznaczenie zadania jako ukończone
 
-1. **Optimistic update**: węzeł zmienia kolor na success, checkmark z animacją
+1. **Optimistic update**: zadanie zmienia status na ukończone, ikona checkmark z animacją
 2. **Progress update**: CircularProgress animuje się do nowej wartości
-3. **Toast**: "Krok ukończony!" z opcją "Cofnij" (5 sekund)
-4. **Odblokowanie**: następny krok staje się aktywny (jeśli był zablokowany)
+3. **Toast**: "Zadanie ukończone!" z opcją "Cofnij" (5 sekund)
+4. **Sprawdzenie odblokowania**: jeśli WSZYSTKIE zadania kroku ukończone, następny krok staje się aktywny
 5. **Error recovery**: przywróć poprzedni stan + error toast z retry
 
 ### 9.2. Animacje
@@ -485,11 +486,10 @@ src/
 │   ├── roadmap/
 │   │   ├── RoadmapTree/
 │   │   ├── RoadmapNode/
-│   │   ├── VariantBranch/
+│   │   ├── TaskBranch/
 │   │   ├── RoadmapProgressHeader/
-│   │   ├── VariantDetailsPanel/
-│   │   ├── VariantDetailsSheet/
-│   │   └── VariantCarousel/
+│   │   ├── TaskDetailsPanel/
+│   │   └── TaskDetailsSheet/
 │   └── profile/
 │       ├── ProfileSection/
 │       ├── QuestionnaireAnswers/
@@ -532,12 +532,12 @@ src/
 
 ### Faza 3: Roadmap
 9. Roadmap tree (basic visualization)
-10. Variant details (panel/sheet)
+10. Step details (panel/sheet)
 11. Progress tracking
-12. Variant carousel (mobile)
+12. Step carousel (mobile)
 
 ### Faza 4: Polish
-13. Animacje i transitions
+13. Animations and transitions
 14. Error handling refinement
 15. Accessibility audit
 16. Responsive testing

@@ -1,4 +1,4 @@
-import { createClient } from 'jsr:@supabase/supabase-js@2';
+import { createClient } from '@supabase/supabase-js';
 import { corsHeaders } from '../_shared/cors.ts';
 
 // Types
@@ -20,11 +20,20 @@ interface Role {
 }
 
 interface QuestionnaireResponses {
+  // Original questions (1-5)
   work_style?: string;
   client_interaction?: string;
   aesthetic_focus?: string;
   teamwork_preference?: string;
   problem_solving_approach?: string;
+  // New questions (6-10)
+  leadership_preference?: string;
+  technical_depth?: string;
+  data_vs_design?: string;
+  coding_interest?: string;
+  uncertainty_handling?: string;
+  // Optional open answer
+  open_answer?: string;
   [key: string]: string | undefined;
 }
 
@@ -52,6 +61,8 @@ const TEXT_MODELS = [
   'deepseek/deepseek-r1-0528:free',
   'tngtech/deepseek-r1t2-chimera:free',
   'google/gemini-2.0-flash-exp:free',
+  'openai/gpt-oss-120b', //paid model
+  "google/gemini-2.5-flash-lite" // paid model
 ];
 
 // Free vision models for PDF/image processing (support multimodal input)
@@ -59,6 +70,8 @@ const VISION_MODELS = [
   'google/gemini-2.0-flash-exp:free',
   'qwen/qwen-2.5-vl-7b-instruct:free',
   'meta-llama/llama-4-maverick:free',
+  'google/gemini-2.5-flash-lite', // paid model
+  'openai/gpt-4o-mini' // paid model
 ];
 
 Deno.serve(async (req) => {
@@ -149,8 +162,21 @@ Deno.serve(async (req) => {
 
     const questionnaireResponses = profile.questionnaire_responses as QuestionnaireResponses;
 
-    // Check if questionnaire is complete
-    const requiredFields = ['work_style', 'client_interaction', 'aesthetic_focus', 'teamwork_preference', 'problem_solving_approach'];
+    // Check if questionnaire is complete (all 10 questions required, open_answer optional)
+    const requiredFields = [
+      // Original questions (1-5)
+      'work_style', 
+      'client_interaction', 
+      'aesthetic_focus', 
+      'teamwork_preference', 
+      'problem_solving_approach',
+      // New questions (6-10)
+      'leadership_preference',
+      'technical_depth',
+      'data_vs_design',
+      'coding_interest',
+      'uncertainty_handling'
+    ];
     const missingFields = requiredFields.filter(field => !questionnaireResponses?.[field]);
     
     if (missingFields.length > 0) {
@@ -274,7 +300,7 @@ function buildPrompt(
   roles: Role[],
   cvText: string
 ): string {
-  // Build questionnaire section with labels
+  // Build questionnaire section with labels (10 questions)
   const questionnaireSection = questions.map(q => {
     const selectedValue = responses[q.field_name];
     const selectedOption = q.questionnaire_options.find(
@@ -285,10 +311,15 @@ function buildPrompt(
     return `- ${q.question_text}\n  Odpowiedź: ${answerLabel}`;
   }).join('\n\n');
 
-  // Build roles section
+  // Build roles section (6 roles including Project Manager)
   const rolesSection = roles.map((r, idx) => 
     `${idx + 1}. ${r.name} (ID: ${r.id})\n   ${r.description}`
   ).join('\n\n');
+
+  // Open answer section (optional, max 200 chars)
+  const openAnswerSection = responses.open_answer && responses.open_answer.trim().length > 0
+    ? `DODATKOWE INFORMACJE OD KANDYDATA:\n"${responses.open_answer.trim()}"`
+    : 'DODATKOWE INFORMACJE: Kandydat nie dodał dodatkowych informacji.';
 
   // CV section
   const cvSection = cvText 
@@ -298,23 +329,36 @@ function buildPrompt(
   return `Jesteś ekspertem kariery IT pomagającym osobom BEZ doświadczenia w IT wybrać pierwszą rolę zawodową.
 
 TWOJE ZADANIE:
-Na podstawie odpowiedzi z ankiety i CV (jeśli dostępne) przypisz kandydatowi DWIE najbardziej pasujące role z listy poniżej. Pierwsza rola powinna być najlepszym dopasowaniem, druga - alternatywą.
+Na podstawie odpowiedzi z ankiety (10 pytań), dodatkowych informacji od kandydata i CV (jeśli dostępne) przypisz użytkownikowi DWIE najbardziej pasujące role z listy poniżej. Pierwsza rola powinna być najlepszym dopasowaniem, druga - alternatywą.
 
 WAŻNE WSKAZÓWKI:
-- Kandydat NIE ma doświadczenia w IT - dopasowuj rolę na podstawie preferencji i osobowości
-- W uzasadnieniu MUSISZ odnieść się do konkretnych odpowiedzi z ankiety
-- Jeśli CV jest dostępne, wykorzystaj hobby/zainteresowania jako dodatkowe wskazówki
-- Wyjaśnij dlaczego każda rola pasuje do osobowości i preferencji kandydata
-- Odnieś się do opisu roli i wyjaśnij czym się zajmuje
+- Użytkownik NIE ma doświadczenia w IT - dopasowuj rolę na podstawie preferencji i osobowości
+- Pisz uzasadnienie BEZPOŚREDNIO do użytkownika, zwracając się na TY (np. "Lubisz pracować samodzielnie...", "Zależy ci na...")
+- Używaj luźnego, przyjaznego tonu - pisz jak kumpel-mentor, nie jak formalny doradca
+- NIE cytuj pytań ani odpowiedzi dosłownie - zamiast tego opisz preferencje użytkownika swoimi słowami
+- Odnieś się do tego, na czym polega dana rola i dlaczego pasuje do osobowości użytkownika
+- Jeśli kandydat dodał dodatkowe informacje - weź je pod uwagę przy rekomendacji
+- Jeśli jest CV - wykorzystaj hobby/zainteresowania jako dodatkowe wskazówki
 - Obie role muszą być RÓŻNE
 
-DOSTĘPNE ROLE:
+STYL UZASADNIENIA:
+❌ ŹLE: "Kandydat wybrał odpowiedź 'minimum – wolę skupić się na kodzie' w pytaniu o kontakt z klientem"
+✅ DOBRZE: "Wolisz skupić się na kodzie bez ciągłego kontaktu z klientami - frontend ci to da"
+
+❌ ŹLE: "Praca samodzielna została wybrana jako preferowany styl"  
+✅ DOBRZE: "Lubisz działać w swoim tempie i na własnych zasadach - jako frontendowiec masz sporo autonomii"
+
+DOSTĘPNE ROLE (6):
 ${rolesSection}
 
 ---
 
-ANKIETA KANDYDATA:
+ANKIETA KANDYDATA (10 pytań):
 ${questionnaireSection}
+
+---
+
+${openAnswerSection}
 
 ---
 

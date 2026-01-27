@@ -96,23 +96,23 @@ Słownik ról IT. Predefiniowane rekordy zarządzane przez admina lub migracje.
 
 ---
 
-### 1.4. `step_variants`
+### 1.4. `step_tasks`
 
-1-3 warianty realizacji każdego kroku roadmapy.
+Obowiązkowe zadania (tasks) do wykonania w każdym kroku roadmapy. Wszystkie zadania muszą być ukończone, aby odblokować następny krok.
 
 | Kolumna          | Typ      | Ograniczenia                                               | Opis                                                 |
 | ---------------- | -------- | ---------------------------------------------------------- | ---------------------------------------------------- |
-| `id`             | `SERIAL` | `PRIMARY KEY`                                              | Unikalny identyfikator wariantu                      |
-| `step_id`        | `INTEGER` | `NOT NULL`, `REFERENCES roadmap_steps(id) ON DELETE CASCADE` | Krok do którego należy wariant                    |
-| `order_number`   | `INTEGER` | `NOT NULL`, `CHECK (order_number BETWEEN 1 AND 3)`        | Numer wariantu (1-3)                                 |
-| `title`          | `TEXT`   | `NOT NULL`                                                 | Tytuł wariantu (np. "Kurs video")                    |
-| `description`    | `TEXT`   | `NOT NULL`                                                 | Opis wariantu (2-3 zdania)                           |
+| `id`             | `SERIAL` | `PRIMARY KEY`                                              | Unikalny identyfikator zadania                       |
+| `step_id`        | `INTEGER` | `NOT NULL`, `REFERENCES roadmap_steps(id) ON DELETE CASCADE` | Krok do którego należy zadanie                    |
+| `order_number`   | `INTEGER` | `NOT NULL`, `CHECK (order_number BETWEEN 1 AND 3)`        | Numer zadania (1-3)                                  |
+| `title`          | `TEXT`   | `NOT NULL`                                                 | Tytuł zadania (np. "Kurs video")                     |
+| `description`    | `TEXT`   | `NOT NULL`                                                 | Opis zadania (2-3 zdania)                            |
 | `estimated_hours` | `INTEGER` | `NULL`                                                    | Szacowany czas realizacji w godzinach                |
 | `resources`      | `JSONB`  | `NULL`                                                     | Linki i materiały do nauki                           |
 | `created_at`     | `TIMESTAMPTZ` | `NOT NULL DEFAULT NOW()`                              | Data utworzenia rekordu                              |
 
 **Constraints**:
-- `UNIQUE(step_id, order_number)` - każdy krok ma unikalne numery wariantów
+- `UNIQUE(step_id, order_number)` - każdy krok ma unikalne numery zadań
 
 #### Struktura JSONB dla `resources`:
 
@@ -137,17 +137,17 @@ Słownik ról IT. Predefiniowane rekordy zarządzane przez admina lub migracje.
 
 ### 1.5. `user_step_progress`
 
-Tracking ukończonych wariantów przez użytkownika. Umożliwia śledzenie postępu w roadmapie.
+Tracking ukończonych zadań przez użytkownika. Wszystkie zadania w kroku muszą być ukończone, aby odblokować następny krok.
 
 | Kolumna          | Typ       | Ograniczenia                                               | Opis                                      |
 | ---------------- | --------- | ---------------------------------------------------------- | ----------------------------------------- |
 | `id`             | `SERIAL`  | `PRIMARY KEY`                                              | Unikalny identyfikator rekordu            |
-| `user_id`        | `UUID`    | `NOT NULL`, `REFERENCES profiles(id) ON DELETE CASCADE`    | Użytkownik który ukończył wariant         |
-| `step_variant_id` | `INTEGER` | `NOT NULL`, `REFERENCES step_variants(id) ON DELETE CASCADE` | Ukończony wariant                      |
-| `completed_at`   | `TIMESTAMPTZ` | `NOT NULL DEFAULT NOW()`                               | Data i czas ukończenia wariantu           |
+| `user_id`        | `UUID`    | `NOT NULL`, `REFERENCES profiles(id) ON DELETE CASCADE`    | Użytkownik który ukończył zadanie         |
+| `step_task_id`   | `INTEGER` | `NOT NULL`, `REFERENCES step_tasks(id) ON DELETE CASCADE`  | Ukończone zadanie (task)                  |
+| `completed_at`   | `TIMESTAMPTZ` | `NOT NULL DEFAULT NOW()`                               | Data i czas ukończenia zadania            |
 
 **Constraints**:
-- `UNIQUE(user_id, step_variant_id)` - użytkownik nie może ukończyć tego samego wariantu dwa razy
+- `UNIQUE(user_id, step_task_id)` - użytkownik nie może ukończyć tego samego zadania dwa razy
 
 ---
 
@@ -162,7 +162,7 @@ profiles
     ↓ 1:many
 user_step_progress
     ↓ many:1
-step_variants
+step_tasks
     ↓ many:1
 roadmap_steps
     ↓ many:1
@@ -176,9 +176,9 @@ roles
 | `auth.users`          | 1:1      | `profiles`         | Każdy użytkownik ma dokładnie jeden profil             |
 | `profiles`            | many:1   | `roles`            | Wielu użytkowników może wybrać tę samą rolę            |
 | `roles`               | 1:many   | `roadmap_steps`    | Każda rola ma dokładnie 10 kroków                      |
-| `roadmap_steps`       | 1:many   | `step_variants`    | Każdy krok ma 1-3 warianty                             |
-| `profiles`            | 1:many   | `user_step_progress` | Użytkownik może ukończyć wiele wariantów             |
-| `step_variants`       | 1:many   | `user_step_progress` | Wariant może być ukończony przez wielu użytkowników  |
+| `roadmap_steps`       | 1:many   | `step_tasks`       | Każdy krok ma 1-3 obowiązkowe zadania (tasks)          |
+| `profiles`            | 1:many   | `user_step_progress` | Użytkownik może ukończyć wiele zadań                 |
+| `step_tasks`          | 1:many   | `user_step_progress` | Zadanie może być ukończone przez wielu użytkowników  |
 
 ---
 
@@ -193,8 +193,8 @@ ON profiles USING GIN (questionnaire_responses);
 CREATE INDEX idx_profiles_ai_recommendations 
 ON profiles USING GIN (ai_recommendations);
 
-CREATE INDEX idx_step_variants_resources 
-ON step_variants USING GIN (resources);
+CREATE INDEX idx_step_tasks_resources 
+ON step_tasks USING GIN (resources);
 ```
 
 **Uzasadnienie**: Indeksy GIN umożliwiają efektywne zapytania do kolumn JSONB (np. filtrowanie po wartościach w questionnaire).
@@ -211,27 +211,27 @@ ON profiles(selected_role_id);
 CREATE INDEX idx_roadmap_steps_role_id 
 ON roadmap_steps(role_id);
 
-CREATE INDEX idx_step_variants_step_id 
-ON step_variants(step_id);
+CREATE INDEX idx_step_tasks_step_id 
+ON step_tasks(step_id);
 
 CREATE INDEX idx_user_step_progress_user_id 
 ON user_step_progress(user_id);
 
-CREATE INDEX idx_user_step_progress_step_variant_id 
-ON user_step_progress(step_variant_id);
+CREATE INDEX idx_user_step_progress_step_task_id 
+ON user_step_progress(step_task_id);
 
 -- Indeksy dla często używanych operacji sortowania
 CREATE INDEX idx_roadmap_steps_role_order 
 ON roadmap_steps(role_id, order_number);
 
-CREATE INDEX idx_step_variants_step_order 
-ON step_variants(step_id, order_number);
+CREATE INDEX idx_step_tasks_step_order 
+ON step_tasks(step_id, order_number);
 ```
 
 **Uzasadnienie**: 
 - Indeksy FK przyspieszają JOINy
 - Composite index `(role_id, order_number)` optymalizuje query dla wyświetlania roadmapy
-- Composite index `(step_id, order_number)` optymalizuje query dla wariantów kroku
+- Composite index `(step_id, order_number)` optymalizuje query dla zadań kroku
 
 ---
 
@@ -296,19 +296,19 @@ USING (true);
 
 ---
 
-### 4.4. Tabela `step_variants`
+### 4.4. Tabela `step_tasks`
 
 ```sql
 -- Włącz RLS
-ALTER TABLE step_variants ENABLE ROW LEVEL SECURITY;
+ALTER TABLE step_tasks ENABLE ROW LEVEL SECURITY;
 
--- Policy: Wszyscy zalogowani użytkownicy mogą czytać warianty
-CREATE POLICY "Authenticated users can view step variants" 
-ON step_variants FOR SELECT 
+-- Policy: Wszyscy zalogowani użytkownicy mogą czytać zadania (tasks)
+CREATE POLICY "Authenticated users can view step tasks" 
+ON step_tasks FOR SELECT 
 TO authenticated 
 USING (true);
 
--- Policy: Tylko service_role może modyfikować warianty
+-- Policy: Tylko service_role może modyfikować zadania
 ```
 
 ---
@@ -394,14 +394,14 @@ SELECT
   rs.order_number AS step_order,
   rs.title AS step_title,
   rs.description AS step_description,
-  sv.id AS variant_id,
-  sv.order_number AS variant_order,
-  sv.title AS variant_title,
-  sv.description AS variant_description,
+  sv.id AS task_id,
+  sv.order_number AS task_order,
+  sv.title AS task_title,
+  sv.description AS task_description,
   sv.estimated_hours,
   sv.resources
 FROM roadmap_steps rs
-LEFT JOIN step_variants sv ON rs.id = sv.step_id
+LEFT JOIN step_tasks sv ON rs.id = sv.step_id
 WHERE rs.role_id = $1
 ORDER BY rs.order_number, sv.order_number;
 ```
@@ -412,12 +412,12 @@ ORDER BY rs.order_number, sv.order_number;
 
 ```sql
 SELECT 
-  usp.step_variant_id,
+  usp.step_task_id,
   usp.completed_at,
   sv.step_id,
   rs.order_number AS step_order
 FROM user_step_progress usp
-JOIN step_variants sv ON usp.step_variant_id = sv.id
+JOIN step_tasks sv ON usp.step_task_id = sv.id
 JOIN roadmap_steps rs ON sv.step_id = rs.id
 WHERE usp.user_id = auth.uid()
 ORDER BY usp.completed_at DESC;
@@ -428,20 +428,20 @@ ORDER BY usp.completed_at DESC;
 ### 6.4. Obliczanie progresu użytkownika (% ukończenia)
 
 ```sql
--- Całkowita liczba wariantów dla wybranej roli
-WITH total_variants AS (
+-- Całkowita liczba zadań dla wybranej roli
+WITH total_tasks AS (
   SELECT COUNT(sv.id) AS total
-  FROM step_variants sv
+  FROM step_tasks sv
   JOIN roadmap_steps rs ON sv.step_id = rs.id
   WHERE rs.role_id = (
     SELECT selected_role_id FROM profiles WHERE id = auth.uid()
   )
 ),
--- Liczba ukończonych wariantów
-completed_variants AS (
+-- Liczba ukończonych zadań
+completed_tasks AS (
   SELECT COUNT(usp.id) AS completed
   FROM user_step_progress usp
-  JOIN step_variants sv ON usp.step_variant_id = sv.id
+  JOIN step_tasks sv ON usp.step_task_id = sv.id
   JOIN roadmap_steps rs ON sv.step_id = rs.id
   WHERE usp.user_id = auth.uid()
     AND rs.role_id = (
@@ -449,25 +449,25 @@ completed_variants AS (
     )
 )
 SELECT 
-  tv.total,
-  cv.completed,
-  ROUND((cv.completed::DECIMAL / tv.total) * 100, 2) AS progress_percentage
-FROM total_variants tv, completed_variants cv;
+  tt.total,
+  ct.completed,
+  ROUND((ct.completed::DECIMAL / tt.total) * 100, 2) AS progress_percentage
+FROM total_tasks tt, completed_tasks ct;
 ```
 
 **Uwaga**: W MVP to query może być wykonywane na frontendzie dla uproszczenia.
 
 ---
 
-### 6.5. Oznaczanie wariantu jako ukończonego
+### 6.5. Oznaczanie zadania jako ukończonego
 
 ```sql
-INSERT INTO user_step_progress (user_id, step_variant_id, completed_at)
+INSERT INTO user_step_progress (user_id, step_task_id, completed_at)
 VALUES (auth.uid(), $1, NOW())
-ON CONFLICT (user_id, step_variant_id) DO NOTHING;
+ON CONFLICT (user_id, step_task_id) DO NOTHING;
 ```
 
-**Uwaga**: `ON CONFLICT DO NOTHING` zapobiega duplikatom (użytkownik nie może ukończyć wariantu dwa razy).
+**Uwaga**: `ON CONFLICT DO NOTHING` zapobiega duplikatom (użytkownik nie może ukończyć zadania dwa razy).
 
 ---
 
@@ -489,7 +489,9 @@ ON CONFLICT (user_id, step_variant_id) DO NOTHING;
 
 7. **Progres obliczany na frontendzie**: Brak denormalizacji (kolumna `progress_percentage` w `profiles`). Kalkulacja on-demand z `user_step_progress`.
 
-8. **Predefiniowane roadmapy**: Steps i variants są globalne (nie per użytkownik), dodawane ręcznie lub przez seed migration.
+8. **Predefiniowane roadmapy**: Steps i tasks są globalne (nie per użytkownik), dodawane ręcznie lub przez seed migration.
+
+9. **Wszystkie zadania obowiązkowe**: Kolejny krok jest odblokowywany dopiero gdy WSZYSTKIE zadania poprzedniego kroku są ukończone.
 
 ---
 
@@ -542,7 +544,7 @@ INSERT INTO roadmap_steps (role_id, order_number, title, description) VALUES
 
 1. **RLS policies**: Każdy użytkownik ma dostęp tylko do własnych danych w `profiles` i `user_step_progress`.
 
-2. **Service role**: Tylko backend (service_role key) może modyfikować tabele słownikowe (`roles`, `roadmap_steps`, `step_variants`).
+2. **Service role**: Tylko backend (service_role key) może modyfikować tabele słownikowe (`roles`, `roadmap_steps`, `step_tasks`).
 
 3. **JSONB validation**: Struktura JSONB jest walidowana na poziomie aplikacji (Edge Functions) przed zapisem.
 
@@ -587,12 +589,13 @@ INSERT INTO roadmap_steps (role_id, order_number, title, description) VALUES
 
 Schemat bazy danych JobSwitch MVP to:
 
-- **5 tabel**: `profiles`, `roles`, `roadmap_steps`, `step_variants`, `user_step_progress`
+- **5 tabel**: `profiles`, `roles`, `roadmap_steps`, `step_tasks`, `user_step_progress`
 - **Minimalna complexity**: Tylko niezbędne elementy
 - **JSONB + relacyjne**: Hybrid approach dla optymalnej elastyczności
 - **RLS native**: Bezpieczeństwo out of the box
 - **Supabase best practices**: Wykorzystanie wbudowanych mechanizmów platformy
 - **Skalowalne**: Gotowe na wzrost z prostymi ścieżkami optymalizacji
+- **Obowiązkowe zadania**: Wszystkie zadania (tasks) w kroku muszą być ukończone, aby odblokować następny krok
 
 Schemat jest gotowy do implementacji jako migration SQL dla Supabase.
 

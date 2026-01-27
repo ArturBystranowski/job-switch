@@ -1,5 +1,5 @@
 import { supabaseClient } from '../db/supabase.client';
-import type { RoadmapStepDTO, RoadmapStepWithVariantsDTO } from '../types';
+import type { RoadmapStepDTO, RoadmapStepWithTasksDTO, StepTaskDTO } from '../types';
 
 /**
  * Roadmap API module
@@ -8,15 +8,15 @@ import type { RoadmapStepDTO, RoadmapStepWithVariantsDTO } from '../types';
  */
 export const roadmapApi = {
   /**
-   * Fetch complete roadmap with all steps and variants for a role
+   * Fetch complete roadmap with all steps and tasks for a role
    * @param roleId - ID of the role
-   * @returns Promise<RoadmapStepWithVariantsDTO[]> - Array of roadmap steps with variants
+   * @returns Promise<RoadmapStepWithTasksDTO[]> - Array of roadmap steps with tasks
    * @throws Error if Supabase query fails
    */
-  async getRoadmapByRoleId(roleId: number): Promise<RoadmapStepWithVariantsDTO[]> {
+  async getRoadmapByRoleId(roleId: number): Promise<RoadmapStepWithTasksDTO[]> {
     const { data, error } = await supabaseClient
       .from('roadmap_steps')
-      .select('*, step_variants(*)')
+      .select('*, step_tasks(*)')
       .eq('role_id', roleId)
       .order('order_number', { ascending: true });
 
@@ -24,28 +24,27 @@ export const roadmapApi = {
       throw new Error(error.message);
     }
 
-    // Sort variants within each step by order_number
+    // Sort tasks within each step by order_number
     const sortedData = (data ?? []).map((step) => ({
       ...step,
-      step_variants: (step.step_variants ?? []).sort(
-        (a: { order_number: number }, b: { order_number: number }) =>
-          a.order_number - b.order_number
+      step_tasks: ((step.step_tasks ?? []) as StepTaskDTO[]).sort(
+        (a, b) => a.order_number - b.order_number
       ),
     }));
 
-    return sortedData as RoadmapStepWithVariantsDTO[];
+    return sortedData as RoadmapStepWithTasksDTO[];
   },
 
   /**
-   * Fetch a single roadmap step with its variants
+   * Fetch a single roadmap step with its tasks
    * @param stepId - ID of the step
-   * @returns Promise<RoadmapStepWithVariantsDTO | null> - Step with variants or null
+   * @returns Promise<RoadmapStepWithTasksDTO | null> - Step with tasks or null
    * @throws Error if Supabase query fails
    */
-  async getStepById(stepId: number): Promise<RoadmapStepWithVariantsDTO | null> {
+  async getStepById(stepId: number): Promise<RoadmapStepWithTasksDTO | null> {
     const { data, error } = await supabaseClient
       .from('roadmap_steps')
-      .select('*, step_variants(*)')
+      .select('*, step_tasks(*)')
       .eq('id', stepId)
       .single();
 
@@ -56,20 +55,19 @@ export const roadmapApi = {
       throw new Error(error.message);
     }
 
-    // Sort variants by order_number
+    // Sort tasks by order_number
     const sortedData = {
       ...data,
-      step_variants: (data.step_variants ?? []).sort(
-        (a: { order_number: number }, b: { order_number: number }) =>
-          a.order_number - b.order_number
+      step_tasks: ((data.step_tasks ?? []) as StepTaskDTO[]).sort(
+        (a, b) => a.order_number - b.order_number
       ),
     };
 
-    return sortedData as RoadmapStepWithVariantsDTO;
+    return sortedData as RoadmapStepWithTasksDTO;
   },
 
   /**
-   * Fetch roadmap steps without variants (lighter payload)
+   * Fetch roadmap steps without tasks (lighter payload)
    * @param roleId - ID of the role
    * @returns Promise<RoadmapStepDTO[]> - Array of roadmap steps
    * @throws Error if Supabase query fails

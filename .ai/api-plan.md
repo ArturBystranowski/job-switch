@@ -20,8 +20,8 @@ This document outlines the REST API architecture for JobSwitch, a career guidanc
 | **Profiles** | `profiles` | User business data, questionnaire responses, AI recommendations |
 | **Roles** | `roles` | IT role dictionary (predefined data) |
 | **Roadmap Steps** | `roadmap_steps` | Development path steps for each role |
-| **Step Variants** | `step_variants` | Alternative learning paths for each step |
-| **User Progress** | `user_step_progress` | User's completed variants tracking |
+| **Step Tasks** | `step_tasks` | Mandatory sub-tasks for each step (all must be completed) |
+| **User Progress** | `user_step_progress` | User's completed tasks tracking |
 | **CV Storage** | Supabase Storage | CV file storage (PDF/DOCX) |
 
 ---
@@ -371,8 +371,8 @@ Authentication is handled by Supabase Auth SDK. These are the logical operations
 #### 2.5.1. Get Roadmap for Role
 
 - **Method:** `GET`
-- **Path:** `/rest/v1/roadmap_steps?role_id=eq.{role_id}&select=*,step_variants(*)`
-- **Description:** Retrieve complete roadmap with all steps and variants for a role
+- **Path:** `/rest/v1/roadmap_steps?role_id=eq.{role_id}&select=*,step_tasks(*)`
+- **Description:** Retrieve complete roadmap with all steps and tasks for a role. All tasks in a step must be completed to unlock the next step.
 - **Headers:** `Authorization: Bearer {access_token}`
 - **Query Parameters:**
   - `role_id` - Filter by role ID (required)
@@ -388,7 +388,7 @@ Authentication is handled by Supabase Auth SDK. These are the logical operations
     "title": "HTML and CSS Fundamentals",
     "description": "Learn HTML document structure and CSS styling. Understand box model, flexbox and grid.",
     "created_at": "2025-01-01T00:00:00Z",
-    "step_variants": [
+    "step_tasks": [
       {
         "id": 1,
         "step_id": 1,
@@ -434,7 +434,7 @@ Authentication is handled by Supabase Auth SDK. These are the logical operations
     "title": "JavaScript - Fundamentals",
     "description": "Master JavaScript basics: variables, functions, loops, objects and DOM manipulation.",
     "created_at": "2025-01-01T00:00:00Z",
-    "step_variants": [...]
+    "step_tasks": [...]
   }
 ]
 ```
@@ -444,11 +444,11 @@ Authentication is handled by Supabase Auth SDK. These are the logical operations
   - `401 Unauthorized` - Invalid or missing token
   - `404 Not Found` - Role not found
 
-#### 2.5.2. Get Single Step with Variants
+#### 2.5.2. Get Single Step with Tasks
 
 - **Method:** `GET`
-- **Path:** `/rest/v1/roadmap_steps?id=eq.{step_id}&select=*,step_variants(*)`
-- **Description:** Retrieve single roadmap step with its variants
+- **Path:** `/rest/v1/roadmap_steps?id=eq.{step_id}&select=*,step_tasks(*)`
+- **Description:** Retrieve single roadmap step with its tasks
 - **Headers:** `Authorization: Bearer {access_token}`
 - **Response Payload (200 OK):**
 ```json
@@ -459,7 +459,7 @@ Authentication is handled by Supabase Auth SDK. These are the logical operations
   "title": "HTML and CSS Fundamentals",
   "description": "Learn HTML document structure and CSS styling.",
   "created_at": "2025-01-01T00:00:00Z",
-  "step_variants": [...]
+  "step_tasks": [...]
 }
 ```
 - **Success Codes:**
@@ -475,8 +475,8 @@ Authentication is handled by Supabase Auth SDK. These are the logical operations
 #### 2.6.1. Get User Progress
 
 - **Method:** `GET`
-- **Path:** `/rest/v1/user_step_progress?user_id=eq.{user_id}&select=*,step_variants(*, roadmap_steps(*))`
-- **Description:** Retrieve all completed variants for authenticated user
+- **Path:** `/rest/v1/user_step_progress?user_id=eq.{user_id}&select=*,step_tasks(*, roadmap_steps(*))`
+- **Description:** Retrieve all completed tasks for authenticated user
 - **Headers:** `Authorization: Bearer {access_token}`
 - **Query Parameters:**
   - `select` - Fields to return (supports nested relations)
@@ -487,9 +487,9 @@ Authentication is handled by Supabase Auth SDK. These are the logical operations
   {
     "id": 1,
     "user_id": "uuid",
-    "step_variant_id": 1,
+    "step_task_id": 1,
     "completed_at": "2025-01-26T14:00:00Z",
-    "step_variants": {
+    "step_tasks": {
       "id": 1,
       "step_id": 1,
       "order_number": 1,
@@ -509,17 +509,17 @@ Authentication is handled by Supabase Auth SDK. These are the logical operations
 - **Error Codes:**
   - `401 Unauthorized` - Invalid or missing token
 
-#### 2.6.2. Mark Variant as Completed
+#### 2.6.2. Mark Task as Completed
 
 - **Method:** `POST`
 - **Path:** `/rest/v1/user_step_progress`
-- **Description:** Mark a step variant as completed
+- **Description:** Mark a step task as completed. All tasks in a step must be completed to unlock the next step.
 - **Headers:** `Authorization: Bearer {access_token}`
 - **Request Payload:**
 ```json
 {
   "user_id": "uuid",
-  "step_variant_id": 1
+  "step_task_id": 1
 }
 ```
 - **Response Payload (201 Created):**
@@ -527,24 +527,24 @@ Authentication is handled by Supabase Auth SDK. These are the logical operations
 {
   "id": 1,
   "user_id": "uuid",
-  "step_variant_id": 1,
+  "step_task_id": 1,
   "completed_at": "2025-01-26T14:00:00Z"
 }
 ```
 - **Success Codes:**
-  - `201 Created` - Variant marked as completed
-  - `200 OK` - Variant already completed (idempotent)
+  - `201 Created` - Task marked as completed
+  - `200 OK` - Task already completed (idempotent)
 - **Error Codes:**
-  - `400 Bad Request` - Invalid step_variant_id
+  - `400 Bad Request` - Invalid step_task_id
   - `401 Unauthorized` - Invalid or missing token
-  - `404 Not Found` - Step variant not found
-  - `409 Conflict` - Variant already completed (if not using ON CONFLICT)
+  - `404 Not Found` - Step task not found
+  - `409 Conflict` - Task already completed (if not using ON CONFLICT)
 
-#### 2.6.3. Unmark Variant as Completed
+#### 2.6.3. Unmark Task as Completed
 
 - **Method:** `DELETE`
-- **Path:** `/rest/v1/user_step_progress?user_id=eq.{user_id}&step_variant_id=eq.{variant_id}`
-- **Description:** Remove completion mark from a variant
+- **Path:** `/rest/v1/user_step_progress?user_id=eq.{user_id}&step_task_id=eq.{task_id}`
+- **Description:** Remove completion mark from a task
 - **Headers:** `Authorization: Bearer {access_token}`
 - **Response:** `204 No Content`
 - **Success Codes:**
@@ -562,15 +562,15 @@ Authentication is handled by Supabase Auth SDK. These are the logical operations
 - **Response Payload (200 OK):**
 ```json
 {
-  "total_variants": 30,
-  "completed_variants": 5,
+  "total_tasks": 30,
+  "completed_tasks": 5,
   "progress_percentage": 16.67,
   "steps_summary": [
     {
       "step_id": 1,
       "step_title": "HTML and CSS Fundamentals",
-      "total_variants": 3,
-      "completed_variants": 2,
+      "total_tasks": 3,
+      "completed_tasks": 2,
       "is_step_completed": false
     }
   ]
@@ -690,7 +690,7 @@ All data access is controlled by RLS policies at the database level:
 | `profiles` | Own only | Own only | Own only | - |
 | `roles` | All authenticated | service_role only | - | - |
 | `roadmap_steps` | All authenticated | service_role only | - | - |
-| `step_variants` | All authenticated | service_role only | - | - |
+| `step_tasks` | All authenticated | service_role only | - | - |
 | `user_step_progress` | Own only | Own only | - | Own only |
 
 ### 3.4. Edge Function Authorization
@@ -735,7 +735,7 @@ Edge Functions verify JWT tokens and have access to:
 | `title` | Required, non-empty string |
 | `description` | Required, non-empty string |
 
-#### 4.1.4. Step Variants Validation
+#### 4.1.4. Step Tasks Validation
 
 | Field | Validation Rules |
 |-------|-----------------|
@@ -749,9 +749,9 @@ Edge Functions verify JWT tokens and have access to:
 
 | Field | Validation Rules |
 |-------|-----------------|
-| `step_variant_id` | Must reference existing variant |
+| `step_task_id` | Must reference existing task |
 | `user_id` | Must match authenticated user |
-| Uniqueness | User cannot complete same variant twice |
+| Uniqueness | User cannot complete same task twice |
 
 ### 4.2. Business Logic Implementation
 
@@ -787,9 +787,10 @@ Edge Functions verify JWT tokens and have access to:
 
 6. Progress Tracking
    └─> Verify role selected
-   └─> Verify variant belongs to selected role
+   └─> Verify task belongs to selected role
    └─> Insert/delete progress records
    └─> Calculate progress percentage on-demand
+   └─> All tasks in a step must be completed to unlock next step
 ```
 
 #### 4.2.2. AI Recommendation Logic (Edge Function)
@@ -833,35 +834,45 @@ Output format:
 **Client-side calculation (recommended for MVP):**
 ```typescript
 function calculateProgress(
-  totalVariants: number,
-  completedVariants: number
+  totalTasks: number,
+  completedTasks: number
 ): number {
-  if (totalVariants === 0) return 0;
-  return Math.round((completedVariants / totalVariants) * 100 * 100) / 100;
+  if (totalTasks === 0) return 0;
+  return Math.round((completedTasks / totalTasks) * 100 * 100) / 100;
+}
+
+// Step unlock logic: ALL tasks must be completed
+function isStepUnlocked(
+  stepTasks: Task[],
+  completedTaskIds: number[],
+  isFirstStep: boolean
+): boolean {
+  if (isFirstStep) return true;
+  return stepTasks.every(task => completedTaskIds.includes(task.id));
 }
 ```
 
 **Edge Function calculation (optional):**
 ```sql
-WITH role_variants AS (
+WITH role_tasks AS (
   SELECT COUNT(sv.id) AS total
-  FROM step_variants sv
+  FROM step_tasks sv
   JOIN roadmap_steps rs ON sv.step_id = rs.id
   WHERE rs.role_id = (SELECT selected_role_id FROM profiles WHERE id = auth.uid())
 ),
 completed AS (
   SELECT COUNT(usp.id) AS count
   FROM user_step_progress usp
-  JOIN step_variants sv ON usp.step_variant_id = sv.id
+  JOIN step_tasks sv ON usp.step_task_id = sv.id
   JOIN roadmap_steps rs ON sv.step_id = rs.id
   WHERE usp.user_id = auth.uid()
     AND rs.role_id = (SELECT selected_role_id FROM profiles WHERE id = auth.uid())
 )
 SELECT 
-  rv.total,
+  rt.total,
   c.count AS completed,
-  ROUND((c.count::DECIMAL / rv.total) * 100, 2) AS percentage
-FROM role_variants rv, completed c;
+  ROUND((c.count::DECIMAL / rt.total) * 100, 2) AS percentage
+FROM role_tasks rt, completed c;
 ```
 
 ### 4.3. Error Handling Strategy
@@ -908,7 +919,7 @@ FROM role_variants rv, completed c;
 | `ROLE_ALREADY_SELECTED` | Attempting to change selected role |
 | `ROLE_NOT_IN_RECOMMENDATIONS` | Selecting role not in AI recommendations |
 | `ROLE_NOT_SELECTED` | Attempting to track progress without selected role |
-| `VARIANT_NOT_IN_ROLE` | Marking variant not in selected role's roadmap |
+| `TASK_NOT_IN_ROLE` | Marking task not in selected role's roadmap |
 | `AI_SERVICE_ERROR` | OpenRouter API error |
 | `CV_PARSE_ERROR` | Unable to extract text from CV file |
 

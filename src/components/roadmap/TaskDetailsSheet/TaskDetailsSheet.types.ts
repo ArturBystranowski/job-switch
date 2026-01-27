@@ -1,8 +1,8 @@
-import type { StepVariantDTO } from '../../../types';
+import type { StepTaskDTO } from '../../../types';
 
-export interface VariantDetailsSheetProps {
+export interface TaskDetailsSheetProps {
   open: boolean;
-  variant: StepVariantDTO | null;
+  task: StepTaskDTO | null;
   stepTitle: string;
   isCompleted: boolean;
   isLoading: boolean;

@@ -2,6 +2,7 @@ import type { SxProps, Theme } from '@mui/material';
 
 export const panelContainerSx: SxProps<Theme> = {
   height: '100%',
+  width: '100%',
   display: 'flex',
   flexDirection: 'column',
   overflow: 'hidden',
@@ -112,9 +113,10 @@ export const emptyStateSx: SxProps<Theme> = {
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
-  justifyContent: 'center',
+  // justifyContent: 'center',
+  width: '100%',
   height: '100%',
-  padding: '2rem',
+  padding: '4rem 2rem',
   textAlign: 'center',
   color: 'text.secondary',
 };
@@ -127,4 +129,40 @@ export const emptyIconSx: SxProps<Theme> = {
 
 export const emptyTextSx: SxProps<Theme> = {
   fontSize: '0.9375rem',
+};
+
+export const tasksListSx: SxProps<Theme> = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '0.75rem',
+  marginTop: '1rem',
+};
+
+export const taskItemSx: SxProps<Theme> = {
+  display: 'flex',
+  alignItems: 'flex-start',
+  gap: '0.75rem',
+  padding: '1rem',
+  backgroundColor: 'background.paper',
+  border: '1px solid',
+  borderColor: 'grey.200',
+  borderRadius: '0.5rem',
+  cursor: 'pointer',
+  transition: 'all 0.2s ease-in-out',
+  '&:hover': {
+    borderColor: 'primary.main',
+    backgroundColor: 'grey.50',
+  },
+};
+
+export const taskItemSelectedSx: SxProps<Theme> = {
+  ...taskItemSx,
+  borderColor: 'primary.main',
+  borderWidth: '2px',
+  backgroundColor: 'primary.light',
+};
+
+export const taskItemCompletedSx: SxProps<Theme> = {
+  borderColor: 'success.main',
+  backgroundColor: 'success.light',
 };

@@ -19,7 +19,7 @@ const STEPS = [
     icon: QuizIcon,
     number: 'Krok 1',
     title: 'Kwestionariusz',
-    description: 'Odpowiedz na 5 pytań o swoich preferencjach zawodowych',
+    description: 'Odpowiedz na 10 pytań o swoich preferencjach zawodowych',
     color: '#0D9488',
     bgColor: '#0D948815',
   },
@@ -45,13 +45,13 @@ export const StepsPreview = () => {
   return (
     <Box sx={containerSx}>
       <Box sx={gridContainerSx}>
-        <Grid container spacing={{ xs: 2, md: 3 }} alignItems="stretch">
+        <Grid container spacing={{ xs: 1.5, md: 2 }} alignItems="stretch">
           {STEPS.map((step, index) => (
             <Grid key={step.number} size={{ xs: 12, md: 4 }}>
               <Stack direction="row" alignItems="center" sx={{ height: '100%' }}>
                 <Paper sx={stepCardSx} elevation={0}>
                   <Box sx={{ ...iconContainerSx, backgroundColor: step.bgColor }}>
-                    <step.icon sx={{ fontSize: '2rem', color: step.color }} />
+                    <step.icon sx={{ fontSize: '1.5rem', color: step.color }} />
                   </Box>
                   <Typography sx={stepNumberSx}>{step.number}</Typography>
                   <Typography sx={stepTitleSx}>{step.title}</Typography>
@@ -59,7 +59,7 @@ export const StepsPreview = () => {
                 </Paper>
                 {index < STEPS.length - 1 && (
                   <Box sx={arrowContainerSx}>
-                    <ArrowForwardIcon sx={{ fontSize: '1.5rem', mx: 1 }} />
+                    <ArrowForwardIcon sx={{ fontSize: '1.25rem', mx: 0.75 }} />
                   </Box>
                 )}
               </Stack>

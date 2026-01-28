@@ -15,6 +15,34 @@ export type {
   AILoadingOverlayProps,
 } from './common';
 
+// Auth components
+export {
+  AuthFormContainer,
+  PasswordField,
+  PasswordStrengthIndicator,
+  LoginForm,
+  RegisterForm,
+  ForgotPasswordForm,
+  ResetPasswordForm,
+} from './auth';
+export type {
+  AuthFormContainerProps,
+  PasswordFieldProps,
+  PasswordStrengthIndicatorProps,
+  LoginFormProps,
+  LoginFormData,
+  RegisterFormProps,
+  RegisterFormData,
+  ForgotPasswordFormProps,
+  ForgotPasswordFormData,
+  ResetPasswordFormProps,
+  ResetPasswordFormData,
+} from './auth';
+
+// Layout components
+export { AppHeader, UserMenu, ProtectedRoute } from './layout';
+export type { AppHeaderProps, UserMenuProps, ProtectedRouteProps } from './layout';
+
 // Landing components
 export { LandingHero, StepsPreview } from './landing';
 export type { LandingHeroProps } from './landing';

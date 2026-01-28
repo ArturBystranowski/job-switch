@@ -23,7 +23,7 @@ JobSwitch rozwiązuje ten problem poprzez proste, szybkie i precyzyjne rekomenda
 
 1. Rejestracja i logowanie użytkownika (email + hasło).
 2. Formularz użytkownika (pytania dot. preferencji, umiejętności miękkich, trybu pracy).
-3. Jednorazowy upload CV (PDF/DOCX, max 1 MB).
+3. Jednorazowy upload CV (PDF/DOCX, max 3 MB).
 4. Analiza CV i formularza przez AI:
    - heurystyki oparte na doświadczeniu zawodowym,
    - formularz ważniejszy w ocenie miękkich kompetencji.

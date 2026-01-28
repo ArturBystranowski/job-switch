@@ -1,3 +1,4 @@
+export { useAuth } from './useAuth';
 export { useRoles, useRole, ROLES_QUERY_KEY, roleQueryKey } from './useRoles';
 export {
   useProfile,

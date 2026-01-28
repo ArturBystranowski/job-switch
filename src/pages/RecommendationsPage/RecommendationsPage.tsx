@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { Box, Container, Typography, Button } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
-import { useDevUser } from '../../context';
+import { useAuth } from '../../hooks';
 import { useProfile, useSelectRole } from '../../hooks/useProfile';
 import { useGenerateRecommendation } from '../../hooks/useRecommendation';
 import { RoleCard, RoleConfirmationDialog } from '../../components/recommendations';
@@ -28,7 +28,8 @@ interface SelectedRole {
 
 export const RecommendationsPage = () => {
   const navigate = useNavigate();
-  const { userId } = useDevUser();
+  const { user } = useAuth();
+  const userId = user?.id ?? '';
   const [selectedRole, setSelectedRole] = useState<SelectedRole | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -40,6 +41,7 @@ export const RecommendationsPage = () => {
   const recommendations = aiRecommendations?.recommendations ?? [];
   const hasRecommendations = recommendations.length > 0;
   const hasSelectedRole = !!profile?.selected_role_id;
+  const hasCV = !!profile?.cv_uploaded_at;
 
   const handleSelectRole = useCallback((roleId: number, roleName: string) => {
     setSelectedRole({ roleId, roleName });
@@ -60,11 +62,13 @@ export const RecommendationsPage = () => {
         roleId: selectedRole.roleId,
       });
       setIsDialogOpen(false);
+      // Wait for profile cache to be updated before navigating
+      await refetch();
       navigate('/roadmap');
     } catch (err) {
       console.error('Failed to select role:', err);
     }
-  }, [selectedRole, userId, selectRole, navigate]);
+  }, [selectedRole, userId, selectRole, navigate, refetch]);
 
   const handleGenerateRecommendations = useCallback(async () => {
     try {
@@ -76,7 +80,7 @@ export const RecommendationsPage = () => {
   }, [generateRecommendation, refetch, userId]);
 
   if (generateRecommendation.isPending) {
-    return <AILoadingOverlay onRetry={handleGenerateRecommendations} />;
+    return <AILoadingOverlay onRetry={handleGenerateRecommendations} hasCV={hasCV} />;
   }
 
   if (isPending) {

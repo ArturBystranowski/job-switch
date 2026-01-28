@@ -1,6 +1,5 @@
-import { Box, Typography, CircularProgress, IconButton } from '@mui/material';
+import { Box, Typography, CircularProgress, IconButton, Avatar } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import PersonIcon from '@mui/icons-material/Person';
 import {
   headerContainerSx,
   headerContentSx,
@@ -14,14 +13,21 @@ import {
   progressTextSx,
   profileIconSx,
   mobileProfileIconSx,
+  profileAvatarSx,
 } from './RoadmapProgressHeader.sx';
 import type { RoadmapProgressHeaderProps } from './RoadmapProgressHeader.types';
 import { getProgressPercentageSx } from '../../../pages/ProfilePage/ProfilePage.sx';
+
+const getInitials = (email?: string): string => {
+  if (!email) return '?';
+  return email.charAt(0).toUpperCase();
+};
 
 export const RoadmapProgressHeader = ({
   completedSteps,
   totalSteps,
   roleName,
+  userEmail,
 }: RoadmapProgressHeaderProps) => {
   const navigate = useNavigate();
   const progressPercentage = totalSteps > 0 ? Math.round((completedSteps / totalSteps) * 100) : 0;
@@ -38,7 +44,7 @@ export const RoadmapProgressHeader = ({
             onClick={() => navigate('/profile')}
             aria-label="Przejdź do profilu"
           >
-            <PersonIcon />
+            <Avatar sx={profileAvatarSx}>{getInitials(userEmail)}</Avatar>
           </IconButton>
         </Box>
         <Box sx={rightSectionSx}>
@@ -64,7 +70,7 @@ export const RoadmapProgressHeader = ({
             onClick={() => navigate('/profile')}
             aria-label="Przejdź do profilu"
           >
-            <PersonIcon />
+            <Avatar sx={profileAvatarSx}>{getInitials(userEmail)}</Avatar>
           </IconButton>
         </Box>
       </Box>

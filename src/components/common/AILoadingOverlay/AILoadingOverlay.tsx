@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Box, CircularProgress, Typography, Button, Fade } from '@mui/material';
 import {
   overlaySx,
@@ -8,8 +8,15 @@ import {
 } from './AILoadingOverlay.sx';
 import type { AILoadingOverlayProps } from './AILoadingOverlay.types';
 
-const LOADING_MESSAGES = [
+const LOADING_MESSAGES_WITH_CV = [
   'Analizuję Twoje CV...',
+  'Dopasowuję role do Twoich preferencji...',
+  'Przygotowuję rekomendacje...',
+  'Już prawie gotowe...',
+];
+
+const LOADING_MESSAGES_WITHOUT_CV = [
+  'Analizuję Twoje odpowiedzi...',
   'Dopasowuję role do Twoich preferencji...',
   'Przygotowuję rekomendacje...',
   'Już prawie gotowe...',
@@ -22,9 +29,15 @@ export const AILoadingOverlay = ({
   onTimeout,
   onRetry,
   timeoutMs = DEFAULT_TIMEOUT_MS,
+  hasCV = false,
 }: AILoadingOverlayProps) => {
   const [messageIndex, setMessageIndex] = useState(0);
   const [isTimedOut, setIsTimedOut] = useState(false);
+
+  const loadingMessages = useMemo(
+    () => (hasCV ? LOADING_MESSAGES_WITH_CV : LOADING_MESSAGES_WITHOUT_CV),
+    [hasCV]
+  );
 
   const handleRetry = useCallback(() => {
     setIsTimedOut(false);
@@ -36,11 +49,11 @@ export const AILoadingOverlay = ({
     if (isTimedOut) return;
 
     const messageTimer = setInterval(() => {
-      setMessageIndex((prev) => (prev + 1) % LOADING_MESSAGES.length);
+      setMessageIndex((prev) => (prev + 1) % loadingMessages.length);
     }, MESSAGE_INTERVAL_MS);
 
     return () => clearInterval(messageTimer);
-  }, [isTimedOut]);
+  }, [isTimedOut, loadingMessages.length]);
 
   useEffect(() => {
     const timeoutTimer = setTimeout(() => {
@@ -80,7 +93,7 @@ export const AILoadingOverlay = ({
         <Box sx={messageSx}>
           <Fade in key={messageIndex} timeout={500}>
             <Typography variant="h6" color="text.primary">
-              {LOADING_MESSAGES[messageIndex]}
+              {loadingMessages[messageIndex]}
             </Typography>
           </Fade>
         </Box>

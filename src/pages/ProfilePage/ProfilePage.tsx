@@ -6,10 +6,12 @@ import LockIcon from '@mui/icons-material/Lock';
 import DownloadIcon from '@mui/icons-material/Download';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import WorkIcon from '@mui/icons-material/Work';
+import LogoutIcon from '@mui/icons-material/Logout';
+import EmailIcon from '@mui/icons-material/Email';
 import { useProfile } from '../../hooks/useProfile';
 import { useCompletedTaskIds } from '../../hooks/useProgress';
 import { useRoadmap } from '../../hooks/useRoadmap';
-import { useDevUser } from '../../context';
+import { useAuth } from '../../hooks';
 import { cvApi } from '../../api/cv.api';
 import {
   ProfileSection,
@@ -45,11 +47,16 @@ import {
   roleCardHeaderSx,
   roleAvatarSx,
   getProgressPercentageSx,
+  logoutButtonContainerSx,
+  logoutButtonSx,
+  userEmailSx,
+  userEmailIconSx,
 } from './ProfilePage.sx';
 
 export const ProfilePage = () => {
   const navigate = useNavigate();
-  const { userId } = useDevUser();
+  const { user, signOut } = useAuth();
+  const userId = user?.id ?? '';
   const { data: profile, isPending, isError, error, refetch } = useProfile();
   const [isDownloading, setIsDownloading] = useState(false);
   
@@ -151,7 +158,15 @@ export const ProfilePage = () => {
       <Container maxWidth="md" sx={contentContainerSx}>
 
         <Box sx={headerSx}>
-          <Typography sx={titleSx}>Profil</Typography>
+          <Stack direction="row" justifyContent="space-between" alignItems="center">
+            <Typography sx={titleSx}>Profil</Typography>
+            {user?.email && (
+              <Stack direction="row" spacing={0.5} alignItems="center">
+                <EmailIcon sx={userEmailIconSx} />
+                <Typography sx={userEmailSx}>{user.email}</Typography>
+              </Stack>
+            )}
+          </Stack>
 
           {selectedRole && selectedRoleId && (
             <Stack direction="row" spacing={1} alignItems="center" sx={roleSectionLabelSx}>
@@ -248,6 +263,17 @@ export const ProfilePage = () => {
             </ProfileSection>
           )}
         </Stack>
+
+        <Box sx={logoutButtonContainerSx}>
+          <Button
+            variant="outlined"
+            startIcon={<LogoutIcon />}
+            onClick={signOut}
+            sx={logoutButtonSx}
+          >
+            Wyloguj się
+          </Button>
+        </Box>
       </Container>
     </Box>
   );

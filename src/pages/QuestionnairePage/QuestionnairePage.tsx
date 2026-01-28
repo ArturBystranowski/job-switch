@@ -3,7 +3,7 @@ import { Box, Container } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useQuestionnaireConfig } from '../../hooks/useQuestionnaire';
 import { useUpdateQuestionnaire, useProfileById } from '../../hooks/useProfile';
-import { useDevUser } from '../../context';
+import { useAuth } from '../../hooks';
 import { QuestionnaireStepper, QuestionCard, OpenQuestionCard } from '../../components/questionnaire';
 import { LoadingSpinner, ErrorAlert } from '../../components/common';
 import type { QuestionnaireResponsesDTO } from '../../types';
@@ -22,7 +22,8 @@ const OPEN_ANSWER_MAX_LENGTH = 200;
 
 export const QuestionnairePage = () => {
   const navigate = useNavigate();
-  const { userId } = useDevUser();
+  const { user } = useAuth();
+  const userId = user?.id ?? '';
   const [activeStep, setActiveStep] = useState(0);
   const [responses, setResponses] = useState<Partial<QuestionnaireResponsesDTO>>({});
 

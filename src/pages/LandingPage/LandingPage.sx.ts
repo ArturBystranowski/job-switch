@@ -1,13 +1,15 @@
 import type { SxProps, Theme } from '@mui/material';
 
 export const pageContainerSx: SxProps<Theme> = {
-  minHeight: '100vh',
+  height: '100vh',
   display: 'flex',
   flexDirection: 'column',
+  overflow: 'hidden',
 };
 
 export const mainContentSx: SxProps<Theme> = {
   flex: 1,
   display: 'flex',
   flexDirection: 'column',
+  minHeight: 0,
 };

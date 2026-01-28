@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { Box, Container, Typography, Button } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import { useDevUser } from '../../context';
+import { useAuth } from '../../hooks';
 import { useCVStatus, useUploadCV, useValidateCV } from '../../hooks/useCV';
 import { CVDropzone, CVPreview, UploadWarningBanner } from '../../components/cv-upload';
 import { LoadingSpinner, ErrorAlert } from '../../components/common';
@@ -23,7 +23,8 @@ type UploadStatus = 'pending' | 'uploading' | 'success' | 'error';
 
 export const UploadCVPage = () => {
   const navigate = useNavigate();
-  const { userId } = useDevUser();
+  const { user } = useAuth();
+  const userId = user?.id ?? '';
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploadStatus, setUploadStatus] = useState<UploadStatus>('pending');
   const [errorMessage, setErrorMessage] = useState<string | undefined>();

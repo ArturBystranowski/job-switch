@@ -127,7 +127,17 @@ export const headerSx: SxProps<Theme> = {
 export const titleSx: SxProps<Theme> = {
   fontSize: { xs: '1.5rem', md: '2rem' },
   fontWeight: 700,
-  marginBottom: '0.5rem',
+};
+
+export const userEmailSx: SxProps<Theme> = {
+  fontSize: '0.875rem',
+  fontWeight: 600,
+  color: 'secondary.main',
+};
+
+export const userEmailIconSx: SxProps<Theme> = {
+  fontSize: '1.25rem',
+  color: 'secondary.main',
 };
 
 export const sectionsContainerSx: SxProps<Theme> = {
@@ -170,4 +180,22 @@ export const errorContainerSx: SxProps<Theme> = {
   maxWidth: '32rem',
   margin: '0 auto',
   padding: '2rem',
+};
+
+export const logoutButtonContainerSx: SxProps<Theme> = {
+  marginTop: '2rem',
+  paddingTop: '1.5rem',
+  borderTop: '1px solid',
+  borderColor: 'grey.300',
+};
+
+export const logoutButtonSx: SxProps<Theme> = {
+  width: {xs: '100%', md: 'auto'},
+  marginLeft: {xs: 0, md: 'auto'},
+  color: 'error.main',
+  borderColor: 'error.main',
+  '&:hover': {
+    borderColor: 'error.dark',
+    backgroundColor: 'transparent',
+  },
 };

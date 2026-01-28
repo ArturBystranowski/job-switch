@@ -42,6 +42,34 @@ INSERT INTO auth.users (
 ) ON CONFLICT (id) DO NOTHING;
 
 -- ============================================================================
+-- Auth Identity for Test User (required for email/password login)
+-- ============================================================================
+
+INSERT INTO auth.identities (
+  id,
+  user_id,
+  identity_data,
+  provider,
+  provider_id,
+  last_sign_in_at,
+  created_at,
+  updated_at
+) VALUES (
+  '00000000-0000-0000-0000-000000000001'::uuid,
+  '00000000-0000-0000-0000-000000000001'::uuid,
+  jsonb_build_object(
+    'sub', '00000000-0000-0000-0000-000000000001',
+    'email', 'dev@test.local',
+    'email_verified', true
+  ),
+  'email',
+  'dev@test.local',
+  now(),
+  now(),
+  now()
+) ON CONFLICT (provider, provider_id) DO NOTHING;
+
+-- ============================================================================
 -- Update Test User Profile (created by trigger)
 -- ============================================================================
 

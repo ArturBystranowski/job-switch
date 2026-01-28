@@ -44,11 +44,8 @@ export const roleNameSx: SxProps<Theme> = {
 
 export const mobileProfileIconSx: SxProps<Theme> = {
   display: { xs: 'flex', lg: 'none' },
-  color: 'text.secondary',
-  '&:hover': {
-    color: 'primary.main',
-    backgroundColor: 'action.hover',
-  },
+  padding: '0.25rem',
+  borderRadius: '50%',
 };
 
 export const rightSectionSx: SxProps<Theme> = {
@@ -89,9 +86,14 @@ export const progressTextSx: SxProps<Theme> = {
 };
 
 export const profileIconSx: SxProps<Theme> = {
-  color: 'text.secondary',
-  '&:hover': {
-    color: 'primary.main',
-    backgroundColor: 'action.hover',
-  },
+  padding: '0.25rem',
+  borderRadius: '50%',
+};
+
+export const profileAvatarSx: SxProps<Theme> = {
+  width: 36,
+  height: 36,
+  backgroundColor: 'primary.main',
+  fontSize: '0.875rem',
+  fontWeight: 600,
 };

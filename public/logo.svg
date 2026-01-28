@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="10" fill="#ffffff"/>
+
+  <text
+    x="32"
+    y="46"
+    text-anchor="middle"
+    font-size="42"
+    font-weight="800"
+    letter-spacing="-4"
+    font-family="Inter, system-ui, -apple-system, BlinkMacSystemFont, sans-serif"
+  >
+    <tspan fill="#0D9488">J</tspan>
+    <tspan fill="#6366F1">S</tspan>
+  </text>
+</svg>

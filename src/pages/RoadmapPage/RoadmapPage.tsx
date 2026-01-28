@@ -15,7 +15,7 @@ import MapIcon from '@mui/icons-material/Map';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import CheckIcon from '@mui/icons-material/Check';
-import { useDevUser } from '../../context';
+import { useAuth } from '../../hooks';
 import { useProfile } from '../../hooks/useProfile';
 import { useRoadmap } from '../../hooks/useRoadmap';
 import { useCompletedTaskIds, useToggleTaskCompleted } from '../../hooks/useProgress';
@@ -55,7 +55,8 @@ export const RoadmapPage = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const navigate = useNavigate();
-  const { userId } = useDevUser();
+  const { user } = useAuth();
+  const userId = user?.id ?? '';
 
   const [selectedStepId, setSelectedStepId] = useState<number | null>(null);
   const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null);
@@ -186,6 +187,7 @@ export const RoadmapPage = () => {
           completedSteps={0}
           totalSteps={0}
           roleName={roleName}
+          userEmail={user?.email}
         />
         <Box sx={emptyStateContainerSx}>
           <MapIcon sx={{ fontSize: '4rem', color: 'grey.400', mb: 2 }} />
@@ -208,6 +210,7 @@ export const RoadmapPage = () => {
         completedSteps={completedStepsCount}
         totalSteps={roadmapSteps.length}
         roleName={roleName}
+        userEmail={user?.email}
       />
       <Box sx={mainContentSx}>
         <Box sx={treeContainerSx}>

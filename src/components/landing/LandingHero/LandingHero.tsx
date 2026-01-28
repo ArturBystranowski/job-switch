@@ -3,7 +3,7 @@ import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import { heroContainerSx, titleSx, subtitleSx, ctaButtonSx } from './LandingHero.sx';
 import type { LandingHeroProps } from './LandingHero.types';
 
-export const LandingHero = ({ onStart }: LandingHeroProps) => {
+export const LandingHero = ({ onStart, isAuthenticated = false }: LandingHeroProps) => {
   return (
     <Box sx={heroContainerSx}>
       <Typography variant="h1" component="h1" sx={titleSx}>
@@ -21,7 +21,7 @@ export const LandingHero = ({ onStart }: LandingHeroProps) => {
         endIcon={<RocketLaunchIcon />}
         sx={ctaButtonSx}
       >
-        Rozpocznij
+        {isAuthenticated ? 'Rozpocznij' : 'Zaloguj się i rozpocznij'}
       </Button>
     </Box>
   );

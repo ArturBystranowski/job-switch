@@ -8,4 +8,5 @@ export interface PasswordFieldProps {
   disabled?: boolean;
   autoComplete?: string;
   placeholder?: string;
+  'data-testid'?: string;
 }

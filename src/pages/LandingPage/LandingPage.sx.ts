@@ -4,7 +4,6 @@ export const pageContainerSx: SxProps<Theme> = {
   height: '100vh',
   display: 'flex',
   flexDirection: 'column',
-  overflow: 'hidden',
 };
 
 export const mainContentSx: SxProps<Theme> = {

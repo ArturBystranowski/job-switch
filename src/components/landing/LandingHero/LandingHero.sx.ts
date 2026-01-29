@@ -7,7 +7,7 @@ export const heroContainerSx: SxProps<Theme> = {
   alignItems: 'center',
   justifyContent: 'center',
   textAlign: 'center',
-  padding: { xs: '1.5rem 1rem', md: '2rem 2rem' },
+  padding: { xs: '5rem 1.5rem 1.5rem', md: '3rem 2rem 2rem' },
 };
 
 export const titleSx: SxProps<Theme> = {

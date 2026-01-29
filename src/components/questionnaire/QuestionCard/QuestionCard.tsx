@@ -27,8 +27,8 @@ export const QuestionCard = ({
 
   return (
     <Fade in timeout={300}>
-      <Paper sx={cardSx} elevation={0}>
-        <Typography variant="h5" sx={questionTextSx}>
+      <Paper sx={cardSx} elevation={0} data-testid='questionnaire-card'>
+        <Typography variant='h5' sx={questionTextSx}>
           {questionText}
         </Typography>
         <Box sx={optionsContainerSx}>
@@ -40,20 +40,22 @@ export const QuestionCard = ({
         </Box>
         <Box sx={navigationContainerSx}>
           <Button
-            variant="outlined"
+            variant='outlined'
             startIcon={<ArrowBackIcon />}
             onClick={onBack}
             disabled={isFirstQuestion}
             sx={navButtonSx}
+            data-testid='questionnaire-back-button'
           >
             Wstecz
           </Button>
           <Button
-            variant="contained"
+            variant='contained'
             endIcon={isLastQuestion ? <CheckIcon /> : <ArrowForwardIcon />}
             onClick={onNext}
             disabled={!canProceed}
             sx={navButtonSx}
+            data-testid='questionnaire-next-button'
           >
             {isLastQuestion ? 'Zakończ' : 'Dalej'}
           </Button>

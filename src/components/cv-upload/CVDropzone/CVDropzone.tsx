@@ -46,8 +46,8 @@ export const CVDropzone = ({
   };
 
   return (
-    <Box {...getRootProps()} sx={getDropzoneSx()}>
-      <input {...getInputProps()} />
+    <Box {...getRootProps()} sx={getDropzoneSx()} data-testid='cv-dropzone'>
+      <input {...getInputProps()} data-testid='cv-file-input' />
       <Box sx={iconContainerSx}>
         <CloudUploadIcon sx={uploadIconSx} />
       </Box>

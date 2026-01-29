@@ -75,7 +75,8 @@ export const RoleConfirmationDialog = ({
               checked={confirmed}
               onChange={handleCheckboxChange}
               disabled={isLoading}
-              color="primary"
+              color='primary'
+              inputProps={{ 'data-testid': 'role-confirm-checkbox' }}
             />
           }
           label={
@@ -86,17 +87,19 @@ export const RoleConfirmationDialog = ({
         />
       </DialogContent>
       <DialogActions sx={dialogActionsSx}>
-        <Button onClick={handleCancel} disabled={isLoading} variant="outlined">
+        <Button onClick={handleCancel} disabled={isLoading} variant='outlined'>
           Anuluj
         </Button>
         <Button
           onClick={handleConfirm}
           disabled={!confirmed || isLoading}
-          variant="contained"
-          color="primary"
+          variant='contained'
+          color='primary'
           sx={confirmButtonSx}
           startIcon={
-            isLoading ? <CircularProgress size={16} color="inherit" /> : undefined
+            isLoading ? (
+              <CircularProgress size={16} color='inherit' />
+            ) : undefined
           }
         >
           Potwierdź wybór

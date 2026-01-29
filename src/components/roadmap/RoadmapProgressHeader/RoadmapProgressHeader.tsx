@@ -1,4 +1,10 @@
-import { Box, Typography, CircularProgress, IconButton, Avatar } from '@mui/material';
+import {
+  Box,
+  Typography,
+  CircularProgress,
+  IconButton,
+  Avatar,
+} from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import {
   headerContainerSx,
@@ -30,10 +36,11 @@ export const RoadmapProgressHeader = ({
   userEmail,
 }: RoadmapProgressHeaderProps) => {
   const navigate = useNavigate();
-  const progressPercentage = totalSteps > 0 ? Math.round((completedSteps / totalSteps) * 100) : 0;
+  const progressPercentage =
+    totalSteps > 0 ? Math.round((completedSteps / totalSteps) * 100) : 0;
   const isCompleted = completedSteps === totalSteps;
   return (
-    <Box sx={headerContainerSx}>
+    <Box sx={headerContainerSx} data-testid='roadmap-progress-header'>
       <Box sx={headerContentSx}>
         <Box sx={leftSectionSx}>
           <Box sx={roleSectionWrapperSx}>
@@ -42,7 +49,7 @@ export const RoadmapProgressHeader = ({
           <IconButton
             sx={mobileProfileIconSx}
             onClick={() => navigate('/profile')}
-            aria-label="Przejdź do profilu"
+            aria-label='Przejdź do profilu'
           >
             <Avatar sx={profileAvatarSx}>{getInitials(userEmail)}</Avatar>
           </IconButton>
@@ -51,14 +58,19 @@ export const RoadmapProgressHeader = ({
           <Box sx={progressWrapperSx}>
             <Box sx={progressBoxSx}>
               <CircularProgress
-                variant="determinate"
+                variant='determinate'
                 value={progressPercentage}
                 size={48}
                 thickness={4}
                 color={isCompleted ? 'primary' : 'secondary'}
               />
               <Box sx={progressLabelContainerSx}>
-                <Typography sx={getProgressPercentageSx(isCompleted)}>{progressPercentage}%</Typography>
+                <Typography
+                  sx={getProgressPercentageSx(isCompleted)}
+                  data-testid='roadmap-progress-percentage'
+                >
+                  {progressPercentage}%
+                </Typography>
               </Box>
             </Box>
             <Typography sx={progressTextSx}>
@@ -68,7 +80,7 @@ export const RoadmapProgressHeader = ({
           <IconButton
             sx={profileIconSx}
             onClick={() => navigate('/profile')}
-            aria-label="Przejdź do profilu"
+            aria-label='Przejdź do profilu'
           >
             <Avatar sx={profileAvatarSx}>{getInitials(userEmail)}</Avatar>
           </IconButton>

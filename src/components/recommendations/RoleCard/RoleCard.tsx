@@ -30,30 +30,33 @@ export const RoleCard = ({
     <Paper
       elevation={0}
       sx={isRecommended ? recommendedCardSx : cardSx}
+      data-testid={`role-card-${roleId}`}
     >
-      <Stack direction="column" spacing={1.5} sx={{ flex: 1 }}>
+      <Stack direction='column' spacing={1.5} sx={{ flex: 1 }}>
         <RecommendationBadge variant={variant} />
         <Typography sx={titleSx}>{roleName}</Typography>
         <Box sx={descriptionBoxSx}>
-          <Avatar 
-            src={avatarUrl} 
-            alt={roleName}
-            sx={avatarSx}
-          >
+          <Avatar src={avatarUrl} alt={roleName} sx={avatarSx}>
             <WorkIcon sx={{ fontSize: '2rem' }} />
           </Avatar>
-          <Typography sx={justificationSx}>{justification}</Typography>
+          <Typography
+            sx={justificationSx}
+            data-testid={`role-justification-${roleId}`}
+          >
+            {justification}
+          </Typography>
         </Box>
       </Stack>
       <Box sx={actionSx}>
         <Button
           variant={isRecommended ? 'contained' : 'outlined'}
-          color="primary"
-          size="large"
+          color='primary'
+          size='large'
           onClick={() => onSelect(roleId)}
           disabled={disabled}
           startIcon={<CheckCircleOutlineIcon />}
           sx={selectButtonSx}
+          data-testid={`role-select-button-${roleId}`}
         >
           Wybierz tę rolę
         </Button>

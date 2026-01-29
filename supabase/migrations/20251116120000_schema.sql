@@ -56,17 +56,17 @@ COMMENT ON COLUMN public.profiles.selected_role_id IS 'User-selected final role 
 CREATE TABLE public.roadmap_steps (
   id SERIAL PRIMARY KEY,
   role_id INTEGER NOT NULL REFERENCES public.roles(id) ON DELETE CASCADE,
-  order_number INTEGER NOT NULL CHECK (order_number BETWEEN 1 AND 10),
+  order_number INTEGER NOT NULL CHECK (order_number >= 1 AND order_number <= 15),
   title TEXT NOT NULL,
   description TEXT NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   UNIQUE(role_id, order_number)
 );
 
-COMMENT ON TABLE public.roadmap_steps IS 'Development roadmap steps for each role. Each role has exactly 10 sequential steps.';
+COMMENT ON TABLE public.roadmap_steps IS 'Development roadmap steps for each role. Each role has up to 15 sequential steps.';
 COMMENT ON COLUMN public.roadmap_steps.id IS 'Unique step identifier';
 COMMENT ON COLUMN public.roadmap_steps.role_id IS 'Role to which this step belongs';
-COMMENT ON COLUMN public.roadmap_steps.order_number IS 'Step sequence number (1-10)';
+COMMENT ON COLUMN public.roadmap_steps.order_number IS 'Step sequence number (1-15)';
 COMMENT ON COLUMN public.roadmap_steps.title IS 'Step title (e.g., "HTML/CSS Basics")';
 COMMENT ON COLUMN public.roadmap_steps.description IS 'Step description (3-5 sentences)';
 

@@ -5,8 +5,15 @@ import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import { useAuth } from '../../hooks';
 import { useProfile, useSelectRole } from '../../hooks/useProfile';
 import { useGenerateRecommendation } from '../../hooks/useRecommendation';
-import { RoleCard, RoleConfirmationDialog } from '../../components/recommendations';
-import { LoadingSpinner, ErrorAlert, AILoadingOverlay } from '../../components/common';
+import {
+  RoleCard,
+  RoleConfirmationDialog,
+} from '../../components/recommendations';
+import {
+  LoadingSpinner,
+  ErrorAlert,
+  AILoadingOverlay,
+} from '../../components/common';
 import type { AIRecommendationsDTO } from '../../types';
 import {
   pageContainerSx,
@@ -37,7 +44,8 @@ export const RecommendationsPage = () => {
   const selectRole = useSelectRole();
   const generateRecommendation = useGenerateRecommendation();
 
-  const aiRecommendations = profile?.ai_recommendations as AIRecommendationsDTO | null;
+  const aiRecommendations =
+    profile?.ai_recommendations as AIRecommendationsDTO | null;
   const recommendations = aiRecommendations?.recommendations ?? [];
   const hasRecommendations = recommendations.length > 0;
   const hasSelectedRole = !!profile?.selected_role_id;
@@ -80,13 +88,15 @@ export const RecommendationsPage = () => {
   }, [generateRecommendation, refetch, userId]);
 
   if (generateRecommendation.isPending) {
-    return <AILoadingOverlay onRetry={handleGenerateRecommendations} hasCV={hasCV} />;
+    return (
+      <AILoadingOverlay onRetry={handleGenerateRecommendations} hasCV={hasCV} />
+    );
   }
 
   if (isPending) {
     return (
       <Box sx={pageContainerSx}>
-        <LoadingSpinner message="Ładowanie rekomendacji..." fullScreen />
+        <LoadingSpinner message='Ładowanie rekomendacji...' fullScreen />
       </Box>
     );
   }
@@ -96,7 +106,7 @@ export const RecommendationsPage = () => {
       <Box sx={pageContainerSx}>
         <Box sx={errorContainerSx}>
           <ErrorAlert
-            title="Błąd ładowania"
+            title='Błąd ładowania'
             message={error?.message ?? 'Nie udało się załadować rekomendacji'}
             onRetry={() => refetch()}
           />
@@ -113,27 +123,28 @@ export const RecommendationsPage = () => {
   if (!hasRecommendations) {
     return (
       <Box sx={pageContainerSx}>
-        <Container maxWidth="md" sx={contentContainerSx}>
+        <Container maxWidth='md' sx={contentContainerSx}>
           <Box sx={generateContainerSx}>
-            <AutoAwesomeIcon sx={{ fontSize: '3rem', color: 'primary.main', mb: 2 }} />
-            <Typography sx={generateTitleSx}>
-              Czas na analizę AI
-            </Typography>
+            <AutoAwesomeIcon
+              sx={{ fontSize: '3rem', color: 'primary.main', mb: 2 }}
+            />
+            <Typography sx={generateTitleSx}>Czas na analizę AI</Typography>
             <Typography sx={generateDescriptionSx}>
               Na podstawie Twoich odpowiedzi i CV przygotujemy spersonalizowane
               rekomendacje ról w IT.
             </Typography>
             <Button
-              variant="contained"
-              size="large"
+              variant='contained'
+              size='large'
               onClick={handleGenerateRecommendations}
               startIcon={<AutoAwesomeIcon />}
               disabled={generateRecommendation.isPending}
+              data-testid='recommendations-generate-button'
             >
               Generuj rekomendacje
             </Button>
             {generateRecommendation.isError && (
-              <Box sx={{ mt: 2 }}>
+              <Box sx={{ mt: 2 }} data-testid='recommendations-generate-error'>
                 <ErrorAlert
                   message={
                     generateRecommendation.error?.message ??
@@ -151,11 +162,18 @@ export const RecommendationsPage = () => {
 
   return (
     <Box sx={pageContainerSx}>
-      <Container maxWidth="lg" sx={contentContainerSx}>
+      <Container
+        maxWidth='lg'
+        sx={contentContainerSx}
+        data-testid='recommendations-container'
+      >
         <Box sx={headerSx}>
-          <Typography sx={titleSx}>Twoje rekomendowane ścieżki kariery</Typography>
+          <Typography sx={titleSx}>
+            Twoje rekomendowane ścieżki kariery
+          </Typography>
           <Typography sx={subtitleSx}>
-            Na podstawie Twoich odpowiedzi i CV przygotowaliśmy dla Ciebie propozycje
+            Na podstawie Twoich odpowiedzi i CV przygotowaliśmy dla Ciebie
+            propozycje
           </Typography>
         </Box>
 

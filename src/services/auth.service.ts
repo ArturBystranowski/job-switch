@@ -11,7 +11,8 @@ export interface AuthResult {
 export const AUTH_ERROR_MESSAGES: Record<string, string> = {
   // Login errors
   invalid_credentials: 'Nieprawidłowy email lub hasło',
-  email_not_confirmed: 'Email nie został potwierdzony. Sprawdź skrzynkę pocztową.',
+  email_not_confirmed:
+    'Email nie został potwierdzony. Sprawdź skrzynkę pocztową.',
   user_not_found: 'Użytkownik nie istnieje',
 
   // Registration errors
@@ -29,7 +30,8 @@ export const AUTH_ERROR_MESSAGES: Record<string, string> = {
   // General errors
   too_many_requests: 'Zbyt wiele prób. Spróbuj ponownie za kilka minut.',
   rate_limit_exceeded: 'Zbyt wiele prób. Spróbuj ponownie za kilka minut.',
-  network_error: 'Brak połączenia z internetem. Sprawdź połączenie i spróbuj ponownie.',
+  network_error:
+    'Brak połączenia z internetem. Sprawdź połączenie i spróbuj ponownie.',
   server_error: 'Wystąpił błąd serwera. Spróbuj ponownie później.',
 
   // Default
@@ -38,7 +40,9 @@ export const AUTH_ERROR_MESSAGES: Record<string, string> = {
 
 export const mapAuthError = (error: AuthError): string => {
   // First check the error code property (most reliable)
-  const errorCodeProperty = (error as unknown as { code?: string }).code?.toLowerCase();
+  const errorCodeProperty = (
+    error as unknown as { code?: string }
+  ).code?.toLowerCase();
   if (errorCodeProperty) {
     for (const [key, message] of Object.entries(AUTH_ERROR_MESSAGES)) {
       if (errorCodeProperty.includes(key) || key.includes(errorCodeProperty)) {
@@ -49,11 +53,11 @@ export const mapAuthError = (error: AuthError): string => {
 
   const errorMessage = error.message?.toLowerCase() ?? '';
   const errorCodeFromMessage = errorMessage.replace(/\s+/g, '_');
-  
+
   // Check for specific error patterns in the message
   for (const [key, message] of Object.entries(AUTH_ERROR_MESSAGES)) {
     if (
-      errorCodeFromMessage.includes(key) || 
+      errorCodeFromMessage.includes(key) ||
       errorMessage.includes(key.replace(/_/g, ' ')) ||
       key.includes(errorCodeFromMessage)
     ) {
@@ -62,7 +66,10 @@ export const mapAuthError = (error: AuthError): string => {
   }
 
   // Check for common Supabase error messages
-  if (errorMessage.includes('invalid login credentials') || errorMessage.includes('invalid_grant')) {
+  if (
+    errorMessage.includes('invalid login credentials') ||
+    errorMessage.includes('invalid_grant')
+  ) {
     return AUTH_ERROR_MESSAGES.invalid_credentials;
   }
 
@@ -70,7 +77,10 @@ export const mapAuthError = (error: AuthError): string => {
     return AUTH_ERROR_MESSAGES.email_not_confirmed;
   }
 
-  if (errorMessage.includes('user already registered') || errorMessage.includes('already exists')) {
+  if (
+    errorMessage.includes('user already registered') ||
+    errorMessage.includes('already exists')
+  ) {
     return AUTH_ERROR_MESSAGES.user_already_exists;
   }
 
@@ -185,10 +195,12 @@ export const authService = {
     }
   },
 
-  async resetPasswordForEmail(email: string): Promise<{ success: boolean; error?: string }> {
+  async resetPasswordForEmail(
+    email: string
+  ): Promise<{ success: boolean; error?: string }> {
     try {
       const redirectUrl = `${window.location.origin}/reset-password`;
-      
+
       const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
         redirectTo: redirectUrl,
       });
@@ -209,7 +221,9 @@ export const authService = {
     }
   },
 
-  async updatePassword(password: string): Promise<{ success: boolean; error?: string }> {
+  async updatePassword(
+    password: string
+  ): Promise<{ success: boolean; error?: string }> {
     try {
       const { error } = await supabaseClient.auth.updateUser({
         password,
@@ -232,9 +246,11 @@ export const authService = {
   },
 
   onAuthStateChange(callback: (session: Session | null) => void) {
-    const { data } = supabaseClient.auth.onAuthStateChange((_event, session) => {
-      callback(session);
-    });
+    const { data } = supabaseClient.auth.onAuthStateChange(
+      (_event, session) => {
+        callback(session);
+      }
+    );
 
     return data.subscription;
   },

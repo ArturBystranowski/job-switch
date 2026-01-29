@@ -3,22 +3,30 @@
 ## 1. Przegląd
 
 ### 1.1 Cel dokumentu
+
 Dokument opisuje szczegółowy plan implementacji pierwszego testu E2E dla aplikacji JobSwitch przy użyciu **Playwright**. Test pokrywa główny przepływ użytkownika od rejestracji do wyświetlenia roadmapy.
 
 ### 1.2 Wybrany scenariusz testowy
+
 **Scenariusz:** Pełny przepływ użytkownika - od rejestracji do wyświetlenia roadmapy
 
 **Opis:** Test weryfikuje kompletny happy path użytkownika:
-1. Rejestracja nowego użytkownika
-2. Wypełnienie kwestionariusza preferencji (5 pytań + opcjonalne otwarte)
-3. Upload pliku CV (PDF)
-4. Oczekiwanie na wygenerowanie rekomendacji przez AI
-5. Przegląd dwóch rekomendowanych ról
-6. Wybór jednej roli
-7. Wyświetlenie roadmapy z 10 krokami
+
+1. Rejestracja nowego użytkownika – po udanej rejestracji użytkownik jest od razu zalogowany i widzi homepage (`/`)
+2. Kliknięcie przycisku „Rozpocznij” na stronie głównej – przejście do kwestionariusza
+3. Wypełnienie kwestionariusza preferencji (5 pytań + opcjonalne otwarte)
+4. Upload pliku CV (PDF)
+5. Oczekiwanie na wygenerowanie rekomendacji przez AI
+6. Przegląd dwóch rekomendowanych ról
+7. Wybór jednej roli
+8. Wyświetlenie roadmapy z 10 krokami
+
+**Zachowanie po rejestracji:** Po udanej rejestracji użytkownik jest od razu zalogowany i trafia na homepage (`/`). Aby przejść do kwestionariusza, musi kliknąć przycisk „Rozpocznij” na stronie głównej.
 
 **Kryteria akceptacji:**
+
 - Użytkownik może zarejestrować się z poprawnymi danymi
+- Po rejestracji użytkownik widzi homepage i klika „Rozpocznij”, aby przejść do kwestionariusza
 - Formularz kwestionariusza działa poprawnie dla wszystkich pytań
 - Upload CV akceptuje tylko pliki PDF do 3MB
 - Rekomendacje są wygenerowane i wyświetlone poprawnie
@@ -53,7 +61,7 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
-  
+
   use: {
     baseURL: process.env.E2E_BASE_URL ?? 'http://localhost:5173',
     trace: 'on-first-retry',
@@ -94,6 +102,7 @@ E2E_BASE_URL=http://localhost:5173
 ```
 
 **Uwagi:**
+
 - `.env.test` powinien być dodany do `.gitignore` i `.cursorignore`
 - Wymagany jest dedykowany projekt Supabase dla testów E2E (zgodnie z rekomendacją z materiałów szkoleniowych)
 - Przed uruchomieniem testów należy wykonać migracje na bazę testową: `supabase link --project-ref <project-ref>` i `supabase db push`
@@ -129,6 +138,7 @@ e2e/
 **Ważne:** Selektory `data-testid` powinny być dodawane **wewnątrz komponentów**, a nie w miejscu ich użycia, aby zapewnić największą kompatybilność i precyzję działania testów.
 
 **Konwencja nazewnictwa:**
+
 - Używaj camelCase: `data-testid="registerButton"`
 - Bądź opisowy: `data-testid="questionnaireNextButton"` zamiast `data-testid="next"`
 - Grupuj logicznie: `data-testid="roleCard-frontend"` dla kart ról
@@ -136,10 +146,12 @@ e2e/
 ### 3.2 Lista komponentów wymagających selektorów
 
 #### 3.2.1 LandingPage (`src/pages/LandingPage/LandingPage.tsx`)
+
 - `data-testid="landing-hero"`
 - `data-testid="landing-start-button"` - przycisk "Rozpocznij"
 
 #### 3.2.2 RegisterPage (`src/pages/auth/RegisterPage/RegisterPage.tsx`)
+
 - `data-testid="register-form"`
 - `data-testid="register-email-input"`
 - `data-testid="register-password-input"`
@@ -148,12 +160,14 @@ e2e/
 - `data-testid="register-error-message"` - komunikat błędu
 
 #### 3.2.3 LoginPage (`src/pages/auth/LoginPage/LoginPage.tsx`)
+
 - `data-testid="login-form"`
 - `data-testid="login-email-input"`
 - `data-testid="login-password-input"`
 - `data-testid="login-submit-button"`
 
 #### 3.2.4 QuestionnairePage (`src/pages/QuestionnairePage/QuestionnairePage.tsx`)
+
 - `data-testid="questionnaire-stepper"`
 - `data-testid="questionnaire-card"`
 - `data-testid="questionnaire-option-{value}"` - opcje odpowiedzi
@@ -162,12 +176,14 @@ e2e/
 - `data-testid="questionnaire-open-answer-input"` - pole otwartej odpowiedzi (opcjonalne)
 
 #### 3.2.5 UploadCVPage (`src/pages/UploadCVPage/UploadCVPage.tsx`)
+
 - `data-testid="cv-dropzone"`
 - `data-testid="cv-file-input"` - ukryty input file
 - `data-testid="cv-upload-button"`
 - `data-testid="cv-error-message"`
 
 #### 3.2.6 RecommendationsPage (`src/pages/RecommendationsPage/RecommendationsPage.tsx`)
+
 - `data-testid="recommendations-container"`
 - `data-testid="recommendations-loading"` - loader podczas generowania
 - `data-testid="role-card-{roleId}"` - karty ról
@@ -175,6 +191,7 @@ e2e/
 - `data-testid="role-justification-{roleId}"` - uzasadnienie roli
 
 #### 3.2.7 RoadmapPage (`src/pages/RoadmapPage/RoadmapPage.tsx`)
+
 - `data-testid="roadmap-container"`
 - `data-testid="roadmap-progress-header"`
 - `data-testid="roadmap-progress-percentage"`
@@ -229,7 +246,9 @@ export class RegisterPage {
     this.page = page;
     this.emailInput = page.getByTestId('register-email-input');
     this.passwordInput = page.getByTestId('register-password-input');
-    this.confirmPasswordInput = page.getByTestId('register-confirm-password-input');
+    this.confirmPasswordInput = page.getByTestId(
+      'register-confirm-password-input'
+    );
     this.submitButton = page.getByTestId('register-submit-button');
     this.errorMessage = page.getByTestId('register-error-message');
   }
@@ -297,16 +316,19 @@ export class QuestionnairePage {
     await this.openAnswerInput.fill(text);
   }
 
-  async completeQuestionnaire(responses: Record<string, string>, openAnswer?: string) {
+  async completeQuestionnaire(
+    responses: Record<string, string>,
+    openAnswer?: string
+  ) {
     for (const [field, value] of Object.entries(responses)) {
       await this.selectOption(value);
       await this.clickNext();
     }
-    
+
     if (openAnswer) {
       await this.fillOpenAnswer(openAnswer);
     }
-    
+
     await this.clickNext(); // Submit questionnaire
   }
 }
@@ -392,7 +414,9 @@ export class RecommendationsPage {
   }
 
   async getRecommendedRoles(): Promise<string[]> {
-    const roleCards = await this.page.locator('[data-testid^="role-card-"]').all();
+    const roleCards = await this.page
+      .locator('[data-testid^="role-card-"]')
+      .all();
     return Promise.all(
       roleCards.map(async (card) => {
         const testId = await card.getAttribute('data-testid');
@@ -430,7 +454,9 @@ export class RoadmapPage {
   }
 
   getStepVariant(stepNumber: number, variantNumber: number): Locator {
-    return this.page.getByTestId(`roadmap-step-variant-${stepNumber}-${variantNumber}`);
+    return this.page.getByTestId(
+      `roadmap-step-variant-${stepNumber}-${variantNumber}`
+    );
   }
 
   getTaskCheckbox(taskId: string): Locator {
@@ -442,7 +468,7 @@ export class RoadmapPage {
   }
 
   async getProgressPercentage(): Promise<string> {
-    return await this.progressPercentage.textContent() ?? '0%';
+    return (await this.progressPercentage.textContent()) ?? '0%';
   }
 }
 ```
@@ -482,20 +508,26 @@ import { Page } from '@playwright/test';
 import { RegisterPage } from '../page-objects/RegisterPage';
 import { LoginPage } from '../page-objects/LoginPage';
 
-export async function registerUser(page: Page, email: string, password: string) {
+export async function registerUser(
+  page: Page,
+  email: string,
+  password: string
+) {
   const registerPage = new RegisterPage(page);
   await registerPage.goto();
   await registerPage.register(email, password);
-  // Wait for redirect after registration
-  await page.waitForURL('/login', { timeout: 10000 });
+  // After successful registration user is logged in and redirected to homepage
+  await page.waitForURL('/', { timeout: 10000 });
 }
 
 export async function loginUser(page: Page, email: string, password: string) {
   const loginPage = new LoginPage(page);
   await loginPage.goto();
   await loginPage.login(email, password);
-  // Wait for redirect after login
-  await page.waitForURL('/questionnaire', { timeout: 10000 });
+  // Wait for redirect after login (questionnaire or other app route)
+  await page.waitForURL(/\/(questionnaire|recommendations|roadmap)/, {
+    timeout: 10000,
+  });
 }
 ```
 
@@ -509,11 +541,17 @@ import { QuestionnairePage } from './page-objects/QuestionnairePage';
 import { UploadCVPage } from './page-objects/UploadCVPage';
 import { RecommendationsPage } from './page-objects/RecommendationsPage';
 import { RoadmapPage } from './page-objects/RoadmapPage';
-import { testUser, questionnaireResponses, testCVPath } from './fixtures/test-data';
+import {
+  testUser,
+  questionnaireResponses,
+  testCVPath,
+} from './fixtures/test-data';
 import { registerUser, loginUser } from './utils/auth';
 
 test.describe('User Journey - Registration to Roadmap', () => {
-  test('complete user journey from registration to roadmap display', async ({ page }) => {
+  test('complete user journey from registration to roadmap display', async ({
+    page,
+  }) => {
     // ARRANGE
     const landingPage = new LandingPage(page);
     const registerPage = new RegisterPage(page);
@@ -526,62 +564,66 @@ test.describe('User Journey - Registration to Roadmap', () => {
     await landingPage.goto();
     await expect(landingPage.hero).toBeVisible();
     await landingPage.clickStart();
-    
-    // Step 2: Registration
-    await expect(page).toHaveURL('/register');
+
+    // Step 2: Registration (user is immediately logged in and redirected to homepage)
+    await expect(page).toHaveURL(/\/(login|register)/);
     await registerPage.register(testUser.email, testUser.password);
-    
-    // Wait for redirect to login page after registration
-    await expect(page).toHaveURL('/login');
-    
-    // Step 3: Login
-    await loginUser(page, testUser.email, testUser.password);
-    
+    await expect(page).toHaveURL('/', { timeout: 15000 });
+
+    // Step 3: Start questionnaire from homepage (click "Rozpocznij")
+    await expect(landingPage.hero).toBeVisible();
+    await landingPage.clickStart();
+    await page.waitForURL(/\/(questionnaire|recommendations|roadmap)/, {
+      timeout: 15000,
+    });
+
     // Step 4: Questionnaire
     await expect(page).toHaveURL('/questionnaire');
     await expect(questionnairePage.stepper).toBeVisible();
-    
+
     // Complete questionnaire with all required responses
     await questionnairePage.completeQuestionnaire(questionnaireResponses);
-    
+
     // Wait for navigation to upload CV page
     await expect(page).toHaveURL('/upload-cv', { timeout: 10000 });
-    
+
     // Step 5: Upload CV
     await expect(uploadCVPage.dropzone).toBeVisible();
     await uploadCVPage.uploadFile(testCVPath);
     await uploadCVPage.waitForUploadComplete();
-    
+
     // Step 6: Wait for recommendations
     await expect(page).toHaveURL('/recommendations');
     await recommendationsPage.waitForRecommendations();
-    
+
     // Verify recommendations are displayed
     const roles = await recommendationsPage.getRecommendedRoles();
     expect(roles.length).toBe(2);
-    
+
     // Verify role cards are visible
     for (const roleId of roles) {
       await expect(recommendationsPage.getRoleCard(roleId)).toBeVisible();
-      await expect(recommendationsPage.getRoleJustification(roleId)).toBeVisible();
+      await expect(
+        recommendationsPage.getRoleJustification(roleId)
+      ).toBeVisible();
     }
-    
+
     // Step 7: Select a role
     const selectedRoleId = roles[0];
     await recommendationsPage.selectRole(selectedRoleId);
-    
+
     // Step 8: Verify roadmap is displayed
     await expect(page).toHaveURL('/roadmap', { timeout: 10000 });
     await roadmapPage.waitForRoadmapLoaded();
-    
+
     // Verify roadmap structure
     await expect(roadmapPage.container).toBeVisible();
     await expect(roadmapPage.progressHeader).toBeVisible();
-    
+
     // Verify progress percentage is displayed
     const progressText = await roadmapPage.getProgressPercentage();
     expect(progressText).toMatch(/\d+%/);
-    
+
     // Verify at least one step is visible
     const step1 = roadmapPage.getStep(1);
     await expect(step1).toBeVisible({ timeout: 5000 });
@@ -603,19 +645,19 @@ async function globalSetup(config: FullConfig) {
   // Verify test database connection
   const supabaseUrl = process.env.SUPABASE_URL;
   const supabaseKey = process.env.SUPABASE_PUBLIC_KEY;
-  
+
   if (!supabaseUrl || !supabaseKey) {
     throw new Error('Missing SUPABASE_URL or SUPABASE_PUBLIC_KEY in .env.test');
   }
-  
+
   const supabase = createClient(supabaseUrl, supabaseKey);
-  
+
   // Test connection
   const { error } = await supabase.from('profiles').select('count').limit(1);
   if (error) {
     console.warn('Warning: Could not connect to test database:', error.message);
   }
-  
+
   console.log('Global setup completed');
 }
 
@@ -631,37 +673,40 @@ import { createClient } from '@supabase/supabase-js';
 async function globalTeardown(config: FullConfig) {
   const supabaseUrl = process.env.SUPABASE_URL;
   const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  
+
   if (!supabaseUrl || !supabaseServiceKey) {
-    console.warn('Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY - skipping cleanup');
+    console.warn(
+      'Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY - skipping cleanup'
+    );
     return;
   }
-  
+
   // Use service role key for admin operations
   const supabase = createClient(supabaseUrl, supabaseServiceKey);
-  
+
   // Sign in as test user to clean up their data
   const testEmail = process.env.E2E_USERNAME;
   const testPassword = process.env.E2E_PASSWORD;
-  
+
   if (testEmail && testPassword) {
-    const { data: authData, error: signInError } = await supabase.auth.signInWithPassword({
-      email: testEmail,
-      password: testPassword,
-    });
-    
+    const { data: authData, error: signInError } =
+      await supabase.auth.signInWithPassword({
+        email: testEmail,
+        password: testPassword,
+      });
+
     if (!signInError && authData.user) {
       const userId = authData.user.id;
-      
+
       // Clean up user data (order matters due to foreign keys)
       await supabase.from('user_progress').delete().eq('user_id', userId);
       await supabase.from('profiles').delete().eq('id', userId);
-      
+
       // Note: Auth user deletion might require admin API
       console.log(`Cleaned up data for user: ${userId}`);
     }
   }
-  
+
   console.log('Global teardown completed');
 }
 
@@ -685,6 +730,7 @@ export default defineConfig({
 ### 7.1 Przykładowy plik CV (`e2e/fixtures/sample-cv.pdf`)
 
 Wymagany jest przykładowy plik PDF z CV do testów. Plik powinien:
+
 - Mieć rozmiar < 1MB
 - Zawierać przykładowe dane zawodowe
 - Być w formacie PDF
@@ -694,6 +740,7 @@ Wymagany jest przykładowy plik PDF z CV do testów. Plik powinien:
 ### 7.2 Seed danych testowych
 
 Przed uruchomieniem testów należy upewnić się, że:
+
 - Baza testowa ma zastosowane migracje (`supabase db push`)
 - Tabela `questionnaire_config` zawiera wymagane pytania
 - Tabela `roles` zawiera dostępne role IT
@@ -720,12 +767,14 @@ Przed uruchomieniem testów należy upewnić się, że:
 ## 9. Kolejność implementacji
 
 ### Faza 1: Konfiguracja środowiska (1-2h)
+
 1. ✅ Instalacja Playwright i zależności
 2. ✅ Konfiguracja `playwright.config.ts`
 3. ✅ Utworzenie `.env.test` z danymi testowej bazy
 4. ✅ Linkowanie bazy testowej i zastosowanie migracji
 
 ### Faza 2: Dodanie selektorów do komponentów (2-3h)
+
 1. ✅ Dodanie `data-testid` do LandingPage
 2. ✅ Dodanie `data-testid` do RegisterPage i LoginPage
 3. ✅ Dodanie `data-testid` do QuestionnairePage
@@ -734,6 +783,7 @@ Przed uruchomieniem testów należy upewnić się, że:
 6. ✅ Dodanie `data-testid` do RoadmapPage
 
 ### Faza 3: Implementacja Page Objects (2-3h)
+
 1. ✅ LandingPage
 2. ✅ RegisterPage i LoginPage
 3. ✅ QuestionnairePage
@@ -742,12 +792,14 @@ Przed uruchomieniem testów należy upewnić się, że:
 6. ✅ RoadmapPage
 
 ### Faza 4: Implementacja testu głównego (2-3h)
+
 1. ✅ Utworzenie fixtures z danymi testowymi
 2. ✅ Implementacja utilities (auth helpers)
 3. ✅ Implementacja głównego testu user-journey
 4. ✅ Dodanie global setup i teardown
 
 ### Faza 5: Weryfikacja i optymalizacja (1-2h)
+
 1. ✅ Uruchomienie testu i naprawa błędów
 2. ✅ Optymalizacja timeoutów i oczekiwań
 3. ✅ Dodanie screenshotów dla błędów
@@ -758,18 +810,23 @@ Przed uruchomieniem testów należy upewnić się, że:
 ## 10. Potencjalne problemy i rozwiązania
 
 ### 10.1 Problem: Długi czas generowania rekomendacji przez AI
+
 **Rozwiązanie:** Zwiększyć timeout dla `waitForRecommendations()` do 60-90 sekund. Rozważyć mockowanie odpowiedzi AI w testach deweloperskich.
 
 ### 10.2 Problem: Flakiness związany z animacjami UI
+
 **Rozwiązanie:** Używać `waitFor` z odpowiednimi opcjami zamiast `waitForTimeout`. Czekać na konkretne stany elementów.
 
 ### 10.3 Problem: Konflikty danych między równoległymi testami
+
 **Rozwiązanie:** Używać unikalnych emaili (timestamp) dla każdego testu. Rozważyć izolację przez browser contexts.
 
 ### 10.4 Problem: Brak pliku CV do testów
+
 **Rozwiązanie:** Wygenerować przykładowy PDF programatycznie lub użyć małego pliku testowego w repozytorium.
 
 ### 10.5 Problem: Row-Level Security blokuje cleanup
+
 **Rozwiązanie:** Używać Service Role Key w teardown lub logować się jako użytkownik testowy przed cleanup.
 
 ---
@@ -777,6 +834,7 @@ Przed uruchomieniem testów należy upewnić się, że:
 ## 11. Metryki sukcesu
 
 Test będzie uznany za udany, gdy:
+
 - ✅ Wszystkie kroki przepływu użytkownika są wykonane poprawnie
 - ✅ Test przechodzi stabilnie w 100% uruchomień (bez flakiness)
 - ✅ Czas wykonania testu < 4 minuty (włącznie z generowaniem rekomendacji)
@@ -787,6 +845,7 @@ Test będzie uznany za udany, gdy:
 ## 12. Następne kroki (opcjonalne)
 
 Po zaimplementowaniu podstawowego testu można rozważyć:
+
 1. **Optymalizacja logowania** - użycie zapisanych sesji zamiast logowania przez UI
 2. **Dodatkowe scenariusze** - testy błędnych ścieżek (niepoprawne dane, błędy uploadu)
 3. **Testy wizualne** - screenshot comparison dla kluczowych widoków
@@ -798,9 +857,9 @@ Po zaimplementowaniu podstawowego testu można rozważyć:
 ## 13. Podsumowanie
 
 Plan implementacji obejmuje:
+
 - ✅ Konfigurację środowiska testowego z dedykowaną bazą danych
 - ✅ Dodanie selektorów `data-testid` do wszystkich kluczowych komponentów
 - ✅ Implementację Page Object Model dla wszystkich stron
 - ✅ Pełny test przepływu użytkownika od rejestracji do roadmapy
 - ✅ Setup i teardown dla zarządzania danymi testowymi
-

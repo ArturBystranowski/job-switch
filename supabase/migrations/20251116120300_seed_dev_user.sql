@@ -31,7 +31,7 @@ INSERT INTO auth.users (
   'authenticated',
   'authenticated',
   'dev@test.local',
-  crypt('devpassword123', gen_salt('bf')),
+  '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LeVyuh7kV9uJ5b9B6',
   now(),
   now(),
   now(),

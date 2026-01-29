@@ -15,7 +15,9 @@ export const RoadmapTree = ({
     const isStepCompleted = (stepIndex: number): boolean => {
       const step = steps[stepIndex];
       const stepTaskIds = step.step_tasks.map((t) => t.id);
-      const completedCount = stepTaskIds.filter((id) => completedTaskIds.includes(id)).length;
+      const completedCount = stepTaskIds.filter((id) =>
+        completedTaskIds.includes(id)
+      ).length;
       return completedCount === stepTaskIds.length && stepTaskIds.length > 0;
     };
 
@@ -47,7 +49,7 @@ export const RoadmapTree = ({
   }, [steps, completedTaskIds]);
 
   return (
-    <Stack sx={treeContainerSx}>
+    <Stack sx={treeContainerSx} data-testid='roadmap-container'>
       {stepsWithStatus.map((step, index) => (
         <RoadmapNode
           key={step.id}

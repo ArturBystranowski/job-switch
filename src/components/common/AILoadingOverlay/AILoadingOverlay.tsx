@@ -68,14 +68,14 @@ export const AILoadingOverlay = ({
     return (
       <Box sx={overlaySx}>
         <Box sx={contentSx}>
-          <Typography variant="h5" color="error">
+          <Typography variant='h5' color='error'>
             Wystąpił problem
           </Typography>
-          <Typography variant="body1" color="text.secondary">
+          <Typography variant='body1' color='text.secondary'>
             Analiza trwa zbyt długo. Spróbuj ponownie za chwilę.
           </Typography>
           {onRetry && (
-            <Button variant="contained" color="primary" onClick={handleRetry}>
+            <Button variant='contained' color='primary' onClick={handleRetry}>
               Spróbuj ponownie
             </Button>
           )}
@@ -85,19 +85,19 @@ export const AILoadingOverlay = ({
   }
 
   return (
-    <Box sx={overlaySx}>
+    <Box sx={overlaySx} data-testid='recommendations-loading'>
       <Box sx={contentSx}>
         <Box sx={progressContainerSx}>
-          <CircularProgress size={80} thickness={4} color="primary" />
+          <CircularProgress size={80} thickness={4} color='primary' />
         </Box>
         <Box sx={messageSx}>
           <Fade in key={messageIndex} timeout={500}>
-            <Typography variant="h6" color="text.primary">
+            <Typography variant='h6' color='text.primary'>
               {loadingMessages[messageIndex]}
             </Typography>
           </Fade>
         </Box>
-        <Typography variant="body2" color="text.secondary">
+        <Typography variant='body2' color='text.secondary'>
           To może potrwać do minuty
         </Typography>
       </Box>

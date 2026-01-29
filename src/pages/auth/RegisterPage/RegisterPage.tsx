@@ -44,7 +44,9 @@ export const RegisterPage = () => {
         const redirectPath = await getRedirectPath();
         navigate(redirectPath);
       } else {
-        setSuccessMessage('Konto zostało utworzone. Sprawdź email, aby potwierdzić rejestrację.');
+        setSuccessMessage(
+          'Konto zostało utworzone. Sprawdź email, aby potwierdzić rejestrację.'
+        );
       }
     } else {
       setError(result.error ?? 'Wystąpił błąd podczas rejestracji');
@@ -58,15 +60,19 @@ export const RegisterPage = () => {
   }
 
   return (
-    <AuthFormContainer title="Utwórz konto w JobSwitch">
+    <AuthFormContainer title='Utwórz konto w JobSwitch'>
       {successMessage ? (
         <Box>
-          <Alert severity="success" sx={{ borderRadius: '0.5rem' }}>
+          <Alert severity='success' sx={{ borderRadius: '0.5rem' }}>
             {successMessage}
           </Alert>
         </Box>
       ) : (
-        <RegisterForm onSubmit={handleSubmit} isLoading={isLoading} error={error} />
+        <RegisterForm
+          onSubmit={handleSubmit}
+          isLoading={isLoading}
+          error={error}
+        />
       )}
     </AuthFormContainer>
   );

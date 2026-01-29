@@ -1,5 +1,13 @@
 import { useState } from 'react';
-import { Stack, TextField, Button, Link, Typography, Alert, Box } from '@mui/material';
+import {
+  Stack,
+  TextField,
+  Button,
+  Link,
+  Typography,
+  Alert,
+  Box,
+} from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import { PasswordField } from '../PasswordField';
 import { PasswordStrengthIndicator } from '../PasswordStrengthIndicator';
@@ -45,7 +53,10 @@ const validatePassword = (password: string): string | undefined => {
   return undefined;
 };
 
-const validateConfirmPassword = (password: string, confirmPassword: string): string | undefined => {
+const validateConfirmPassword = (
+  password: string,
+  confirmPassword: string
+): string | undefined => {
   if (!confirmPassword) {
     return 'Potwierdzenie hasła jest wymagane';
   }
@@ -55,7 +66,11 @@ const validateConfirmPassword = (password: string, confirmPassword: string): str
   return undefined;
 };
 
-export const RegisterForm = ({ onSubmit, isLoading = false, error }: RegisterFormProps) => {
+export const RegisterForm = ({
+  onSubmit,
+  isLoading = false,
+  error,
+}: RegisterFormProps) => {
   const [formData, setFormData] = useState<RegisterFormData>({
     email: '',
     password: '',
@@ -76,7 +91,10 @@ export const RegisterForm = ({ onSubmit, isLoading = false, error }: RegisterFor
           setErrors((prev) => ({
             ...prev,
             password: error,
-            confirmPassword: validateConfirmPassword(value, formData.confirmPassword),
+            confirmPassword: validateConfirmPassword(
+              value,
+              formData.confirmPassword
+            ),
           }));
           return;
         }
@@ -95,7 +113,10 @@ export const RegisterForm = ({ onSubmit, isLoading = false, error }: RegisterFor
     } else if (field === 'password') {
       error = validatePassword(formData.password);
     } else if (field === 'confirmPassword') {
-      error = validateConfirmPassword(formData.password, formData.confirmPassword);
+      error = validateConfirmPassword(
+        formData.password,
+        formData.confirmPassword
+      );
     }
     setErrors((prev) => ({ ...prev, [field]: error }));
   };
@@ -105,7 +126,10 @@ export const RegisterForm = ({ onSubmit, isLoading = false, error }: RegisterFor
 
     const emailError = validateEmail(formData.email);
     const passwordError = validatePassword(formData.password);
-    const confirmPasswordError = validateConfirmPassword(formData.password, formData.confirmPassword);
+    const confirmPasswordError = validateConfirmPassword(
+      formData.password,
+      formData.confirmPassword
+    );
 
     setErrors({
       email: emailError,
@@ -120,63 +144,78 @@ export const RegisterForm = ({ onSubmit, isLoading = false, error }: RegisterFor
   };
 
   return (
-    <Box component="form" onSubmit={handleSubmit} sx={formSx}>
+    <Box
+      component='form'
+      onSubmit={handleSubmit}
+      sx={formSx}
+      data-testid='register-form'
+    >
       <Stack gap={2.5}>
         {error && (
-          <Alert severity="error" sx={alertSx}>
+          <Alert
+            severity='error'
+            sx={alertSx}
+            data-testid='register-error-message'
+          >
             {error}
           </Alert>
         )}
         <TextField
           fullWidth
-          label="Email"
-          type="email"
+          label='Email'
+          type='email'
           value={formData.email}
           onChange={(e) => handleChange('email')(e.target.value)}
           onBlur={handleBlur('email')}
           error={touched.email && !!errors.email}
           helperText={touched.email && errors.email}
           disabled={isLoading}
-          autoComplete="email"
+          autoComplete='email'
           sx={textFieldSx}
+          inputProps={{ 'data-testid': 'register-email-input' }}
         />
         <Stack gap={1}>
           <PasswordField
-            label="Hasło"
+            label='Hasło'
             value={formData.password}
             onChange={handleChange('password')}
             onBlur={handleBlur('password')}
             error={touched.password && !!errors.password}
             helperText={touched.password ? errors.password : undefined}
             disabled={isLoading}
-            autoComplete="new-password"
+            autoComplete='new-password'
+            data-testid='register-password-input'
           />
           <PasswordStrengthIndicator password={formData.password} />
         </Stack>
         <PasswordField
-          label="Potwierdź hasło"
+          label='Potwierdź hasło'
           value={formData.confirmPassword}
           onChange={handleChange('confirmPassword')}
           onBlur={handleBlur('confirmPassword')}
           error={touched.confirmPassword && !!errors.confirmPassword}
-          helperText={touched.confirmPassword ? errors.confirmPassword : undefined}
+          helperText={
+            touched.confirmPassword ? errors.confirmPassword : undefined
+          }
           disabled={isLoading}
-          autoComplete="new-password"
+          autoComplete='new-password'
+          data-testid='register-confirm-password-input'
         />
         <Button
-          type="submit"
-          variant="contained"
-          color="primary"
+          type='submit'
+          variant='contained'
+          color='primary'
           fullWidth
           disabled={isLoading}
           sx={submitButtonSx}
+          data-testid='register-submit-button'
         >
           {isLoading ? 'Rejestracja...' : 'Zarejestruj się'}
         </Button>
         <Box sx={loginLinkContainerSx}>
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant='body2' color='text.secondary'>
             Masz już konto?{' '}
-            <Link component={RouterLink} to="/login" underline="hover">
+            <Link component={RouterLink} to='/login' underline='hover'>
               Zaloguj się
             </Link>
           </Typography>

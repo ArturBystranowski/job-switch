@@ -4,7 +4,11 @@ import { useNavigate } from 'react-router-dom';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { useAuth } from '../../hooks';
 import { useCVStatus, useUploadCV, useValidateCV } from '../../hooks/useCV';
-import { CVDropzone, CVPreview, UploadWarningBanner } from '../../components/cv-upload';
+import {
+  CVDropzone,
+  CVPreview,
+  UploadWarningBanner,
+} from '../../components/cv-upload';
 import { LoadingSpinner, ErrorAlert } from '../../components/common';
 import {
   pageContainerSx,
@@ -83,18 +87,19 @@ export const UploadCVPage = () => {
   if (isCheckingCV || hasCV) {
     return (
       <Box sx={pageContainerSx}>
-        <LoadingSpinner message="Sprawdzanie statusu CV..." fullScreen />
+        <LoadingSpinner message='Sprawdzanie statusu CV...' fullScreen />
       </Box>
     );
   }
 
   return (
     <Box sx={pageContainerSx}>
-      <Container maxWidth="sm" sx={contentContainerSx}>
+      <Container maxWidth='sm' sx={contentContainerSx}>
         <Box sx={headerSx}>
           <Typography sx={titleSx}>Prześlij swoje CV</Typography>
           <Typography sx={subtitleSx}>
-            Twoje CV pomoże nam lepiej dopasować rekomendacje do Twojego doświadczenia
+            Twoje CV pomoże nam lepiej dopasować rekomendacje do Twojego
+            doświadczenia
           </Typography>
         </Box>
 
@@ -112,7 +117,9 @@ export const UploadCVPage = () => {
               file={selectedFile}
               status={uploadStatus}
               errorMessage={errorMessage}
-              onRemove={uploadStatus !== 'success' ? handleRemoveFile : undefined}
+              onRemove={
+                uploadStatus !== 'success' ? handleRemoveFile : undefined
+              }
             />
           </Box>
         )}
@@ -126,30 +133,39 @@ export const UploadCVPage = () => {
         <Box sx={actionsSx}>
           {uploadStatus === 'success' ? (
             <Button
-              variant="contained"
-              size="large"
+              variant='contained'
+              size='large'
               onClick={handleNext}
               endIcon={<ArrowForwardIcon />}
               sx={nextButtonSx}
+              data-testid='cv-next-button'
             >
               Dalej
             </Button>
           ) : (
             <>
               <Button
-                variant="contained"
-                size="large"
+                variant='contained'
+                size='large'
                 onClick={handleUpload}
-                disabled={!selectedFile || uploadStatus === 'uploading' || uploadStatus === 'error'}
+                disabled={
+                  !selectedFile ||
+                  uploadStatus === 'uploading' ||
+                  uploadStatus === 'error'
+                }
                 sx={nextButtonSx}
+                data-testid='cv-upload-button'
               >
-                {uploadStatus === 'uploading' ? 'Przesyłanie...' : 'Prześlij CV'}
+                {uploadStatus === 'uploading'
+                  ? 'Przesyłanie...'
+                  : 'Prześlij CV'}
               </Button>
               <Button
-                variant="text"
-                size="small"
+                variant='text'
+                size='small'
                 onClick={handleNext}
                 sx={skipButtonSx}
+                data-testid='cv-skip-button'
               >
                 Pomiń ten krok
               </Button>

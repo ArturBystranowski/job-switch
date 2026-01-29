@@ -23,6 +23,7 @@ export const OptionSelector = ({
             elevation={0}
             onClick={() => onSelect(option.value)}
             sx={isSelected ? optionCardSelectedSx : optionCardSx}
+            data-testid={`questionnaire-option-${option.value}`}
           >
             <Typography sx={isSelected ? optionLabelSelectedSx : optionLabelSx}>
               {option.label}

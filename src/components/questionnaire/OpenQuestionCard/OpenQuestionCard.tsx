@@ -37,8 +37,8 @@ export const OpenQuestionCard = ({
 
   return (
     <Fade in timeout={300}>
-      <Paper sx={cardSx} elevation={0}>
-        <Typography variant="h5" sx={questionTextSx}>
+      <Paper sx={cardSx} elevation={0} data-testid='questionnaire-card'>
+        <Typography variant='h5' sx={questionTextSx}>
           {questionText}
         </Typography>
         <Box sx={textFieldContainerSx}>
@@ -46,12 +46,13 @@ export const OpenQuestionCard = ({
             multiline
             rows={4}
             fullWidth
-            placeholder="Napisz coś o sobie, swoich zainteresowaniach lub oczekiwaniach..."
+            placeholder='Napisz coś o sobie, swoich zainteresowaniach lub oczekiwaniach...'
             value={value}
             onChange={handleChange}
             sx={textFieldSx}
             inputProps={{
               maxLength: maxLength,
+              'data-testid': 'questionnaire-open-answer-input',
             }}
           />
         </Box>
@@ -60,19 +61,21 @@ export const OpenQuestionCard = ({
         </Typography>
         <Box sx={navigationContainerSx}>
           <Button
-            variant="outlined"
+            variant='outlined'
             startIcon={<ArrowBackIcon />}
             onClick={onBack}
             sx={navButtonSx}
+            data-testid='questionnaire-back-button'
           >
             Wstecz
           </Button>
           <Button
-            variant="contained"
+            variant='contained'
             endIcon={<CheckIcon />}
             onClick={onNext}
             disabled={isNextDisabled || isAtLimit}
             sx={navButtonSx}
+            data-testid='questionnaire-next-button'
           >
             Zakończ
           </Button>

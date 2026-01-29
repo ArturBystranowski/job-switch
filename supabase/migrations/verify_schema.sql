@@ -275,7 +275,7 @@ WHERE tc.constraint_type = 'CHECK'
 ORDER BY tc.table_name;
 
 -- Expected check constraints:
--- roadmap_steps: order_number BETWEEN 1 AND 10
+-- roadmap_steps: order_number BETWEEN 1 AND 15
 -- step_tasks: order_number BETWEEN 1 AND 5
 
 -- ============================================================================

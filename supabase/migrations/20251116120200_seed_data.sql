@@ -5,7 +5,7 @@
 -- Description: Inserts production seed data:
 --              - 6 IT roles with image URLs (including Project Manager)
 --              - 10 Questionnaire questions and options
---              - Complete roadmaps (6-10 steps) and tasks (3-5 per step) for all roles
+--              - Complete roadmaps (8-11 steps) and tasks (3-5 per step) for all roles, including final "Praca z AI" step
 -- ============================================================================
 
 -- ============================================================================
@@ -190,7 +190,8 @@ BEGIN
   (frontend_role_id, 7, 'React - zaawansowane', 'Poznaj Context API, custom hooks, React Router dla nawigacji, zarządzanie stanem (Redux, Zustand lub Jotai). Naucz się optymalizacji wydajności i code splitting. Zbuduj kompletną aplikację SPA.'),
   (frontend_role_id, 8, 'TypeScript', 'Dodaj statyczne typowanie do swoich projektów. Poznaj interfaces, types, generics, type guards. TypeScript eliminuje wiele błędów na etapie developmentu i ułatwia pracę w zespole.'),
   (frontend_role_id, 9, 'Testing', 'Naucz się testować kod: Vitest dla testów jednostkowych, React Testing Library dla komponentów, podstawy testów integracyjnych. Testy to pewność, że Twój kod działa poprawnie.'),
-  (frontend_role_id, 10, 'Portfolio i deployment', 'Zbuduj portfolio z 3-5 projektami pokazującymi Twoje umiejętności. Wdroż aplikacje na Vercel lub Netlify. Przygotuj profesjonalne CV i profil LinkedIn. Gotowy do aplikowania na pierwszą pracę!');
+  (frontend_role_id, 10, 'Portfolio i deployment', 'Zbuduj portfolio z 3-5 projektami pokazującymi Twoje umiejętności. Wdroż aplikacje na Vercel lub Netlify. Przygotuj profesjonalne CV i profil LinkedIn. Gotowy do aplikowania na pierwszą pracę!'),
+  (frontend_role_id, 11, 'Praca z AI', 'Opanuj pracę ze sztuczną inteligencją w codziennym developmentcie: prompt engineering, narzędzia AI do pisania i refaktoryzacji kodu (Cursor, Claude Code), skuteczne podpowiedzi i code review z AI. AI nie zastąpi programisty, ale znacząco przyspieszy i ułatwi pracę.');
 END $$;
 
 -- ============================================================================
@@ -209,6 +210,7 @@ DECLARE
   step8_id integer;
   step9_id integer;
   step10_id integer;
+  step11_id integer;
   frontend_role_id integer;
 BEGIN
   SELECT id INTO frontend_role_id FROM public.roles WHERE name = 'Frontend Developer';
@@ -223,6 +225,7 @@ BEGIN
   SELECT id INTO step8_id FROM public.roadmap_steps WHERE role_id = frontend_role_id AND order_number = 8;
   SELECT id INTO step9_id FROM public.roadmap_steps WHERE role_id = frontend_role_id AND order_number = 9;
   SELECT id INTO step10_id FROM public.roadmap_steps WHERE role_id = frontend_role_id AND order_number = 10;
+  SELECT id INTO step11_id FROM public.roadmap_steps WHERE role_id = frontend_role_id AND order_number = 11;
 
   -- Step 1: Podstawy HTML i CSS (4 tasks)
   INSERT INTO public.step_tasks (step_id, order_number, title, description, estimated_hours) VALUES
@@ -298,6 +301,12 @@ BEGIN
   (step10_id, 3, 'CV i LinkedIn', 'Przygotuj profesjonalne CV (1 strona). Zaktualizuj profil LinkedIn z projektami i umiejętnościami. Napisz bio.', 6),
   (step10_id, 4, 'Strona portfolio', 'Zbuduj osobistą stronę portfolio prezentującą projekty, umiejętności i kontakt. Wdroż ją online.', 10);
 
+  -- Step 11: Praca z AI (3 tasks)
+  INSERT INTO public.step_tasks (step_id, order_number, title, description, estimated_hours) VALUES
+  (step11_id, 1, 'Prompt engineering', 'Naucz się pisać skuteczne prompty: kontekst, instrukcje krok po kroku, przykłady. Użyj AI do generowania komponentów, testów i dokumentacji.', 5),
+  (step11_id, 2, 'Praca z Cursor', 'Zainstaluj i skonfiguruj Cursor. Opanuj AI autocomplete, edycję w edytorze (Cmd+K), chat z kodem. Przyspiesz codzienną pracę z React/TypeScript.', 5),
+  (step11_id, 3, 'Claude Code i AI-assisted coding', 'Poznaj Claude Code (lub podobne narzędzia) do generowania i refaktoryzacji kodu. Naucz się weryfikować sugestie AI i integrować je z workflow.', 5);
+
   RAISE NOTICE 'Successfully inserted tasks for Frontend Developer steps';
 END $$;
 
@@ -338,9 +347,12 @@ BEGIN
    'Poznaj generatywne AI do ideacji (koncepty flow, microcopy, warianty UI), AI do researchu i syntezy insightów oraz AI do testów (symulacje użytkowników). Opanuj narzędzia AI w Figmie i prompt engineering pod UX. AI nie zastąpi projektanta, ale zastąpi projektanta, który nie używa AI. Świadome wykorzystanie AI zwiększa produktywność i pozwala skupić się na strategicznym myśleniu.'),
   
   (uxui_role_id, 8, 'Portfolio, case studies i pozycjonowanie zawodowe', 
-   'Zbuduj portfolio UX z case studies end-to-end. Opanuj storytelling projektowy i prezentację decyzji. Rozwijaj personal branding i przygotuj się do rozmów rekrutacyjnych. Rekruter nie zatrudnia narzędzia, lecz sposób myślenia. Dobrze opisane case study pokazuje, że rozumiesz proces, potrafisz podejmować decyzje i wyciągać wnioski — nawet jeśli wcześniej pracowałeś w innej branży.');
+   'Zbuduj portfolio UX z case studies end-to-end. Opanuj storytelling projektowy i prezentację decyzji. Rozwijaj personal branding i przygotuj się do rozmów rekrutacyjnych. Rekruter nie zatrudnia narzędzia, lecz sposób myślenia. Dobrze opisane case study pokazuje, że rozumiesz proces, potrafisz podejmować decyzje i wyciągać wnioski — nawet jeśli wcześniej pracowałeś w innej branży.'),
+  
+  (uxui_role_id, 9, 'Praca z AI w designie', 
+   'Opanuj narzędzia AI i codzienny workflow z AI w UX/UI: prompt engineering pod design, Cursor i pluginy AI w Figmie, Claude/ChatGPT do microcopy, flow i wariantów UI. AI nie zastąpi projektanta, ale znacząco przyspieszy iteracje i jakość deliverables.');
 
-  RAISE NOTICE 'Successfully inserted 8 roadmap steps for UX/UI Designer (role_id=%)', uxui_role_id;
+  RAISE NOTICE 'Successfully inserted 9 roadmap steps for UX/UI Designer (role_id=%)', uxui_role_id;
 END $$;
 
 -- ============================================================================
@@ -357,6 +369,7 @@ DECLARE
   step6_id integer;
   step7_id integer;
   step8_id integer;
+  step9_id integer;
   uxui_role_id integer;
 BEGIN
   SELECT id INTO uxui_role_id FROM public.roles WHERE name = 'UX/UI Designer';
@@ -369,6 +382,7 @@ BEGIN
   SELECT id INTO step6_id FROM public.roadmap_steps WHERE role_id = uxui_role_id AND order_number = 6;
   SELECT id INTO step7_id FROM public.roadmap_steps WHERE role_id = uxui_role_id AND order_number = 7;
   SELECT id INTO step8_id FROM public.roadmap_steps WHERE role_id = uxui_role_id AND order_number = 8;
+  SELECT id INTO step9_id FROM public.roadmap_steps WHERE role_id = uxui_role_id AND order_number = 9;
 
   -- Step 1: Fundamenty UX (4 tasks)
   INSERT INTO public.step_tasks (step_id, order_number, title, description, estimated_hours) VALUES
@@ -423,6 +437,12 @@ BEGIN
   (step8_id, 3, 'Portfolio online', 'Zbuduj portfolio na Behance, Dribbble lub własnej stronie. Zadbaj o SEO i responsywność.', 6),
   (step8_id, 4, 'Rozmowy rekrutacyjne', 'Przygotuj się do rozmów: design challenge, pytania behawioralne, prezentacja portfolio.', 4);
 
+  -- Step 9: Praca z AI w designie (3 tasks)
+  INSERT INTO public.step_tasks (step_id, order_number, title, description, estimated_hours) VALUES
+  (step9_id, 1, 'Prompt engineering dla UX', 'Naucz się pisać prompty pod design: kontekst użytkownika, wymagania, format odpowiedzi. Generuj microcopy, warianty UI i opisy flow.', 5),
+  (step9_id, 2, 'Praca z Cursor i pluginy AI w Figmie', 'Zainstaluj Cursor do prototypów w kodzie (HTML/CSS). Opanuj pluginy AI w Figmie (Magician, Diagram) do generowania komponentów i wariantów.', 5),
+  (step9_id, 3, 'Claude/ChatGPT do microcopy i flow', 'Używaj Claude lub ChatGPT do generowania copy, user stories, acceptance criteria i opisu user flow. Integruj AI w codzienny workflow projektowy.', 4);
+
   RAISE NOTICE 'Successfully inserted tasks for UX/UI Designer steps';
 END $$;
 
@@ -444,7 +464,8 @@ BEGIN
   (backend_role_id, 5, 'Autentykacja i bezpieczeństwo', 'Implementuj autentykację (JWT, OAuth2, sessions). Poznaj podstawy bezpieczeństwa: SQL injection, XSS, CORS, HTTPS. Zabezpiecz swoje API.'),
   (backend_role_id, 6, 'ORM i wzorce projektowe', 'Poznaj ORM (Prisma/SQLAlchemy/Hibernate). Opanuj wzorce: Repository, MVC, Dependency Injection. Pisz czysty, testowalny kod.'),
   (backend_role_id, 7, 'Testowanie', 'Naucz się testować backend: testy jednostkowe, integracyjne, E2E. Poznaj mocking, fixtures, TDD. Testy to pewność, że Twój kod działa.'),
-  (backend_role_id, 8, 'Portfolio i deployment', 'Zbuduj 2-3 projekty backendowe. Wdróż je (Railway, Render, AWS). Przygotuj CV i GitHub showcasing Twoje umiejętności.');
+  (backend_role_id, 8, 'Portfolio i deployment', 'Zbuduj 2-3 projekty backendowe. Wdróż je (Railway, Render, AWS). Przygotuj CV i GitHub showcasing Twoje umiejętności.'),
+  (backend_role_id, 9, 'Praca z AI', 'Opanuj pracę z AI w backendzie: prompt engineering dla API i kodu, Cursor i GitHub Copilot do pisania i refaktoryzacji, AI do debugowania i code review. AI nie zastąpi programisty, ale znacząco przyspieszy development i jakość kodu.');
 END $$;
 
 -- ============================================================================
@@ -461,6 +482,7 @@ DECLARE
   step6_id integer;
   step7_id integer;
   step8_id integer;
+  step9_id integer;
   backend_role_id integer;
 BEGIN
   SELECT id INTO backend_role_id FROM public.roles WHERE name = 'Backend Developer';
@@ -473,6 +495,7 @@ BEGIN
   SELECT id INTO step6_id FROM public.roadmap_steps WHERE role_id = backend_role_id AND order_number = 6;
   SELECT id INTO step7_id FROM public.roadmap_steps WHERE role_id = backend_role_id AND order_number = 7;
   SELECT id INTO step8_id FROM public.roadmap_steps WHERE role_id = backend_role_id AND order_number = 8;
+  SELECT id INTO step9_id FROM public.roadmap_steps WHERE role_id = backend_role_id AND order_number = 9;
 
   -- Step 1: Podstawy programowania (4 tasks)
   INSERT INTO public.step_tasks (step_id, order_number, title, description, estimated_hours) VALUES
@@ -526,6 +549,12 @@ BEGIN
   (step8_id, 2, 'Deployment', 'Wdróż projekty na Railway/Render/AWS. Skonfiguruj zmienne środowiskowe, bazy produkcyjne.', 6),
   (step8_id, 3, 'CV i GitHub', 'Przygotuj CV backendowca. Dopracuj GitHub: README, dokumentacja API, czysta historia commitów.', 4);
 
+  -- Step 9: Praca z AI (3 tasks)
+  INSERT INTO public.step_tasks (step_id, order_number, title, description, estimated_hours) VALUES
+  (step9_id, 1, 'Prompt engineering dla API i kodu', 'Naucz się pisać prompty pod backend: kontekst projektu, specyfikacja endpointów, wzorce. Generuj kod API, testy i dokumentację.', 5),
+  (step9_id, 2, 'Praca z Cursor i GitHub Copilot', 'Zainstaluj Cursor lub GitHub Copilot. Opanuj AI autocomplete, generowanie funkcji i refaktoryzację. Przyspiesz pisanie serwisów i testów.', 5),
+  (step9_id, 3, 'AI do debugowania i code review', 'Używaj ChatGPT/Claude do analizy błędów, wyjaśnień stack trace i sugestii poprawy. Wykorzystaj AI do code review i optymalizacji zapytań.', 4);
+
   RAISE NOTICE 'Successfully inserted tasks for Backend Developer steps';
 END $$;
 
@@ -547,7 +576,8 @@ BEGIN
   (devops_role_id, 5, 'Chmura (AWS/Azure/GCP)', 'Poznaj podstawy wybranej chmury: compute, storage, networking, IAM. Wdróż aplikację w chmurze. Zrozum model odpowiedzialności.'),
   (devops_role_id, 6, 'Infrastructure as Code', 'Opanuj Terraform lub Pulumi. Definiuj infrastrukturę jako kod. Zarządzaj stanem, modułami. IaC to reproducibility i version control dla infry.'),
   (devops_role_id, 7, 'Monitoring i observability', 'Skonfiguruj monitoring (Prometheus, Grafana) i logging (ELK/Loki). Ustaw alerty. Zrozum metryki, logi, traces.'),
-  (devops_role_id, 8, 'Portfolio i certyfikacje', 'Zbuduj projekty DevOps, udokumentuj na GitHub. Rozważ certyfikację (AWS SAA, CKA). Przygotuj się do rozmów.');
+  (devops_role_id, 8, 'Portfolio i certyfikacje', 'Zbuduj projekty DevOps, udokumentuj na GitHub. Rozważ certyfikację (AWS SAA, CKA). Przygotuj się do rozmów.'),
+  (devops_role_id, 9, 'Praca z AI w DevOps', 'Opanuj AI w DevOps: prompt engineering dla infrastruktury i skryptów, Cursor i AI w terminalu, AI do analizy logów, dokumentacji i automatyzacji. AI nie zastąpi inżyniera, ale znacząco przyspieszy codzienne zadania.');
 END $$;
 
 -- ============================================================================
@@ -564,6 +594,7 @@ DECLARE
   step6_id integer;
   step7_id integer;
   step8_id integer;
+  step9_id integer;
   devops_role_id integer;
 BEGIN
   SELECT id INTO devops_role_id FROM public.roles WHERE name = 'DevOps Engineer';
@@ -576,6 +607,7 @@ BEGIN
   SELECT id INTO step6_id FROM public.roadmap_steps WHERE role_id = devops_role_id AND order_number = 6;
   SELECT id INTO step7_id FROM public.roadmap_steps WHERE role_id = devops_role_id AND order_number = 7;
   SELECT id INTO step8_id FROM public.roadmap_steps WHERE role_id = devops_role_id AND order_number = 8;
+  SELECT id INTO step9_id FROM public.roadmap_steps WHERE role_id = devops_role_id AND order_number = 9;
 
   -- Step 1: Linux (4 tasks)
   INSERT INTO public.step_tasks (step_id, order_number, title, description, estimated_hours) VALUES
@@ -629,6 +661,12 @@ BEGIN
   (step8_id, 2, 'Certyfikacja', 'Przygotuj się do AWS SAA lub CKA. Przerabiaj materiały, rozwiązuj practice exams.', 20),
   (step8_id, 3, 'CV i rozmowy', 'Przygotuj CV DevOps. Poznaj typowe pytania rekrutacyjne. Przećwicz whiteboard scenarios.', 5);
 
+  -- Step 9: Praca z AI w DevOps (3 tasks)
+  INSERT INTO public.step_tasks (step_id, order_number, title, description, estimated_hours) VALUES
+  (step9_id, 1, 'Prompt engineering dla infrastruktury i skryptów', 'Naucz się pisać prompty pod DevOps: Terraform, Dockerfile, skrypty Bash/YAML. Generuj konfiguracje, dokumentację i playbooki.', 5),
+  (step9_id, 2, 'Praca z Cursor i AI w terminalu', 'Zainstaluj Cursor. Opanuj AI do pisania skryptów, pipeline YAML i komend. Używaj AI do analizy logów i troubleshootingu.', 5),
+  (step9_id, 3, 'AI do analizy logów i dokumentacji', 'Wykorzystaj ChatGPT/Claude do analizy stack trace, logów błędów i dokumentacji. Generuj runbooki i opisy incydentów.', 4);
+
   RAISE NOTICE 'Successfully inserted tasks for DevOps Engineer steps';
 END $$;
 
@@ -650,7 +688,8 @@ BEGIN
   (data_role_id, 5, 'Statystyka i analiza', 'Poznaj podstawy statystyki: rozkłady, testy hipotez, korelacje, regresja. Statystyka to fundament świadomej analizy.'),
   (data_role_id, 6, 'ETL i data pipelines', 'Naucz się procesować dane: ekstrakcja, transformacja, ładowanie. Poznaj podstawy data engineering i automatyzacji.'),
   (data_role_id, 7, 'Business Intelligence', 'Zrozum metryki biznesowe, KPI, reporting. Naucz się komunikować wyniki do stakeholderów. Łącz dane z biznesem.'),
-  (data_role_id, 8, 'Portfolio i kariera', 'Zbuduj portfolio projektów analitycznych. Opublikuj na GitHub/Kaggle. Przygotuj CV i profil LinkedIn.');
+  (data_role_id, 8, 'Portfolio i kariera', 'Zbuduj portfolio projektów analitycznych. Opublikuj na GitHub/Kaggle. Przygotuj CV i profil LinkedIn.'),
+  (data_role_id, 9, 'Praca z AI w analizie danych', 'Opanuj AI w analizie: prompt engineering dla danych i raportów, ChatGPT/Copilot do eksploracji i SQL, narzędzia AI do wizualizacji i data storytelling. AI nie zastąpi analityka, ale znacząco przyspieszy pracę z danymi.');
 END $$;
 
 -- ============================================================================
@@ -667,6 +706,7 @@ DECLARE
   step6_id integer;
   step7_id integer;
   step8_id integer;
+  step9_id integer;
   data_role_id integer;
 BEGIN
   SELECT id INTO data_role_id FROM public.roles WHERE name = 'Data Analyst';
@@ -679,6 +719,7 @@ BEGIN
   SELECT id INTO step6_id FROM public.roadmap_steps WHERE role_id = data_role_id AND order_number = 6;
   SELECT id INTO step7_id FROM public.roadmap_steps WHERE role_id = data_role_id AND order_number = 7;
   SELECT id INTO step8_id FROM public.roadmap_steps WHERE role_id = data_role_id AND order_number = 8;
+  SELECT id INTO step9_id FROM public.roadmap_steps WHERE role_id = data_role_id AND order_number = 9;
 
   -- Step 1: Excel (4 tasks)
   INSERT INTO public.step_tasks (step_id, order_number, title, description, estimated_hours) VALUES
@@ -732,6 +773,12 @@ BEGIN
   (step8_id, 2, 'GitHub i Kaggle', 'Opublikuj projekty na GitHub z README. Weź udział w konkursie Kaggle.', 6),
   (step8_id, 3, 'CV i LinkedIn', 'Przygotuj CV analityka. Zaktualizuj LinkedIn z projektami. Napisz o swoich umiejętnościach.', 4);
 
+  -- Step 9: Praca z AI w analizie danych (3 tasks)
+  INSERT INTO public.step_tasks (step_id, order_number, title, description, estimated_hours) VALUES
+  (step9_id, 1, 'Prompt engineering dla danych i raportów', 'Naucz się pisać prompty pod analizę: kontekst biznesowy, wymagania raportu, format wyników. Generuj opisy, wnioski i rekomendacje.', 5),
+  (step9_id, 2, 'ChatGPT/Copilot do eksploracji i SQL', 'Używaj AI do generowania zapytań SQL, eksploracji danych i wyjaśnień metryk. Opanuj Copilot w Excelu/Notebookach do szybszej analizy.', 5),
+  (step9_id, 3, 'Narzędzia AI do wizualizacji i storytellingu', 'Wykorzystaj AI do sugestii wykresów, opisu insightów i data storytelling. Integruj AI w codzienny workflow raportowania.', 4);
+
   RAISE NOTICE 'Successfully inserted tasks for Data Analyst steps';
 END $$;
 
@@ -753,7 +800,8 @@ BEGIN
   (pm_role_id, 5, 'Komunikacja i stakeholder management', 'Rozwiń umiejętności prowadzenia spotkań, prezentacji i raportowania. Zarządzaj oczekiwaniami i buduj relacje ze stakeholderami.'),
   (pm_role_id, 6, 'Zarządzanie ryzykiem', 'Identyfikuj, oceniaj i mitiguj ryzyka. Prowadź rejestr ryzyk. Opanuj eskalację i rozwiązywanie konfliktów w zespole.'),
   (pm_role_id, 7, 'Metryki i continuous improvement', 'Poznaj velocity, burndown charts, lead time, cycle time. Prowadź retrospektywy i wdrażaj usprawnienia procesów.'),
-  (pm_role_id, 8, 'Certyfikacje i kariera', 'Przygotuj się do PSM I lub PMI-ACP. Zbuduj portfolio projektów. Przygotuj CV i profil LinkedIn jako PM.');
+  (pm_role_id, 8, 'Certyfikacje i kariera', 'Przygotuj się do PSM I lub PMI-ACP. Zbuduj portfolio projektów. Przygotuj CV i profil LinkedIn jako PM.'),
+  (pm_role_id, 9, 'Praca z AI w zarządzaniu projektami', 'Opanuj AI w pracy PM: prompt engineering do raportów i stand-upów, AI do backlogu i planowania, narzędzia AI do komunikacji i dokumentacji. AI nie zastąpi project managera, ale znacząco przyspieszy administrację i reporting.');
 END $$;
 
 -- ============================================================================
@@ -770,6 +818,7 @@ DECLARE
   step6_id integer;
   step7_id integer;
   step8_id integer;
+  step9_id integer;
   pm_role_id integer;
 BEGIN
   SELECT id INTO pm_role_id FROM public.roles WHERE name = 'Project Manager';
@@ -782,6 +831,7 @@ BEGIN
   SELECT id INTO step6_id FROM public.roadmap_steps WHERE role_id = pm_role_id AND order_number = 6;
   SELECT id INTO step7_id FROM public.roadmap_steps WHERE role_id = pm_role_id AND order_number = 7;
   SELECT id INTO step8_id FROM public.roadmap_steps WHERE role_id = pm_role_id AND order_number = 8;
+  SELECT id INTO step9_id FROM public.roadmap_steps WHERE role_id = pm_role_id AND order_number = 9;
 
   -- Step 1: Podstawy PM (4 tasks)
   INSERT INTO public.step_tasks (step_id, order_number, title, description, estimated_hours) VALUES
@@ -834,6 +884,12 @@ BEGIN
   (step8_id, 1, 'Przygotowanie do PSM I', 'Przerabiaj materiały Scrum.org. Rozwiązuj practice exams. Zrozum Scrum Guide dogłębnie.', 15),
   (step8_id, 2, 'Portfolio PM', 'Udokumentuj projekty, które prowadziłeś. Opisz swoje role, decyzje, wyniki.', 6),
   (step8_id, 3, 'CV i LinkedIn PM', 'Przygotuj CV Project Managera. Zaktualizuj LinkedIn. Podkreśl umiejętności miękkie i twarde.', 4);
+
+  -- Step 9: Praca z AI w zarządzaniu projektami (3 tasks)
+  INSERT INTO public.step_tasks (step_id, order_number, title, description, estimated_hours) VALUES
+  (step9_id, 1, 'Prompt engineering dla PM', 'Naucz się pisać prompty pod raporty, stand-upy i dokumentację: kontekst projektu, format, odbiorca. Generuj status updates i executive summary.', 5),
+  (step9_id, 2, 'AI do raportów i stand-upów', 'Używaj ChatGPT/Claude do draftów raportów, podsumowań spotkań i action items. Automatyzuj powtarzalne treści bez gubienia kontekstu.', 5),
+  (step9_id, 3, 'Narzędzia AI do backlogu i planowania', 'Poznaj AI w Jira/Notion do priorytetyzacji, rozbijania user stories i szacowania. Wykorzystaj AI do komunikacji z zespołem i stakeholderami.', 4);
 
   RAISE NOTICE 'Successfully inserted tasks for Project Manager steps';
 END $$;

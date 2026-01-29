@@ -26,7 +26,9 @@ export const recommendationApi = {
    * @returns Promise<GenerateRecommendationResponse>
    * @throws Error with specific error codes
    */
-  async generateRecommendation(userId: string): Promise<GenerateRecommendationResponse> {
+  async generateRecommendation(
+    userId: string
+  ): Promise<GenerateRecommendationResponse> {
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
     const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
@@ -36,6 +38,7 @@ export const recommendationApi = {
         method: 'POST',
         headers: {
           apikey: supabaseAnonKey,
+          Authorization: `Bearer ${supabaseAnonKey}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ user_id: userId }),
@@ -87,11 +90,20 @@ export const recommendationApi = {
       throw new Error(profileError.message);
     }
 
-    const responses = profile.questionnaire_responses as Record<string, unknown> | null;
-    const requiredFields = ['work_style', 'client_interaction', 'aesthetic_focus', 'teamwork_preference', 'problem_solving_approach'];
-    
+    const responses = profile.questionnaire_responses as Record<
+      string,
+      unknown
+    > | null;
+    const requiredFields = [
+      'work_style',
+      'client_interaction',
+      'aesthetic_focus',
+      'teamwork_preference',
+      'problem_solving_approach',
+    ];
+
     const questionnaireCompleted = requiredFields.every(
-      field => responses && responses[field]
+      (field) => responses && responses[field]
     );
 
     const cvUploaded = !!profile.cv_uploaded_at;
@@ -109,7 +121,9 @@ export const recommendationApi = {
    * Get existing recommendations from profile
    * @param userId - UUID of the user
    */
-  async getRecommendations(userId: string): Promise<AIRecommendationsDTO | null> {
+  async getRecommendations(
+    userId: string
+  ): Promise<AIRecommendationsDTO | null> {
     const { data: profile, error: profileError } = await supabaseClient
       .from('profiles')
       .select('ai_recommendations')

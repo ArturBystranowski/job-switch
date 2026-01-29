@@ -45,6 +45,7 @@ export const loginButtonSx: SxProps<Theme> = {
 };
 
 export const registerButtonSx: SxProps<Theme> = {
+  display: { xs: 'none', md: 'block' },
   borderRadius: '0.5rem',
   textTransform: 'none',
   fontWeight: 600,

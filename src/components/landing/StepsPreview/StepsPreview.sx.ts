@@ -13,6 +13,7 @@ export const gridContainerSx: SxProps<Theme> = {
 export const stepCardSx: SxProps<Theme> = {
   padding: '1rem',
   height: '100%',
+  width: '100%',
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',

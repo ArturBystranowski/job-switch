@@ -36,7 +36,9 @@ export const RoadmapNode = ({
     }
   };
 
-  const completedTasksCount = tasks.filter((t) => completedTaskIds.includes(t.id)).length;
+  const completedTasksCount = tasks.filter((t) =>
+    completedTaskIds.includes(t.id)
+  ).length;
   const totalTasksCount = tasks.length;
 
   const renderNodeIcon = () => {
@@ -47,14 +49,16 @@ export const RoadmapNode = ({
       return <LockIcon sx={{ fontSize: { xs: '1rem', md: '1.25rem' } }} />;
     }
     return (
-      <Typography sx={{ fontSize: { xs: '0.875rem', md: '1rem' }, fontWeight: 600 }}>
+      <Typography
+        sx={{ fontSize: { xs: '0.875rem', md: '1rem' }, fontWeight: 600 }}
+      >
         {stepNumber}
       </Typography>
     );
   };
 
   return (
-    <Box sx={nodeContainerSx}>
+    <Box sx={nodeContainerSx} data-testid={`roadmap-step-${stepNumber}`}>
       <Box sx={timelineConnectorSx}>
         <Box sx={getNodeCircleSx(status)} onClick={handleNodeClick}>
           {renderNodeIcon()}
@@ -67,21 +71,27 @@ export const RoadmapNode = ({
           sx={getNodeCardSx(isSelected, status)}
           onClick={handleNodeClick}
         >
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem' }}>
-              <Typography sx={nodeTitleSx}>{title}</Typography>
-             
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'flex-start',
+              gap: '0.5rem',
+            }}
+          >
+            <Typography sx={nodeTitleSx}>{title}</Typography>
+
             {status !== 'locked' && totalTasksCount > 0 && (
               <Chip
                 label={`${completedTasksCount} z ${totalTasksCount} ukończonych`}
-                size="small"
+                size='small'
                 sx={getTaskProgressSx(status === 'completed')}
               />
             )}
-            </Box>
-            <Box sx={{ flex: 1, minWidth: 0, my:'1rem'}}>
-             <Typography sx={nodeDescriptionSx}>{description}</Typography>
-            </Box>
-      
+          </Box>
+          <Box sx={{ flex: 1, minWidth: 0, my: '1rem' }}>
+            <Typography sx={nodeDescriptionSx}>{description}</Typography>
+          </Box>
         </Paper>
       </Box>
     </Box>

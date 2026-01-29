@@ -15,6 +15,7 @@ export const PasswordField = ({
   disabled = false,
   autoComplete = 'current-password',
   placeholder,
+  'data-testid': dataTestId,
 }: PasswordFieldProps) => {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -40,14 +41,15 @@ export const PasswordField = ({
       autoComplete={autoComplete}
       placeholder={placeholder}
       sx={textFieldSx}
+      inputProps={{ 'data-testid': dataTestId }}
       InputProps={{
         endAdornment: (
-          <InputAdornment position="end">
+          <InputAdornment position='end'>
             <IconButton
               aria-label={showPassword ? 'Ukryj hasło' : 'Pokaż hasło'}
               onClick={handleToggleVisibility}
               onMouseDown={handleMouseDown}
-              edge="end"
+              edge='end'
               disabled={disabled}
               sx={iconButtonSx}
             >

@@ -1,4 +1,14 @@
-import { Box, Stepper, Step, StepLabel, MobileStepper, Typography, useMediaQuery, useTheme, StepIconProps } from '@mui/material';
+import {
+  Box,
+  Stepper,
+  Step,
+  StepLabel,
+  MobileStepper,
+  Typography,
+  useMediaQuery,
+  useTheme,
+  StepIconProps,
+} from '@mui/material';
 import CheckIcon from '@mui/icons-material/Check';
 import AddIcon from '@mui/icons-material/Add';
 import {
@@ -20,7 +30,12 @@ interface CustomStepIconProps extends StepIconProps {
   isOpenQuestion: boolean;
 }
 
-const CustomStepIcon = ({ active, completed, stepNumber, isOpenQuestion }: CustomStepIconProps) => {
+const CustomStepIcon = ({
+  active,
+  completed,
+  stepNumber,
+  isOpenQuestion,
+}: CustomStepIconProps) => {
   if (isOpenQuestion) {
     const iconSx = completed
       ? openQuestionIconCompletedSx
@@ -30,7 +45,11 @@ const CustomStepIcon = ({ active, completed, stepNumber, isOpenQuestion }: Custo
 
     return (
       <Box sx={iconSx}>
-        {completed ? <CheckIcon sx={{ fontSize: '0.875rem' }} /> : <AddIcon sx={{ fontSize: '1rem' }} />}
+        {completed ? (
+          <CheckIcon sx={{ fontSize: '0.875rem' }} />
+        ) : (
+          <AddIcon sx={{ fontSize: '1rem' }} />
+        )}
       </Box>
     );
   }
@@ -67,14 +86,12 @@ export const QuestionnaireStepper = ({
 
   if (isMobile) {
     return (
-      <Box sx={stepperContainerSx}>
-        <Typography sx={progressTextSx}>
-          {getProgressText()}
-        </Typography>
+      <Box sx={stepperContainerSx} data-testid='questionnaire-stepper'>
+        <Typography sx={progressTextSx}>{getProgressText()}</Typography>
         <MobileStepper
-          variant="dots"
+          variant='dots'
           steps={totalSteps}
-          position="static"
+          position='static'
           activeStep={activeStep}
           sx={mobileStepperSx}
           backButton={null}
@@ -85,10 +102,8 @@ export const QuestionnaireStepper = ({
   }
 
   return (
-    <Box sx={stepperContainerSx}>
-      <Typography sx={progressTextSx}>
-        {getProgressText()}
-      </Typography>
+    <Box sx={stepperContainerSx} data-testid='questionnaire-stepper'>
+      <Typography sx={progressTextSx}>{getProgressText()}</Typography>
       <Stepper activeStep={activeStep} sx={getStepperSx()}>
         {Array.from({ length: totalSteps }, (_, index) => (
           <Step key={index}>

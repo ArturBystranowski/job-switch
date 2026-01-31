@@ -41,8 +41,9 @@ export const descriptionBoxSx: SxProps<Theme> = {
 };
 
 export const avatarSx: SxProps<Theme> = {
-  width: '200px',
-  height: '200px',padding: '1rem',
+  width: { xs: '120px', sm: '150px', md: '200px' },
+  height: { xs: '120px', sm: '150px', md: '200px' },
+  padding: '1rem',
   backgroundColor: 'grey.100',
   color: 'grey.400',
   float: 'right',

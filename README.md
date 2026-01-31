@@ -24,7 +24,7 @@ AI-powered assistant helping people switch into IT by generating the best-matchi
 ## 2. Project description
 
 JobSwitch is a web application that analyzes a user's CV together with a short preference form and then generates **two IT roles that best match the user**, each with a **concise, structured justification**.  
-After choosing one of the roles, the user receives a **10-step learning roadmap**, where each step can have up to **3 alternative variants**, allowing for different ways of achieving the same outcome.
+After choosing one of the roles, the user receives a **10-step learning roadmap**, where each step contains **specific tasks** to complete, providing clear and actionable guidance.
 
 The main goals of the product are:
 
@@ -168,10 +168,10 @@ The MVP scope is defined in `.ai/prd.md`. Key functional areas include:
 - **Role selection and roadmap**
   - User chooses **one** role (confirmed via a popup, no change possible afterwards).
   - Rendering of a **10-step roadmap** for the selected role.
-  - Each step has up to **3 variants**, displayed in a tree-like structure with inactive variants visually muted.
+  - Each step contains **specific tasks** to complete, providing clear and actionable guidance.
 
 - **Progress tracking**
-  - Marking steps or variants as completed.
+  - Marking steps or tasks as completed.
   - Automatic progress calculation (e.g. progress bar).
   - Persisting user progress on the backend so that it is available after logout/login.
 

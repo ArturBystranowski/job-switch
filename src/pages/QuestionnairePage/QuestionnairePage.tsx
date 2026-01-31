@@ -1,10 +1,14 @@
-import { useState, useCallback, useMemo, useEffect } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { Box, Container } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useQuestionnaireConfig } from '../../hooks/useQuestionnaire';
 import { useUpdateQuestionnaire, useProfileById } from '../../hooks/useProfile';
 import { useAuth } from '../../hooks';
-import { QuestionnaireStepper, QuestionCard, OpenQuestionCard } from '../../components/questionnaire';
+import {
+  QuestionnaireStepper,
+  QuestionCard,
+  OpenQuestionCard,
+} from '../../components/questionnaire';
 import { LoadingSpinner, ErrorAlert } from '../../components/common';
 import type { QuestionnaireResponsesDTO } from '../../types';
 import {
@@ -25,18 +29,32 @@ export const QuestionnairePage = () => {
   const { user } = useAuth();
   const userId = user?.id ?? '';
   const [activeStep, setActiveStep] = useState(0);
-  const [responses, setResponses] = useState<Partial<QuestionnaireResponsesDTO>>({});
+  const [responses, setResponses] = useState<
+    Partial<QuestionnaireResponsesDTO>
+  >({});
+  const [initializedFromProfile, setInitializedFromProfile] = useState(false);
 
-  const { data: config, isPending: isConfigPending, isError, error, refetch } = useQuestionnaireConfig();
+  const {
+    data: config,
+    isPending: isConfigPending,
+    isError,
+    error,
+    refetch,
+  } = useQuestionnaireConfig();
   const { data: profile, isPending: isProfilePending } = useProfileById(userId);
   const updateQuestionnaire = useUpdateQuestionnaire();
 
-  // Initialize responses from saved profile data
-  useEffect(() => {
-    if (profile?.questionnaire_responses && Object.keys(profile.questionnaire_responses).length > 0) {
-      setResponses(profile.questionnaire_responses as Partial<QuestionnaireResponsesDTO>);
-    }
-  }, [profile]);
+  // Initialize responses from saved profile data during render (React 18+ pattern)
+  if (
+    !initializedFromProfile &&
+    profile?.questionnaire_responses &&
+    Object.keys(profile.questionnaire_responses).length > 0
+  ) {
+    setInitializedFromProfile(true);
+    setResponses(
+      profile.questionnaire_responses as Partial<QuestionnaireResponsesDTO>
+    );
+  }
 
   const isPending = isConfigPending || isProfilePending;
 
@@ -49,13 +67,16 @@ export const QuestionnairePage = () => {
     return config[activeStep];
   }, [config, activeStep, isOpenQuestionStep]);
 
-  const handleSelect = useCallback((value: string) => {
-    if (!currentQuestion) return;
-    setResponses((prev) => ({
-      ...prev,
-      [currentQuestion.field_name]: value,
-    }));
-  }, [currentQuestion]);
+  const handleSelect = useCallback(
+    (value: string) => {
+      if (!currentQuestion) return;
+      setResponses((prev) => ({
+        ...prev,
+        [currentQuestion.field_name]: value,
+      }));
+    },
+    [currentQuestion]
+  );
 
   const handleOpenAnswerChange = useCallback((value: string) => {
     setResponses((prev) => ({
@@ -91,7 +112,7 @@ export const QuestionnairePage = () => {
   if (isPending) {
     return (
       <Box sx={pageContainerSx}>
-        <LoadingSpinner message="Ładowanie pytań..." fullScreen />
+        <LoadingSpinner message='Ładowanie pytań...' fullScreen />
       </Box>
     );
   }
@@ -101,7 +122,7 @@ export const QuestionnairePage = () => {
       <Box sx={pageContainerSx}>
         <Box sx={errorContainerSx}>
           <ErrorAlert
-            title="Błąd ładowania"
+            title='Błąd ładowania'
             message={error?.message ?? 'Nie udało się załadować pytań'}
             onRetry={() => refetch()}
           />
@@ -115,8 +136,8 @@ export const QuestionnairePage = () => {
       <Box sx={pageContainerSx}>
         <Box sx={errorContainerSx}>
           <ErrorAlert
-            title="Brak danych"
-            message="Nie znaleziono pytań kwestionariusza"
+            title='Brak danych'
+            message='Nie znaleziono pytań kwestionariusza'
           />
         </Box>
       </Box>
@@ -127,7 +148,7 @@ export const QuestionnairePage = () => {
   if (isOpenQuestionStep) {
     return (
       <Box sx={pageContainerSx}>
-        <Container maxWidth="md" sx={contentContainerSx}>
+        <Container maxWidth='md' sx={contentContainerSx}>
           <Box sx={stepperWrapperSx}>
             <QuestionnaireStepper
               activeStep={activeStep}
@@ -155,17 +176,15 @@ export const QuestionnairePage = () => {
     return (
       <Box sx={pageContainerSx}>
         <Box sx={errorContainerSx}>
-          <ErrorAlert
-            title="Brak danych"
-            message="Nie znaleziono pytania"
-          />
+          <ErrorAlert title='Brak danych' message='Nie znaleziono pytania' />
         </Box>
       </Box>
     );
   }
 
   const currentFieldName = currentQuestion.field_name as FieldName;
-  const currentValue = responses[currentFieldName] as string | undefined ?? null;
+  const currentValue =
+    (responses[currentFieldName] as string | undefined) ?? null;
 
   const options = currentQuestion.options.map((opt) => ({
     value: opt.option_value,
@@ -174,7 +193,7 @@ export const QuestionnairePage = () => {
 
   return (
     <Box sx={pageContainerSx}>
-      <Container maxWidth="md" sx={contentContainerSx}>
+      <Container maxWidth='md' sx={contentContainerSx}>
         <Box sx={stepperWrapperSx}>
           <QuestionnaireStepper
             activeStep={activeStep}

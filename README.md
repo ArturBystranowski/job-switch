@@ -42,41 +42,41 @@ The project is implemented as a modern TypeScript + React application with a bac
 
 From `.ai/tech-stack.md` and `package.json`:
 
-| Technology            | Role / Usage                                                                                     |
-| --------------------- | ------------------------------------------------------------------------------------------------ |
-| **React 19**          | Building interactive views and components.                                                       |
-| **Vite**              | Dev server and bundler with fast HMR and optimized production builds.                           |
-| **TypeScript 5**      | Static typing for safer, more maintainable frontend code.                                       |
-| **Material UI (MUI)** | Primary UI component library, theming and responsive layout.                                    |
-| **ESLint + Prettier** | Linting and formatting for consistent code style.                                               |
+| Technology            | Role / Usage                                                          |
+| --------------------- | --------------------------------------------------------------------- |
+| **React 19**          | Building interactive views and components.                            |
+| **Vite**              | Dev server and bundler with fast HMR and optimized production builds. |
+| **TypeScript 5**      | Static typing for safer, more maintainable frontend code.             |
+| **Material UI (MUI)** | Primary UI component library, theming and responsive layout.          |
+| **ESLint + Prettier** | Linting and formatting for consistent code style.                     |
 
 ### 3.2 Backend / Data layer
 
 From `.ai/tech-stack.md`:
 
-| Technology                  | Role / Usage                                                                                  |
-| --------------------------- | ---------------------------------------------------------------------------------------------- |
-| **Supabase (PostgreSQL)**   | Primary database for users, profiles, recommendations and roadmap progress.                   |
-| **Supabase Auth**           | Authentication (email + password, JWT-based access).                                          |
-| **Supabase Storage**        | Secure storage of uploaded CV files (PDF/DOCX, max 1 MB).                                     |
-| **Supabase Edge Functions** | Server-side logic for AI orchestration and secure communication with OpenRouter.             |
+| Technology                  | Role / Usage                                                                     |
+| --------------------------- | -------------------------------------------------------------------------------- |
+| **Supabase (PostgreSQL)**   | Primary database for users, profiles, recommendations and roadmap progress.      |
+| **Supabase Auth**           | Authentication (email + password, JWT-based access).                             |
+| **Supabase Storage**        | Secure storage of uploaded CV files (PDF/DOCX, max 1 MB).                        |
+| **Supabase Edge Functions** | Server-side logic for AI orchestration and secure communication with OpenRouter. |
 
 ### 3.3 AI / Recommendation engine
 
-| Technology             | Role / Usage                                                                                   |
-| ---------------------- | ----------------------------------------------------------------------------------------------- |
-| **OpenRouter.ai**      | Access to LLM models used for generating roles, justifications and learning roadmaps.          |
-| **Supabase Functions** | Intermediate layer that validates input, calls OpenRouter and returns normalized responses.    |
+| Technology             | Role / Usage                                                                                |
+| ---------------------- | ------------------------------------------------------------------------------------------- |
+| **OpenRouter.ai**      | Access to LLM models used for generating roles, justifications and learning roadmaps.       |
+| **Supabase Functions** | Intermediate layer that validates input, calls OpenRouter and returns normalized responses. |
 
 ### 3.4 CI/CD, hosting and testing
 
-| Technology                  | Role / Usage                                                                              |
+| Technology                  | Role / Usage                                                                               |
 | --------------------------- | ------------------------------------------------------------------------------------------ |
-| **GitHub Actions**          | CI/CD pipelines for build and tests (planned as part of MVP).                             |
-| **DigitalOcean**            | Target hosting platform for the production environment (React app + Edge Functions).      |
-| **Vitest**                  | Unit tests for core logic and components.                                                 |
-| **React Testing Library**   | Testing user interactions and rendering of React components.                              |
-| **1 E2E test (Playwright)** | Minimal end-to-end test for the main user journey (MVP requirement).                      |
+| **GitHub Actions**          | CI/CD pipelines for build and tests (planned as part of MVP).                              |
+| **Netlify**                 | Target hosting platform for the production environment (React app + serverless functions). |
+| **Vitest**                  | Unit tests for core logic and components.                                                  |
+| **React Testing Library**   | Testing user interactions and rendering of React components.                               |
+| **1 E2E test (Playwright)** | Minimal end-to-end test for the main user journey (MVP requirement).                       |
 
 For a more visual overview of the architecture, see `.ai/tech-stack.md`.
 
@@ -205,16 +205,14 @@ Planned high-level milestones (non-exhaustive):
 
 - [x] Define product requirements and tech stack (`.ai/prd.md`, `.ai/tech-stack.md`).
 - [x] Set up React + TypeScript + Vite + MUI frontend scaffold.
-- [ ] Implement Supabase Auth, DB schema and Storage for CVs.
-- [ ] Implement Supabase Edge Functions for AI integration via OpenRouter.
-- [ ] Implement main user flow: registration → form → CV upload → role recommendations → roadmap.
-- [ ] Add unit tests (Vitest + React Testing Library) and at least one E2E test.
-- [ ] Configure CI/CD (GitHub Actions + DigitalOcean deployment).
+- [x] Implement Supabase Auth, DB schema and Storage for CVs.
+- [x] Implement Supabase Edge Functions for AI integration via OpenRouter.
+- [x] Implement main user flow: registration → form → CV upload → role recommendations → roadmap.
+- [x] Add unit tests (Vitest + React Testing Library) and at least one E2E test.
+- [x] Configure CI/CD (GitHub Actions + Netlify deployment).
 
 This checklist is indicative and may evolve as the MVP is refined.
 
 ## 8. License
 
 This project is licensed under the **MIT License**.
-
-

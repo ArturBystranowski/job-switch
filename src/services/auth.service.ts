@@ -8,7 +8,7 @@ export interface AuthResult {
   error?: string;
 }
 
-export const AUTH_ERROR_MESSAGES: Record<string, string> = {
+export const AUTH_ERROR_MESSAGES = {
   // Login errors
   invalid_credentials: 'Nieprawidłowy email lub hasło',
   email_not_confirmed:

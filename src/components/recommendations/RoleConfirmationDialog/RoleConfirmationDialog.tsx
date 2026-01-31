@@ -76,7 +76,11 @@ export const RoleConfirmationDialog = ({
               onChange={handleCheckboxChange}
               disabled={isLoading}
               color='primary'
-              inputProps={{ 'data-testid': 'role-confirm-checkbox' }}
+              inputProps={
+                {
+                  'data-testid': 'role-confirm-checkbox',
+                } as React.InputHTMLAttributes<HTMLInputElement>
+              }
             />
           }
           label={

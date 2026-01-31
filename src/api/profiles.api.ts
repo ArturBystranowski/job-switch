@@ -1,4 +1,5 @@
 import { supabaseClient } from '../db/supabase.client';
+import type { Json } from '../types/database.types';
 import type {
   ProfileDTO,
   ProfileWithRoleDTO,
@@ -69,7 +70,7 @@ export const profilesApi = {
   ): Promise<ProfileDTO> {
     const { data, error } = await supabaseClient
       .from('profiles')
-      .update({ questionnaire_responses: responses })
+      .update({ questionnaire_responses: responses as unknown as Json })
       .eq('id', userId)
       .select()
       .single();
@@ -104,7 +105,8 @@ export const profilesApi = {
     }
 
     const currentResponses =
-      (currentProfile?.questionnaire_responses as PartialQuestionnaireResponsesDTO) ?? {};
+      (currentProfile?.questionnaire_responses as PartialQuestionnaireResponsesDTO) ??
+      {};
     const mergedResponses = { ...currentResponses, ...partialResponses };
 
     const { data, error } = await supabaseClient
@@ -141,7 +143,9 @@ export const profilesApi = {
     }
 
     if (currentProfile?.selected_role_id !== null) {
-      throw new Error('ROLE_ALREADY_SELECTED: Role has already been selected and cannot be changed');
+      throw new Error(
+        'ROLE_ALREADY_SELECTED: Role has already been selected and cannot be changed'
+      );
     }
 
     const { data, error } = await supabaseClient

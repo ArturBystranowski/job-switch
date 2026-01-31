@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthFormContainer, ResetPasswordForm } from '../../../components/auth';
 import type { ResetPasswordFormData } from '../../../components/auth';
@@ -10,15 +10,13 @@ export const ResetPasswordPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [isValidSession, setIsValidSession] = useState(true);
 
-  useEffect(() => {
-    // Check if user has valid recovery session (Supabase creates session when clicking recovery link)
-    if (!authLoading && !isAuthenticated) {
-      setIsValidSession(false);
-      setError('Link do resetowania hasła wygasł lub jest nieprawidłowy. Poproś o nowy link.');
-    }
-  }, [authLoading, isAuthenticated]);
+  // Derive session validity directly from auth state (avoids useEffect setState)
+  const isValidSession = authLoading || isAuthenticated;
+  const sessionError =
+    !authLoading && !isAuthenticated
+      ? 'Link do resetowania hasła wygasł lub jest nieprawidłowy. Poproś o nowy link.'
+      : null;
 
   const handleSubmit = async (data: ResetPasswordFormData) => {
     if (!isAuthenticated) {
@@ -33,7 +31,9 @@ export const ResetPasswordPage = () => {
     const result = await updatePassword(data.password);
 
     if (result.success) {
-      setSuccessMessage('Hasło zostało zmienione. Za chwilę zostaniesz przekierowany do logowania.');
+      setSuccessMessage(
+        'Hasło zostało zmienione. Za chwilę zostaniesz przekierowany do logowania.'
+      );
       setTimeout(() => {
         navigate('/login');
       }, 2000);
@@ -49,11 +49,11 @@ export const ResetPasswordPage = () => {
   }
 
   return (
-    <AuthFormContainer title="Ustaw nowe hasło">
+    <AuthFormContainer title='Ustaw nowe hasło'>
       <ResetPasswordForm
         onSubmit={handleSubmit}
         isLoading={isLoading}
-        error={error}
+        error={error ?? sessionError}
         successMessage={successMessage}
         disabled={!isValidSession}
       />

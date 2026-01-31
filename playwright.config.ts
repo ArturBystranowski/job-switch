@@ -1,8 +1,12 @@
 import { defineConfig, devices } from '@playwright/test';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import { config as loadEnv } from 'dotenv';
 
-loadEnv({ path: path.resolve(process.cwd(), '.env.test') });
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+loadEnv({ path: path.resolve(__dirname, '.env.test'), override: true });
 
 const baseURL = process.env.E2E_BASE_URL ?? 'http://localhost:3000';
 

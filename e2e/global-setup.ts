@@ -1,7 +1,12 @@
 import path from 'path';
+import { fileURLToPath } from 'url';
 import { config as loadEnv } from 'dotenv';
 
-loadEnv({ path: path.resolve(process.cwd(), '.env.test') });
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const envPath = path.resolve(__dirname, '..', '.env.test');
+
+loadEnv({ path: envPath, override: true });
 
 async function globalSetup() {
   console.log('🚀 Starting E2E test setup...');

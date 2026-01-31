@@ -14,6 +14,7 @@ export const RoadmapTree = ({
   const stepsWithStatus = useMemo(() => {
     const isStepCompleted = (stepIndex: number): boolean => {
       const step = steps[stepIndex];
+      if (!step) return false;
       const stepTaskIds = step.step_tasks.map((t) => t.id);
       const completedCount = stepTaskIds.filter((id) =>
         completedTaskIds.includes(id)

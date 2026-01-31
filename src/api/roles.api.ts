@@ -17,7 +17,10 @@ export const rolesApi = {
     let query = supabaseClient.from('roles').select(params?.select ?? '*');
 
     if (params?.order) {
-      const [column, direction] = params.order.split('.') as [string, 'asc' | 'desc'];
+      const [column, direction] = params.order.split('.') as [
+        string,
+        'asc' | 'desc',
+      ];
       query = query.order(column, { ascending: direction === 'asc' });
     }
 
@@ -27,7 +30,7 @@ export const rolesApi = {
       throw new Error(error.message);
     }
 
-    return data as RoleDTO[];
+    return (data ?? []) as unknown as RoleDTO[];
   },
 
   /**
